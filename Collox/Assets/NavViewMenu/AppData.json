@@ -1,0 +1,29 @@
+﻿{
+  "$schema": "https://raw.githubusercontent.com/Ghost1372/DevWinUI/refs/heads/main/AppData.Schema.json",
+  "Groups": [
+    {
+      "UniqueId": "Collox",
+      "Title": "Collox",
+      "ImagePath": "ms-appx:///Assets/AppIcon.png",
+      "IsSpecialSection": false,
+      "ShowItemsWithoutGroup": true,
+      "IsExpanded": false,
+      "Items": [
+        {
+          "UniqueId": "Collox.Views.HomeLandingPage",
+          "Title": "Collox",
+          "Subtitle": "Collox",
+          "ImagePath": "ms-appx:///Assets/AppIcon.png",
+          "HideItem": true
+        },
+        {
+          "UniqueId": "Collox.Views.WritePage",
+          "Title": "Write",
+          "Subtitle": "Write here",
+          "ImagePath": "ms-appx:///Assets/AppIcon.png",
+          "HideItem": true
+        }
+      ]
+    }
+  ]
+}

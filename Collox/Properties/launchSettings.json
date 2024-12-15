@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Collox (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Collox (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
