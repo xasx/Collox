@@ -45,6 +45,9 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>BreadcrumbPageMappings.cs</LastGenOutput>
     </None>
+    <Page Update="Views\TemplatesPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\WritePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -60,6 +63,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Remove="Assets\noti.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Views\TemplatesPage.xaml" />
     <None Remove="Views\WritePage.xaml" />
   </ItemGroup>
   <ItemGroup>
@@ -77,8 +84,8 @@
     <ProjectCapability Include="Msix" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Common" Version="8.3.2" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0-preview3" />
+    <PackageReference Include="CommunityToolkit.Common" Version="8.4.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.241112-preview1" />
     <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.1.240916" />
     <PackageReference Include="CommunityToolkit.WinUI.Collections" Version="8.1.240916" />
@@ -104,6 +111,8 @@
     <PackageReference Include="NLog" Version="5.3.4" />
     <PackageReference Include="nucs.JsonSettings" Version="2.0.2" />
     <PackageReference Include="nucs.JsonSettings.AutoSaveGenerator" Version="2.0.4" />
+    <PackageReference Include="System.Speech" Version="9.0.0" />
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
     <PackageReference Include="WinUIEx" Version="2.5.0" />
   </ItemGroup>
   <!-- 

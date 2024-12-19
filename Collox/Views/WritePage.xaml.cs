@@ -21,6 +21,7 @@ using Windows.UI.Core;
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace Collox.Views;
+
 /// <summary>
 /// An empty page that can be used on its own or navigated to within a Frame.
 /// </summary>
@@ -33,34 +34,45 @@ public sealed partial class WritePage : Page
         WeakReferenceMessenger.Default.Register<TextSubmittedMessage>(this, (s, e) =>
         {
             tbInput.Focus(FocusState.Programmatic);
-            scroller.ChangeView(null, scroller.ScrollableHeight, null);
+            scroller.ScrollTo(0.0, scroller.ViewportHeight,
+                new ScrollingScrollOptions(ScrollingAnimationMode.Disabled));
         });
+       
     }
-    
+
     public WriteViewModel ViewModel => (WriteViewModel)this.DataContext;
 
     private void tbInput_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
     {
-        if ((InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift)
-            == CoreVirtualKeyStates.Down ||
+        if (e.Key == VirtualKey.Enter)
+        {
+            if ((InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift)
+                == CoreVirtualKeyStates.Down ||
             InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.CapitalLock)
-            == CoreVirtualKeyStates.Down) && e.Key == VirtualKey.Enter)
-        {
-            //ViewModel.LastParagraph += Environment.NewLine;
-            //tbInput.Text += Environment.NewLine;
-            //tbInput.Select(tbInput.Text.Length, 0);
-            e.Handled = false;
-            
-        }
-        else if (e.Key == VirtualKey.Enter)
-        {
-            btnSubmit.Command.Execute(null);
-            //This will prevent system from adding new line
-            e.Handled = true;
+                == CoreVirtualKeyStates.Down))
+            {
+                //ViewModel.LastParagraph += Environment.NewLine;
+                //tbInput.Text += Environment.NewLine;
+                //tbInput.Select(tbInput.Text.Length, 0);
+                e.Handled = false;
+            }
+            else
+            {
+                // todo test for empty input and do smth
+                btnSubmit.Command.Execute(null);
+                //This will prevent system from adding new line
+                e.Handled = true;
+            }
         }
         else
+
         {
             e.Handled = false;
         }
+    }
+
+    private void tbInput_Loaded(object sender, RoutedEventArgs e)
+    {
+        tbInput.Focus(FocusState.Programmatic);
     }
 }

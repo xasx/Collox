@@ -26,16 +26,29 @@ internal class StoreService : IStoreService
     {
         return Task.Run(() =>
         {
-            q.Enqueue( timestamp?.ToMdTimestamp());
+            q.Enqueue(timestamp?.ToMdTimestamp());
             q.Enqueue(text.AsMdBq());
 
             if (DateTime.Now - lastSave >= TimeSpan.FromSeconds(30))
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(currentFilename));
-                File.AppendAllLines(currentFilename, q);
-                lastSave = DateTime.Now;
-                q.Clear();
+                Save();
             }
+        });
+    }
+
+    private void Save()
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(currentFilename));
+        File.AppendAllLines(currentFilename, q);
+        lastSave = DateTime.Now;
+        q.Clear();
+    }
+
+    public Task SaveNow()
+    {
+        return Task.Run(() =>
+        {
+            Save();
         });
     }
 }
@@ -54,6 +67,7 @@ public static class Extensions
                 writer.WriteLine(line);
                 
             }
+            writer.WriteLine("<!-- collox.eop -->");
             return writer.ToString();
         }
     }
