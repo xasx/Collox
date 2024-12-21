@@ -1,18 +1,33 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Page
-    x:Class="Collox.Views.TemplatesPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Collox.Views"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ctrls="using:CommunityToolkit.WinUI.Controls"
-    xmlns:uictrls="using:CommunityToolkit.WinUI.UI.Controls"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Page x:Class="Collox.Views.TemplatesPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ctrls="using:CommunityToolkit.WinUI.Controls"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:Collox.Views"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:uictrls="using:CommunityToolkit.WinUI.UI.Controls"
+      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+      mc:Ignorable="d">
+    <Page.Resources>
+        <CommandBarFlyout x:Name="ComBarFly">
+            <AppBarButton Command="{x:Bind ViewModel.DeleteTemplateCommand}"
+                          Icon="Delete"
+                          Label="Delete" />
+            <AppBarButton Command="{x:Bind ViewModel.EditTemplateCommand}"
+                          Icon="Edit"
+                          Label="Edit" />
+            <AppBarButton Command="{x:Bind ViewModel.DuplicateTemplateCommand}"
+                          Icon="Copy"
+                          Label="Duplicate" />
+        </CommandBarFlyout>
+    </Page.Resources>
 
-    <Grid>
+
+    <Grid ColumnSpacing="16"
+          RowSpacing="16">
         <Grid.RowDefinitions>
+            <RowDefinition Height="56" />
             <RowDefinition Height="*" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
@@ -21,19 +36,91 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="0" Grid.Column="0">
+        <InfoBar Title="Name already taken"
+                 Grid.Row="0"
+                 Grid.Column="0"
+                 Grid.ColumnSpan="2"
+                 IsOpen="True"
+                 Message="A template with the same name already exists. Please choose a different name."
+                 Severity="Warning">
+            <InfoBar.ActionButton>
+                <Button Click="AppBarButton_Click"
+                        Content="Edit name" />
+            </InfoBar.ActionButton>
+        </InfoBar>
+
+        <Grid Grid.Row="1"
+              Grid.Column="0"
+              RowSpacing="8">
             <Grid.RowDefinitions>
-                <RowDefinition Height="32" />
+                <RowDefinition Height="48" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="48" />
             </Grid.RowDefinitions>
 
-            
+            <TextBox x:Name="tbName"
+                     Grid.Row="0"
+                     Description="Name"
+                     PlaceholderText="Name of this template"
+                     Text="{x:Bind ViewModel.Name, Mode=TwoWay}" />
+
+
+            <TextBox x:Name="tbContent"
+                     Grid.Row="1"
+                     MinWidth="144"
+                     MinHeight="96"
+                     AcceptsReturn="True"
+                     Description="Content"
+                     PlaceholderText="The content of the template"
+                     Text="{x:Bind ViewModel.Content, Mode=TwoWay}" />
+
+            <StackPanel Grid.Row="2"
+                        Orientation="Horizontal">
+                <Button Command="{x:Bind ViewModel.SaveTemplateCommand}">
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="8">
+                        <SymbolIcon Symbol="Save" />
+                        <TextBlock Text="Save" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
         </Grid>
+        <ScrollViewer Grid.Row="1"
+                      Grid.Column="1">
+            <uictrls:MarkdownTextBlock Text="{x:Bind tbContent.Text, Mode=OneWay}" />
+        </ScrollViewer>
 
-        <uictrls:MarkdownTextBlock Grid.Row="0" Grid.Column="1" Text="" />
 
-        <GridView Grid.Row="1" Grid.ColumnSpan="2" >
-            
+        <GridView Grid.Row="2"
+                  Grid.ColumnSpan="2"
+                  IsItemClickEnabled="True"
+                  ItemClick="GridView_ItemClick"
+                  ItemsSource="{x:Bind ViewModel.Templates}"
+                  SelectedItem="{x:Bind ViewModel.SelectedTemplate, Mode=TwoWay}">
+            <GridView.ItemContainerStyle>
+                <Style BasedOn="{StaticResource DefaultGridViewItemStyle}"
+                       TargetType="GridViewItem">
+                    <Setter Property="Margin" Value="5,5,5,5" />
+                </Style>
+            </GridView.ItemContainerStyle>
+            <GridView.ItemTemplate>
+                <DataTemplate xmlns:vm="using:Collox.ViewModels"
+                              x:DataType="vm:Template">
+                    <StackPanel Width="144"
+                                Height="144"
+                                Margin="4">
+
+                        <uictrls:MarkdownTextBlock Height="112"
+                                                   IsTextSelectionEnabled="False"
+                                                   Text="{x:Bind Content, Mode=OneWay}" />
+                        <TextBlock Height="24"
+                                   Margin="4"
+                                   Text="{x:Bind Name, Mode=OneWay}" />
+                    </StackPanel>
+
+
+                </DataTemplate>
+            </GridView.ItemTemplate>
         </GridView>
     </Grid>
 </Page>

@@ -38,8 +38,10 @@ public partial class App : Application
         services.AddTransient<AboutUsSettingViewModel>();
 
         services.AddTransient<WriteViewModel>();
+        services.AddTransient<TemplatesViewModel>();
 
         services.AddSingleton<IStoreService, StoreService>();
+        services.AddSingleton<ITemplateService, TemplateService>();
 
         return services.BuildServiceProvider();
     }

@@ -13,7 +13,7 @@ public partial class AppConfig : NotifiyingJsonSettings, IVersionable
     public string lastUpdateCheck { get; set; }
 
     public string baseFolder { get; set; }
-        = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Collox");
 
     // Docs: https://github.com/Nucs/JsonSettings
 }

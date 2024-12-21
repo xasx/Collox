@@ -35,7 +35,7 @@ public partial class WriteViewModel : ObservableObject
     public partial bool IsBeeping { get; set; } = false;
 
     [RelayCommand]
-    private async Task SubmitAsync()
+    private async Task Submit()
     {
         var paragraph = new Paragraph()
         {
@@ -67,13 +67,13 @@ public partial class WriteViewModel : ObservableObject
 
     }
     [RelayCommand]
-    private async Task SaveNowAsync()
+    private async Task SaveNow()
     {
         await storeService.SaveNow();
     }
 
     [RelayCommand]
-    public async Task ClearAsync()
+    public async Task Clear()
     {
         Paragraphs.Clear();
         await storeService.SaveNow();
