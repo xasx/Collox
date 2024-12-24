@@ -46,4 +46,9 @@ public sealed partial class TemplatesPage : Page
         tbName.SelectAll();
         tbName.Focus(FocusState.Programmatic);
     }
+
+    private void Page_Loading(FrameworkElement sender, object args)
+    {
+        ViewModel.LoadTemplatesCommand.Execute(sender);
+    }
 }

@@ -8,7 +8,8 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:uictrls="using:CommunityToolkit.WinUI.UI.Controls"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-      mc:Ignorable="d">
+      mc:Ignorable="d"
+      Loading="Page_Loading">
     <Page.Resources>
         <CommandBarFlyout x:Name="ComBarFly">
             <AppBarButton Command="{x:Bind ViewModel.DeleteTemplateCommand}"

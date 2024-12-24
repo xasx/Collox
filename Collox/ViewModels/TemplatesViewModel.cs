@@ -33,14 +33,17 @@ public partial class TemplatesViewModel : ObservableObject
     [RelayCommand]
     public async Task SaveTemplate()
     {
+        // todo
+        if (Name.IsWhiteSpace() || Name == string.Empty) return;
         if (IsEditing)
         {
-            await templateService.SaveTemplate(Name, Content);
+            await templateService.EditTemplate(TemplateToEdit.Name, Name, Content);
             //Templates.Remove(TemplateToEdit);
             TemplateToEdit.Name = Name;
             TemplateToEdit.Content = Content;
             
             TemplateToEdit = null;
+            IsEditing = false;
         }
         else
         {
@@ -86,6 +89,22 @@ public partial class TemplatesViewModel : ObservableObject
         await templateService.SaveTemplate(dt.Name, dt.Content);
 
         Templates.Add(dt);
+    }
+
+    [RelayCommand]
+    public async Task LoadTemplates()
+    {
+        var tc = await templateService.LoadTemplates();
+        Templates.Clear();
+        foreach (var tt in tc)
+        {
+            var t = new Template()
+            {
+                Name = tt.Value.Name,
+                Content = tt.Value.Content
+            };
+            Templates.Add(t);
+        }
     }
 }
 

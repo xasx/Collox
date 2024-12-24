@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Collox.Models;
 
 namespace Collox.Services;
 
@@ -12,5 +8,7 @@ public interface ITemplateService
 
     Task DeleteTemplate(string Name);
 
-    Task<IEnumerable<Tuple<string, string>>> LoadTemplates();
+    Task<IDictionary<string, MarkdownTemplate>> LoadTemplates();
+
+    Task EditTemplate(string originalName, string newName, string newContent);
 }

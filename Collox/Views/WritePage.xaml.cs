@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Speech.Recognition;
+using ABI.Windows.UI.Text;
 using CommunityToolkit.Mvvm.Messaging;
+using Cottle;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -44,6 +47,7 @@ public sealed partial class WritePage : Page
 
     private void tbInput_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
     {
+        ViewModel.KeyStrokesCount++;
         if (e.Key == VirtualKey.Enter)
         {
             if ((InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift)
@@ -74,5 +78,44 @@ public sealed partial class WritePage : Page
     private void tbInput_Loaded(object sender, RoutedEventArgs e)
     {
         tbInput.Focus(FocusState.Programmatic);
+    }
+
+    private const string predefined = "predefined";
+    private async void templatesFlyout_Opening(object sender, object e)
+    {
+        // todo no abuse
+        TemplatesViewModel vm = App.GetService<TemplatesViewModel>();
+        await vm.LoadTemplates();
+        var gfi = templatesFlyout.Items
+            .Where((item) => (string )item.Tag != predefined).ToList();
+         //var gfi =  from item in templatesFlyout.Items
+         //           where item.Tag == generated
+         //           select item;
+
+
+        foreach (var item in gfi)
+        {
+            templatesFlyout.Items.Remove(item);
+        }
+
+        foreach (var tt in vm.Templates)
+        {
+            templatesFlyout.Items.Add(
+                new MenuFlyoutItem()
+                {
+                    Text = tt.Name,
+                    Icon = new SymbolIcon(Symbol.Document),
+                    Tag = tt.Content,
+                    Command = new RelayCommand(() => {
+                        var doc = Document.CreateDefault(tt.Content).DocumentOrThrow;
+                        var tti = doc.Render(Context.CreateBuiltin(new Dictionary<Value, Value>()
+                        {
+                            ["now"] = Value.FromLazy(() => Value.FromString(DateTime.Now.ToString("F")))
+                        }));
+                        ViewModel.LastParagraph += tti;
+                    })
+                }
+                );
+        }
     }
 }

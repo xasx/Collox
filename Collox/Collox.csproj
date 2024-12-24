@@ -70,9 +70,6 @@
     <None Remove="Views\WritePage.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-  <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
   <!-- 
@@ -99,6 +96,7 @@
     <PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.1.240916" />
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.1.240916" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.Markdown" Version="7.1.2" />
+    <PackageReference Include="Cottle" Version="2.1.0" />
     <PackageReference Include="DevWinUI" Version="8.0.0-Preview3" />
     <PackageReference Include="DevWinUI.Controls" Version="8.0.0-Preview3" />
     <PackageReference Include="Humanizer.Core" Version="2.14.1" />

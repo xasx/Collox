@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using System.Speech.Synthesis;
 using System.Globalization;
+using ABI.Windows.Storage.Streams;
 
 namespace Collox.ViewModels;
 public partial class WriteViewModel : ObservableObject
@@ -27,6 +28,9 @@ public partial class WriteViewModel : ObservableObject
 
     [ObservableProperty]
     public partial int CharacterCount { get; set;  }
+
+    [ObservableProperty]
+    public partial int KeyStrokesCount { get; set; }
 
     [ObservableProperty]
     public partial bool IsSpeaking { get; set; } = false;
@@ -56,16 +60,22 @@ public partial class WriteViewModel : ObservableObject
         }
         if (IsSpeaking)
         {
-            SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer();
-            // var voices = speechSynthesizer.GetInstalledVoices();
-            
-            speechSynthesizer.SetOutputToDefaultAudioDevice();
-            speechSynthesizer.SelectVoiceByHints(VoiceGender.Male, VoiceAge.Adult); 
-            speechSynthesizer.SpeakAsync(LastParagraph);
+            ReadText(LastParagraph);
         }
         LastParagraph = string.Empty;
 
     }
+
+    internal static void ReadText(string text)
+    {
+        var speechSynthesizer = new SpeechSynthesizer();
+        // var voices = speechSynthesizer.GetInstalledVoices();
+
+        speechSynthesizer.SetOutputToDefaultAudioDevice();
+        speechSynthesizer.SelectVoiceByHints(VoiceGender.Male, VoiceAge.Adult);
+        speechSynthesizer.SpeakAsync(text);
+    }
+
     [RelayCommand]
     private async Task SaveNow()
     {
@@ -78,13 +88,19 @@ public partial class WriteViewModel : ObservableObject
         Paragraphs.Clear();
         await storeService.SaveNow();
     }
+
 }
 
-public class Paragraph
+public partial class Paragraph
 {
     public string Text { get; set; }
 
     public DateTime Timestamp { get; set; }
+
+    [RelayCommand]
+    public async Task Read() {
+        WriteViewModel.ReadText(Text);
+    }
 }
 
 

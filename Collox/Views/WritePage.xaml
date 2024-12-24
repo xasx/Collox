@@ -23,6 +23,22 @@
                     Background="Transparent"
                     DefaultLabelPosition="Right"
                     IsOpen="False">
+            <AppBarElementContainer>
+                <StackPanel Orientation="Horizontal"
+                            Spacing="4">
+
+                    <ProgressRing Foreground="SteelBlue"
+                                  IsIndeterminate="False"
+                                  Maximum="{x:Bind ViewModel.KeyStrokesCount, Mode=TwoWay}"
+                                  Value="{x:Bind ViewModel.CharacterCount, Mode=TwoWay}" />
+
+                    <StackPanel>
+
+                        <TextBlock Text="{x:Bind ViewModel.CharacterCount, Mode=TwoWay}" />
+                        <TextBlock Text="{x:Bind ViewModel.KeyStrokesCount, Mode=TwoWay}" />
+                    </StackPanel>
+                </StackPanel>
+            </AppBarElementContainer>
             <AppBarButton Command="{x:Bind ViewModel.SaveNowCommand}"
                           Icon="Save"
                           Label="Save" />
@@ -44,10 +60,12 @@
             <AppBarButton Icon="Page"
                           Label="Insert template">
                 <AppBarButton.Flyout>
-                    <MenuFlyout x:Name="templatesFlyout">
+                    <MenuFlyout x:Name="templatesFlyout"
+                                Opening="templatesFlyout_Opening">
                         <MenuFlyoutItem Icon="Edit"
+                                        Tag="predefined"
                                         Text="Manage" />
-                        <MenuFlyoutSeparator />
+                        <MenuFlyoutSeparator Tag="predefined" />
 
                     </MenuFlyout>
                 </AppBarButton.Flyout>
@@ -92,15 +110,15 @@
                     <DataTemplate xmlns:vm="using:Collox.ViewModels"
                                   x:DataType="vm:Paragraph">
                         <RelativePanel Margin="8,0,8,8"
-                                       Background="{StaticResource SystemControlTransientBackgroundBrush}"
-                                       BorderBrush="{StaticResource SystemControlForegroundBaseMediumLowBrush}"
+                                       Background="{StaticResource SystemControlBackgroundListLowBrush}"
+                                       BorderBrush="{StaticResource SystemControlForegroundAccentBrush}"
                                        BorderThickness="1"
                                        CornerRadius="8">
 
                             <ctrls:HeaderedContentControl Margin="8">
 
                                 <ctrls:HeaderedContentControl.Header>
-                                    <TextBlock Foreground="{StaticResource SystemControlForegroundBaseMediumBrush}"
+                                    <TextBlock Foreground="{StaticResource TextBoxDisabledForegroundThemeBrush}"
                                                Text="{x:Bind Timestamp}" />
                                 </ctrls:HeaderedContentControl.Header>
                                 <uictrls:MarkdownTextBlock Background="Transparent"
@@ -108,6 +126,10 @@
                                                            Text="{x:Bind Text}"
                                                            TextWrapping="WrapWholeWords" />
                             </ctrls:HeaderedContentControl>
+                            <Button Command="{x:Bind ReadCommand}"
+                                    RelativePanel.AlignRightWithPanel="True">
+                                <SymbolIcon Symbol="Volume" />
+                            </Button>
                         </RelativePanel>
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>
