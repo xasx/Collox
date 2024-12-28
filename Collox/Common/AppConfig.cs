@@ -15,5 +15,12 @@ public partial class AppConfig : NotifiyingJsonSettings, IVersionable
     public string baseFolder { get; set; }
         = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Collox");
 
+    public string voice { get; set; }
+
+    public bool autoRead { get; set; }
+
+    public bool autoBeep { get; set; }
+
+
     // Docs: https://github.com/Nucs/JsonSettings
 }

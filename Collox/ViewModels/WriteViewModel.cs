@@ -10,16 +10,19 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 using System.Speech.Synthesis;
 using System.Globalization;
 using ABI.Windows.Storage.Streams;
+using System.Collections;
 
 namespace Collox.ViewModels;
+
 public partial class WriteViewModel : ObservableObject
 {
-
     private IStoreService storeService;
+
     public WriteViewModel()
     {
         storeService = App.GetService<IStoreService>();
     }
+
     [ObservableProperty]
     public partial string LastParagraph { get; set; } = string.Empty;
 
@@ -27,16 +30,16 @@ public partial class WriteViewModel : ObservableObject
     public partial ObservableCollection<Paragraph> Paragraphs { get; set; } = [];
 
     [ObservableProperty]
-    public partial int CharacterCount { get; set;  }
+    public partial int CharacterCount { get; set; }
 
     [ObservableProperty]
     public partial int KeyStrokesCount { get; set; }
 
     [ObservableProperty]
-    public partial bool IsSpeaking { get; set; } = false;
+    public partial bool IsSpeaking { get; set; } = AppHelper.Settings.AutoRead;
 
     [ObservableProperty]
-    public partial bool IsBeeping { get; set; } = false;
+    public partial bool IsBeeping { get; set; } = AppHelper.Settings.AutoBeep;
 
     [RelayCommand]
     private async Task Submit()
@@ -47,32 +50,65 @@ public partial class WriteViewModel : ObservableObject
             Timestamp = DateTime.Now
         };
         Paragraphs.Add(paragraph);
-        CharacterCount += LastParagraph.Length;
+
+        CharacterCount = Math.Min(KeyStrokesCount, CharacterCount + LastParagraph.Length);
         await storeService.AppendParagraph(paragraph.Text, paragraph.Timestamp);
         WeakReferenceMessenger.Default.Send(new TextSubmittedMessage(LastParagraph));
+
         if (IsBeeping)
         {
-            
-            
             var installedPath = Windows.ApplicationModel.Package.Current.InstalledLocation.Path;
-           var sp = new System.Media.SoundPlayer(Path.Combine(installedPath,"Assets","noti.wav"));
+            var sp = new System.Media.SoundPlayer(Path.Combine(installedPath, "Assets", "noti.wav"));
             sp.Play();
         }
+
         if (IsSpeaking)
         {
-            ReadText(LastParagraph);
+            ReadText(LastParagraph, SelectedVoice?.Name);
         }
         LastParagraph = string.Empty;
-
     }
 
-    internal static void ReadText(string text)
+    private static ICollection<VoiceInfo> voiceInfos = new SpeechSynthesizer().GetInstalledVoices().Select(iv => iv.VoiceInfo).ToList();
+
+    public ICollection<VoiceInfo> InstalledVoices
+    {
+        get
+        {
+            return voiceInfos;
+        }
+    }
+
+    [ObservableProperty]
+    public partial VoiceInfo SelectedVoice { get; set; }
+        = voiceInfos.Where(vi => vi.Name == AppHelper.Settings.Voice).FirstOrDefault();
+
+    partial void OnSelectedVoiceChanged(VoiceInfo value)
+    {
+        AppHelper.Settings.Voice = value.Name;
+    }
+
+    partial void OnIsBeepingChanged(bool value)
+    {
+        AppHelper.Settings.AutoRead = value;
+    }
+
+    partial void OnIsSpeakingChanged(bool value)
+    {
+        AppHelper.Settings.AutoRead = value;
+    }
+
+    internal static void ReadText(string text, string voice = null)
     {
         var speechSynthesizer = new SpeechSynthesizer();
         // var voices = speechSynthesizer.GetInstalledVoices();
 
         speechSynthesizer.SetOutputToDefaultAudioDevice();
-        speechSynthesizer.SelectVoiceByHints(VoiceGender.Male, VoiceAge.Adult);
+        if (voice == null)
+            speechSynthesizer.SelectVoiceByHints(VoiceGender.Male, VoiceAge.Adult);
+        else
+            speechSynthesizer.SelectVoice(voice);
+
         speechSynthesizer.SpeakAsync(text);
     }
 
@@ -88,7 +124,6 @@ public partial class WriteViewModel : ObservableObject
         Paragraphs.Clear();
         await storeService.SaveNow();
     }
-
 }
 
 public partial class Paragraph
@@ -98,11 +133,11 @@ public partial class Paragraph
     public DateTime Timestamp { get; set; }
 
     [RelayCommand]
-    public async Task Read() {
-        WriteViewModel.ReadText(Text);
+    public async Task Read()
+    {
+        WriteViewModel.ReadText(Text, AppHelper.Settings.Voice);
     }
 }
-
 
 public class TextSubmittedMessage : ValueChangedMessage<string>
 {

@@ -40,7 +40,7 @@ public sealed partial class WritePage : Page
             scroller.ScrollTo(0.0, scroller.ViewportHeight,
                 new ScrollingScrollOptions(ScrollingAnimationMode.Disabled));
         });
-       
+
     }
 
     public WriteViewModel ViewModel => (WriteViewModel)this.DataContext;
@@ -87,10 +87,10 @@ public sealed partial class WritePage : Page
         TemplatesViewModel vm = App.GetService<TemplatesViewModel>();
         await vm.LoadTemplates();
         var gfi = templatesFlyout.Items
-            .Where((item) => (string )item.Tag != predefined).ToList();
-         //var gfi =  from item in templatesFlyout.Items
-         //           where item.Tag == generated
-         //           select item;
+            .Where((item) => (string)item.Tag != predefined).ToList();
+        //var gfi =  from item in templatesFlyout.Items
+        //           where item.Tag == generated
+        //           select item;
 
 
         foreach (var item in gfi)
@@ -106,7 +106,8 @@ public sealed partial class WritePage : Page
                     Text = tt.Name,
                     Icon = new SymbolIcon(Symbol.Document),
                     Tag = tt.Content,
-                    Command = new RelayCommand(() => {
+                    Command = new RelayCommand(() =>
+                    {
                         var doc = Document.CreateDefault(tt.Content).DocumentOrThrow;
                         var tti = doc.Render(Context.CreateBuiltin(new Dictionary<Value, Value>()
                         {
@@ -114,8 +115,23 @@ public sealed partial class WritePage : Page
                         }));
                         ViewModel.LastParagraph += tti;
                     })
-                }
-                );
+                });
         }
+    }
+
+    private void Button_Click(object sender, RoutedEventArgs e)
+    {
+        var b = sender as Button;
+        ViewModel.LastParagraph += b.Tag;
+        ViewModel.KeyStrokesCount++;
+        tbInput.Focus(FocusState.Programmatic);
+        tbInput.Select(tbInput.Text.Length, 0);
+    }
+
+    private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+    {
+        await ViewModel.SaveNowCommand.ExecuteAsync(null);
+        var navService = App.GetService<IJsonNavigationService>() as JsonNavigationService;
+        navService.Navigate(typeof(TemplatesPage));
     }
 }

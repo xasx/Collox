@@ -26,6 +26,7 @@ internal class StoreService : IStoreService
     {
         return Task.Run(() =>
         {
+            q.Enqueue($"<!-- collox.bop:{Guid.NewGuid()} -->");
             q.Enqueue(timestamp?.ToMdTimestamp());
             q.Enqueue(text.AsMdBq());
 

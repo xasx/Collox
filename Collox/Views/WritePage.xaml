@@ -10,6 +10,86 @@
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
       Loaded="tbInput_Loaded"
       mc:Ignorable="d">
+    <Page.Resources>
+        <Flyout x:Name="setfly" ShowMode="Transient" >
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="Select voice" />
+                <GridView Width="440"
+                          Height="480"
+                          Margin="4"
+                          HorizontalAlignment="Left"
+                          ItemsSource="{x:Bind ViewModel.InstalledVoices}"
+                          SelectedItem="{x:Bind ViewModel.SelectedVoice, Mode=TwoWay}">
+
+
+                    <GridView.ItemTemplate>
+                        <DataTemplate xmlns:sp="using:System.Speech.Synthesis"
+                                      x:DataType="sp:VoiceInfo">
+
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Width="200"
+                                           Height="40"
+                                           Margin="4">
+                                    <Bold>
+                                        <Run Text="{x:Bind Name}" />
+                                    </Bold><LineBreak />
+                                    <Run Foreground="{StaticResource AppBarItemDisabledForegroundThemeBrush}"
+                                         Text="{x:Bind Culture}" />
+                                    <Run Foreground="{StaticResource AppBarItemDisabledForegroundThemeBrush}"
+                                         Text="•" />
+                                    <Run Foreground="{StaticResource AppBarItemDisabledForegroundThemeBrush}"
+                                         Text="{x:Bind Gender}" />
+                                    <Run Foreground="{StaticResource AppBarItemDisabledForegroundThemeBrush}"
+                                         Text="•" />
+                                    <Run Foreground="{StaticResource AppBarItemDisabledForegroundThemeBrush}"
+                                         Text="{x:Bind Age}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+
+                </GridView>
+            </StackPanel>
+        </Flyout>
+        <Flyout x:Name="emofly">
+            <StackPanel Width="400"
+                        Height="400">
+                <ctrls:Segmented x:Name="segm">
+                    <ctrls:SegmentedItem Content="Faces" />
+                    <ctrls:SegmentedItem Content="People" />
+                </ctrls:Segmented>
+
+
+                <ScrollView Height="380">
+                    <ItemsRepeater xmlns:et="using:EmojiToolkit"
+                                   ItemsSource="{x:Bind et:Emoji.All, Mode=OneTime}">
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="et:EmojiRecord">
+                                <Button Padding="0"
+                                        BorderThickness="0"
+                                        Click="Button_Click"
+                                        Tag="{x:Bind Raw}">
+                                    <FontIcon Margin="0"
+                                              FontFamily="Segoe UI Emoji"
+                                              FontSize="32"
+                                              Glyph="{x:Bind Raw, Mode=OneTime}" />
+                                    <!--<TextBlock Text="{x:Bind Raw}" FontFamily="Segoe UI Emoji" />-->
+                                </Button>
+
+
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                        <ItemsRepeater.Layout>
+                            <UniformGridLayout MinColumnSpacing="1"
+                                               MinItemHeight="48"
+                                               MinItemWidth="48"
+                                               MinRowSpacing="1" />
+                        </ItemsRepeater.Layout>
+                    </ItemsRepeater>
+                </ScrollView>
+            </StackPanel>
+        </Flyout>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -24,10 +104,12 @@
                     DefaultLabelPosition="Right"
                     IsOpen="False">
             <AppBarElementContainer>
-                <StackPanel Orientation="Horizontal"
+                <StackPanel Margin="4"
+                            Orientation="Horizontal"
                             Spacing="4">
 
-                    <ProgressRing Foreground="SteelBlue"
+                    <ProgressRing Background="Gold"
+                                  Foreground="SteelBlue"
                                   IsIndeterminate="False"
                                   Maximum="{x:Bind ViewModel.KeyStrokesCount, Mode=TwoWay}"
                                   Value="{x:Bind ViewModel.CharacterCount, Mode=TwoWay}" />
@@ -41,7 +123,12 @@
             </AppBarElementContainer>
             <AppBarButton Command="{x:Bind ViewModel.SaveNowCommand}"
                           Icon="Save"
-                          Label="Save" />
+                          Label="Save">
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="S"
+                                         Modifiers="Control" />
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
             <AppBarToggleButton Icon="SaveLocal"
                                 IsChecked="True"
                                 IsEnabled="False"
@@ -62,7 +149,8 @@
                 <AppBarButton.Flyout>
                     <MenuFlyout x:Name="templatesFlyout"
                                 Opening="templatesFlyout_Opening">
-                        <MenuFlyoutItem Icon="Edit"
+                        <MenuFlyoutItem Click="MenuFlyoutItem_Click"
+                                        Icon="Edit"
                                         Tag="predefined"
                                         Text="Manage" />
                         <MenuFlyoutSeparator Tag="predefined" />
@@ -71,31 +159,32 @@
                 </AppBarButton.Flyout>
             </AppBarButton>
 
-            <AppBarToggleButton Icon="Volume"
-                                IsChecked="{x:Bind ViewModel.IsSpeaking, Mode=TwoWay}"
+            <AppBarToggleButton IsChecked="{x:Bind ViewModel.IsSpeaking, Mode=TwoWay}"
                                 Label="Read aloud">
+                <FontIcon Glyph="&#xEFA9;" />
                 <AppBarToggleButton.KeyboardAccelerators>
                     <KeyboardAccelerator Key="R"
                                          Modifiers="Control" />
                 </AppBarToggleButton.KeyboardAccelerators>
             </AppBarToggleButton>
-            <AppBarToggleButton Icon="Flag"
-                                IsChecked="{x:Bind ViewModel.IsBeeping, Mode=TwoWay}"
+            <AppBarToggleButton IsChecked="{x:Bind ViewModel.IsBeeping, Mode=TwoWay}"
                                 Label="Beep">
+                <FontIcon Glyph="&#xEA8F;" />
                 <AppBarToggleButton.KeyboardAccelerators>
                     <KeyboardAccelerator Key="B"
                                          Modifiers="Control" />
                 </AppBarToggleButton.KeyboardAccelerators>
             </AppBarToggleButton>
-            <CommandBar.SecondaryCommands>
-                <AppBarButton Icon="Setting"
-                              Label="Settings">
-                    <AppBarButton.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="I"
-                                             Modifiers="Control" />
-                    </AppBarButton.KeyboardAccelerators>
-                </AppBarButton>
-            </CommandBar.SecondaryCommands>
+
+            <AppBarButton Flyout="{StaticResource setfly}"
+                          Icon="Setting"
+                          Label="Settings">
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="I"
+                                         Modifiers="Control" />
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+
         </CommandBar>
 
         <ScrollView x:Name="scroller"
@@ -103,7 +192,8 @@
                     HorizontalScrollBarVisibility="Hidden"
                     HorizontalScrollMode="Disabled"
                     VerticalScrollBarVisibility="Auto">
-            <ItemsRepeater Background="{StaticResource SystemControlBackgroundListMediumBrush}"
+            <ItemsRepeater x:Name="irChat"
+                           Background="{StaticResource SystemControlBackgroundListMediumBrush}"
                            CacheMode="BitmapCache"
                            ItemsSource="{x:Bind ViewModel.Paragraphs}">
                 <ItemsRepeater.ItemTemplate>
@@ -140,7 +230,7 @@
                  Title="Infoooze"
                  Grid.Row="1"
                  Background="{StaticResource ScrollBarThumbPressedBackgroundThemeBrush}"
-                 IsOpen="True"
+                 IsOpen="False"
                  Message="🔴🟠🟡🟢🔵🟣🟤⚫⚪"
                  Severity="Informational" />
 
@@ -150,19 +240,26 @@
                                    TextWrapping="WrapWholeWords" />
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="48" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="60" />
             </Grid.ColumnDefinitions>
+            <Button Grid.Column="0"
+                    VerticalAlignment="Center"
+                    Flyout="{StaticResource emofly}">
+                <SymbolIcon Symbol="Emoji" />
+            </Button>
             <TextBox x:Name="tbInput"
-                     Grid.Column="0"
+                     Grid.Column="1"
                      AcceptsReturn="True"
                      FontSize="22"
                      Loaded="tbInput_Loaded"
+                     PlaceholderText="Your message"
                      PreviewKeyDown="tbInput_PreviewKeyDown"
                      Text="{x:Bind Path=ViewModel.LastParagraph, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
             </TextBox>
             <Button x:Name="btnSubmit"
-                    Grid.Column="1"
+                    Grid.Column="2"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     Command="{x:Bind ViewModel.SubmitCommand}">
@@ -170,10 +267,10 @@
                 <Button.KeyboardAccelerators>
                     <KeyboardAccelerator Key="Enter"
                                          Modifiers="Control" />
-                    <KeyboardAccelerator Key="S"
-                                         Modifiers="Control" />
                 </Button.KeyboardAccelerators>
             </Button>
+
+
         </Grid>
     </Grid>
 </Page>
