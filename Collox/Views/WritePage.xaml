@@ -132,13 +132,13 @@
                     <ProgressRing Background="Gold"
                                   Foreground="SteelBlue"
                                   IsIndeterminate="False"
-                                  Maximum="{x:Bind ViewModel.KeyStrokesCount, Mode=TwoWay}"
-                                  Value="{x:Bind ViewModel.CharacterCount, Mode=TwoWay}" />
+                                  Maximum="{x:Bind ViewModel.KeyStrokesCount, Mode=OneWay}"
+                                  Value="{x:Bind ViewModel.CharacterCount, Mode=OneWay}" />
 
                     <StackPanel>
 
-                        <TextBlock Text="{x:Bind ViewModel.CharacterCount, Mode=TwoWay}" />
-                        <TextBlock Text="{x:Bind ViewModel.KeyStrokesCount, Mode=TwoWay}" />
+                        <TextBlock Text="{x:Bind ViewModel.CharacterCount, Mode=OneWay}" />
+                        <TextBlock Text="{x:Bind ViewModel.KeyStrokesCount, Mode=OneWay}" />
                     </StackPanel>
                 </StackPanel>
             </AppBarElementContainer>

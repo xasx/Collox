@@ -1,8 +1,9 @@
-﻿using Collox.Services;
+﻿using System.Diagnostics;
+using Collox.Services;
 using CommunityToolkit.Mvvm.Collections;
 
 namespace Collox.ViewModels;
-public partial class HistoryViewModel
+public partial class HistoryViewModel : ObservableObject
 {
     private readonly IStoreService storeService = App.GetService<IStoreService>();
 
@@ -12,6 +13,9 @@ public partial class HistoryViewModel
     }
 
     public ObservableGroupedCollection<string, HistoryEntry> Histories { get; set; }
+
+    [ObservableProperty]
+    public partial HistoryEntry SelectedHistoryEntry { get; set; }
 
     [RelayCommand]
     public async Task LoadHistory()
@@ -29,6 +33,11 @@ public partial class HistoryViewModel
                 });
             }
         }
+    }
+
+    partial void OnSelectedHistoryEntryChanged(HistoryEntry value)
+    {
+        Debug.WriteLine(value.Preview.Truncate(200));
     }
 }
 

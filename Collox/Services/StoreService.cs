@@ -67,7 +67,11 @@ internal class StoreService : IStoreService
                 var list = new List<MarkdownRecording>();
                 foreach (var f in files)
                 {
-                    var lines = await f.OpenText().ReadLineAsync();
+                    var lines = string.Empty;
+                    using (var sr = f.OpenText())
+                    {
+                        lines = await sr.ReadToEndAsync();
+                    }
                     var date = DateOnly.Parse(f.Name.Substring(0, 10));
                     var rec = new MarkdownRecording()
                     {

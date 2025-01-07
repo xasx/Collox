@@ -2,16 +2,25 @@
 <Page x:Class="Collox.Views.TemplatesPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:core="using:Microsoft.Xaml.Interactions.Core"
       xmlns:ctrls="using:CommunityToolkit.WinUI.Controls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:local="using:Collox.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:uictrls="using:CommunityToolkit.WinUI.UI.Controls"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-      Loading="Page_Loading"
       mc:Ignorable="d">
+
+    <interactivity:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Loaded">
+            <core:InvokeCommandAction Command="{x:Bind ViewModel.LoadTemplatesCommand}" />
+        </core:EventTriggerBehavior>
+    </interactivity:Interaction.Behaviors>
+
     <Page.Resources>
-        <CommandBarFlyout x:Name="ComBarFly" AlwaysExpanded="True">
+        <CommandBarFlyout x:Name="ComBarFly"
+                          AlwaysExpanded="True">
             <AppBarButton Command="{x:Bind ViewModel.DeleteTemplateCommand}"
                           Icon="Delete"
                           Label="Delete" />
