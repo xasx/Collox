@@ -29,6 +29,13 @@
           "Subtitle": "Define quick text blocks",
           "ImagePath": "ms-appx:///Assets/AppIcon.png",
           "HideItem": true
+        },
+        {
+          "UniqueId": "Collox.Views.HistoryPage",
+          "Title": "History",
+          "Subtitle": "view old documents",
+          "ImagePath": "ms-appx:///Assets/AppIcon.png",
+          "HideItem": true
         }
       ]
     }

@@ -45,6 +45,9 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>BreadcrumbPageMappings.cs</LastGenOutput>
     </None>
+    <Page Update="Views\HistoryPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\TemplatesPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -66,6 +69,7 @@
     <Content Remove="Assets\noti.wav" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Views\HistoryPage.xaml" />
     <None Remove="Views\TemplatesPage.xaml" />
     <None Remove="Views\WritePage.xaml" />
   </ItemGroup>
@@ -102,6 +106,7 @@
     <PackageReference Include="DevWinUI.Controls" Version="8.0.0-Preview3" />
     <PackageReference Include="EmojiToolkit" Version="15.1.0" />
     <PackageReference Include="Humanizer.Core" Version="2.14.1" />
+    <PackageReference Include="Markdig" Version="0.39.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />

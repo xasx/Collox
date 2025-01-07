@@ -18,5 +18,6 @@ public partial class NavigationPageMappings
         {"Collox.Views.HomeLandingPage", typeof(Collox.Views.HomeLandingPage)},
         {"Collox.Views.WritePage", typeof(Collox.Views.WritePage)},
         {"Collox.Views.TemplatesPage", typeof(Collox.Views.TemplatesPage)},
+        {"Collox.Views.HistoryPage", typeof(Collox.Views.HistoryPage)},
     };
 }

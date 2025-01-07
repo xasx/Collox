@@ -11,7 +11,28 @@
       Loaded="tbInput_Loaded"
       mc:Ignorable="d">
     <Page.Resources>
-        <Flyout x:Name="setfly" ShowMode="Transient" >
+        <Flyout x:Name="comfly">
+
+            <StackPanel Orientation="Horizontal">
+                <Button Width="200"
+                        Height="200">
+                    <StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="8">
+                        <FontIcon HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  FontSize="40"
+                                  Glyph="&#xE7E8;" />
+                        <TextBlock HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontSize="24"
+                                   Text="Shutdown" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Flyout>
+        <Flyout x:Name="setfly"
+                ShowMode="Transient">
             <StackPanel Orientation="Vertical">
                 <TextBlock Text="Select voice" />
                 <GridView Width="440"
@@ -195,6 +216,7 @@
             <ItemsRepeater x:Name="irChat"
                            Background="{StaticResource SystemControlBackgroundListMediumBrush}"
                            CacheMode="BitmapCache"
+                           ContextFlyout="{StaticResource comfly}"
                            ItemsSource="{x:Bind ViewModel.Paragraphs}">
                 <ItemsRepeater.ItemTemplate>
                     <DataTemplate xmlns:vm="using:Collox.ViewModels"
@@ -253,6 +275,7 @@
                      Grid.Column="1"
                      AcceptsReturn="True"
                      FontSize="22"
+                     IsTextPredictionEnabled="True"
                      Loaded="tbInput_Loaded"
                      PlaceholderText="Your message"
                      PreviewKeyDown="tbInput_PreviewKeyDown"

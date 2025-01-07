@@ -15,7 +15,7 @@ public sealed partial class MainPage : Page
         {
             navService.Initialize(NavView, NavFrame, NavigationPageMappings.PageDictionary)
                 .ConfigureJsonFile("Assets/NavViewMenu/AppData.json")
-.ConfigureDefaultPage(typeof(HomeLandingPage))
+.ConfigureDefaultPage(typeof(WritePage))
 .ConfigureSettingsPage(typeof(SettingsPage))
                 .ConfigureTitleBar(AppTitleBar)
                 .ConfigureBreadcrumbBar(BreadCrumbNav, BreadcrumbPageMappings.PageDictionary);

@@ -8,10 +8,10 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:uictrls="using:CommunityToolkit.WinUI.UI.Controls"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-      mc:Ignorable="d"
-      Loading="Page_Loading">
+      Loading="Page_Loading"
+      mc:Ignorable="d">
     <Page.Resources>
-        <CommandBarFlyout x:Name="ComBarFly">
+        <CommandBarFlyout x:Name="ComBarFly" AlwaysExpanded="True">
             <AppBarButton Command="{x:Bind ViewModel.DeleteTemplateCommand}"
                           Icon="Delete"
                           Label="Delete" />
@@ -41,7 +41,7 @@
                  Grid.Row="0"
                  Grid.Column="0"
                  Grid.ColumnSpan="2"
-                 IsOpen="True"
+                 IsOpen="False"
                  Message="A template with the same name already exists. Please choose a different name."
                  Severity="Warning">
             <InfoBar.ActionButton>
@@ -94,8 +94,8 @@
 
         <GridView Grid.Row="2"
                   Grid.ColumnSpan="2"
+                  ContextFlyout="{StaticResource ComBarFly}"
                   IsItemClickEnabled="True"
-                  ItemClick="GridView_ItemClick"
                   ItemsSource="{x:Bind ViewModel.Templates}"
                   SelectedItem="{x:Bind ViewModel.SelectedTemplate, Mode=TwoWay}">
             <GridView.ItemContainerStyle>
@@ -107,11 +107,12 @@
             <GridView.ItemTemplate>
                 <DataTemplate xmlns:vm="using:Collox.ViewModels"
                               x:DataType="vm:Template">
-                    <StackPanel Width="144"
-                                Height="144"
+                    <StackPanel Width="200"
+                                Height="240"
                                 Margin="4">
 
-                        <uictrls:MarkdownTextBlock Height="112"
+                        <uictrls:MarkdownTextBlock Height="200"
+                                                   BorderThickness="1"
                                                    IsTextSelectionEnabled="False"
                                                    Text="{x:Bind Content, Mode=OneWay}" />
                         <TextBlock Height="24"
