@@ -66,7 +66,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Remove="Assets\AppIcon.ico" />
+    <Content Remove="Assets\AppIcon.png" />
+    <Content Remove="Assets\hist.png" />
     <Content Remove="Assets\noti.wav" />
+    <Content Remove="Assets\templ.png" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Views\HistoryPage.xaml" />

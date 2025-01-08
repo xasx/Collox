@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -60,9 +61,9 @@ internal class StoreService : IStoreService
         {
             var di = new DirectoryInfo(AppHelper.Settings.BaseFolder);
             var dict = new Dictionary<string, ICollection<MarkdownRecording>>();
-            foreach (var d in di.EnumerateDirectories())
+            foreach (var d in di.EnumerateDirectories(@"????-??_*"))
             {
-                if (d.Name.Equals("Templates")) continue;
+                //if (d.Name.Equals("Templates")) continue;
                 var files = d.EnumerateFiles("*.md");
                 var list = new List<MarkdownRecording>();
                 foreach (var f in files)
@@ -83,7 +84,8 @@ internal class StoreService : IStoreService
 
                     list.Add(rec);
                 }
-                dict.Add(d.Name, list);
+                var dtm = DateTime.ParseExact(d.Name, "yyyy-MM_MMMM", CultureInfo.CurrentCulture);
+                dict.Add(dtm.ToString("MMMM yyyy"), list);
             }
             return dict;
         });

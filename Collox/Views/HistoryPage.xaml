@@ -37,6 +37,7 @@
                                Text="{x:Bind Day}" />
                     <uictrls:MarkdownTextBlock Width="256"
                                                Height="80"
+                                               Padding="4"
                                                Background="Transparent"
                                                IsTextSelectionEnabled="False"
                                                Text="{x:Bind Preview}" />

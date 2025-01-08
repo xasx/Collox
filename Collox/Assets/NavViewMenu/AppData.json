@@ -20,22 +20,22 @@
           "UniqueId": "Collox.Views.WritePage",
           "Title": "Write",
           "Subtitle": "Write here",
-          "ImagePath": "ms-appx:///Assets/AppIcon.png",
-          "HideItem": true
+          "ImagePath": "ms-appx:///Assets/write.png",
+          "HideItem": false
         },
         {
           "UniqueId": "Collox.Views.TemplatesPage",
           "Title": "Templates",
           "Subtitle": "Define quick text blocks",
-          "ImagePath": "ms-appx:///Assets/AppIcon.png",
-          "HideItem": true
+          "ImagePath": "ms-appx:///Assets/templ.png",
+          "HideItem": false
         },
         {
           "UniqueId": "Collox.Views.HistoryPage",
           "Title": "History",
-          "Subtitle": "view old documents",
-          "ImagePath": "ms-appx:///Assets/AppIcon.png",
-          "HideItem": true
+          "Subtitle": "View old documents",
+          "ImagePath": "ms-appx:///Assets/hist.png",
+          "HideItem": false
         }
       ]
     }
