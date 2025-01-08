@@ -154,9 +154,6 @@
                                 IsChecked="True"
                                 IsEnabled="False"
                                 Label="Auto save" />
-            <AppBarButton Icon="OpenFile"
-                          IsEnabled="False"
-                          Label="Open" />
             <AppBarButton Command="{x:Bind ViewModel.ClearCommand}"
                           Icon="Clear"
                           Label="Clear">
