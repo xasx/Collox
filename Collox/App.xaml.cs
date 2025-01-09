@@ -1,4 +1,5 @@
 ﻿using Collox.Services;
+using Windows.Win32;
 
 namespace Collox;
 
@@ -67,6 +68,8 @@ public partial class App : Application
         MainWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
 
         MainWindow.Activate();
+
+        
     }
 }
 

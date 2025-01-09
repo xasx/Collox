@@ -1,0 +1,3 @@
+﻿SendMessageW
+FindWindowW
+WM_CLOSE

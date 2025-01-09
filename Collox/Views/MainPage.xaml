@@ -23,14 +23,24 @@
                                 TextChanged="OnTextChanged" />
             </TitleBar.Content>
             <TitleBar.Footer>
-                <Button x:Name="ThemeButton"
-                        Height="32"
-                        Margin="0,0,4,0"
-                        Click="ThemeButton_Click"
-                        Content="{dev:FontIcon GlyphCode=E793,
-                                               FontSize=16}"
-                        Style="{ThemeResource SubtleButtonStyle}"
-                        ToolTipService.ToolTip="Toggle Theme" />
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="ThemeButton"
+                            Height="32"
+                            Margin="0,0,4,0"
+                            Click="ThemeButton_Click"
+                            Content="{dev:FontIcon GlyphCode=E793,
+                                                   FontSize=16}"
+                            Style="{ThemeResource SubtleButtonStyle}"
+                            ToolTipService.ToolTip="Toggle Theme" />
+                    <Button x:Name="ShutdownButton"
+                            Height="32"
+                            Margin="0,0,4,0"
+                            Click="ShutdownButton_Click"
+                            Content="{dev:FontIcon GlyphCode=E7E8,
+                                                   FontSize=16}"
+                            Style="{ThemeResource SubtleButtonStyle}"
+                            ToolTipService.ToolTip="Shutdown" />
+                </StackPanel>
             </TitleBar.Footer>
         </TitleBar>
         <NavigationView x:Name="NavView"

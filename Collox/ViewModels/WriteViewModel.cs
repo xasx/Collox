@@ -11,6 +11,8 @@ using System.Speech.Synthesis;
 using System.Globalization;
 using ABI.Windows.Storage.Streams;
 using System.Collections;
+using Windows.Win32;
+using Windows.Win32.Foundation;
 
 namespace Collox.ViewModels;
 
@@ -123,6 +125,22 @@ public partial class WriteViewModel : ObservableObject
     {
         Paragraphs.Clear();
         await storeService.SaveNow();
+    }
+
+    [RelayCommand]
+    public async Task Shutdown()
+    {
+        var hwnd = PInvoke.FindWindow("progman", null);
+        PInvoke.SendMessage(hwnd, PInvoke.WM_CLOSE, 0, 0);
+    }
+
+    [RelayCommand]
+    public async Task SpeakLast()
+    {
+        if (Paragraphs.Count > 0)
+        {
+            ReadText(Paragraphs.Last().Text, SelectedVoice?.Name);
+        }
     }
 }
 

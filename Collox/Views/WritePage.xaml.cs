@@ -126,6 +126,7 @@ public sealed partial class WritePage : Page
         ViewModel.KeyStrokesCount++;
         tbInput.Focus(FocusState.Programmatic);
         tbInput.Select(tbInput.Text.Length, 0);
+        //svEmo.ScrollTo()
     }
 
     private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
@@ -133,5 +134,10 @@ public sealed partial class WritePage : Page
         await ViewModel.SaveNowCommand.ExecuteAsync(null);
         var navService = App.GetService<IJsonNavigationService>() as JsonNavigationService;
         navService.Navigate(typeof(TemplatesPage));
+    }
+
+    private void GridView_ItemClick(object sender, ItemClickEventArgs e)
+    {
+        setfly.Hide();
     }
 }

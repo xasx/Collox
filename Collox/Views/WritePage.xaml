@@ -15,7 +15,8 @@
 
             <StackPanel Orientation="Horizontal">
                 <Button Width="200"
-                        Height="200">
+                        Height="200"
+                        Command="{x:Bind ViewModel.ShutdownCommand}">
                     <StackPanel HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Spacing="8">
@@ -32,13 +33,22 @@
             </StackPanel>
         </Flyout>
         <Flyout x:Name="setfly"
-                ShowMode="Transient">
+                ShowMode="TransientWithDismissOnPointerMoveAway">
+            <Flyout.FlyoutPresenterStyle>
+                <Style TargetType="FlyoutPresenter">
+                    <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled" />
+                    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+                    <Setter Property="IsTabStop" Value="True" />
+                    <Setter Property="TabNavigation" Value="Cycle" />
+                </Style>
+            </Flyout.FlyoutPresenterStyle>
             <StackPanel Orientation="Vertical">
                 <TextBlock Text="Select voice" />
-                <GridView Width="440"
-                          Height="480"
+                <GridView Height="480"
                           Margin="4"
                           HorizontalAlignment="Left"
+                          IsItemClickEnabled="True"
+                          ItemClick="GridView_ItemClick"
                           ItemsSource="{x:Bind ViewModel.InstalledVoices}"
                           SelectedItem="{x:Bind ViewModel.SelectedVoice, Mode=TwoWay}">
 
@@ -48,7 +58,7 @@
                                       x:DataType="sp:VoiceInfo">
 
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Width="200"
+                                <TextBlock Width="240"
                                            Height="40"
                                            Margin="4">
                                     <Bold>
@@ -78,11 +88,15 @@
                 <ctrls:Segmented x:Name="segm">
                     <ctrls:SegmentedItem Content="Faces" />
                     <ctrls:SegmentedItem Content="People" />
+                    <ctrls:SegmentedItem Content="Nature" />
                 </ctrls:Segmented>
 
 
-                <ScrollView Height="380">
+                <ScrollView x:Name="svEmo"
+                            Height="380"
+                            ContentOrientation="Vertical">
                     <ItemsRepeater xmlns:et="using:EmojiToolkit"
+                                   x:Name="irEmo"
                                    ItemsSource="{x:Bind et:Emoji.All, Mode=OneTime}">
                         <ItemsRepeater.ItemTemplate>
                             <DataTemplate x:DataType="et:EmojiRecord">
@@ -94,7 +108,6 @@
                                               FontFamily="Segoe UI Emoji"
                                               FontSize="32"
                                               Glyph="{x:Bind Raw, Mode=OneTime}" />
-                                    <!--<TextBlock Text="{x:Bind Raw}" FontFamily="Segoe UI Emoji" />-->
                                 </Button>
 
 
@@ -136,7 +149,6 @@
                                   Value="{x:Bind ViewModel.CharacterCount, Mode=OneWay}" />
 
                     <StackPanel>
-
                         <TextBlock Text="{x:Bind ViewModel.CharacterCount, Mode=OneWay}" />
                         <TextBlock Text="{x:Bind ViewModel.KeyStrokesCount, Mode=OneWay}" />
                     </StackPanel>
@@ -177,6 +189,16 @@
                 </AppBarButton.Flyout>
             </AppBarButton>
 
+
+            <AppBarButton Command="{x:Bind ViewModel.SpeakLastCommand}"
+                          Label="Read last">
+                <FontIcon Glyph="&#xEFA9;" />
+                <AppBarButton.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="R"
+                                         Modifiers="Control,Shift" />
+                </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+
             <AppBarToggleButton IsChecked="{x:Bind ViewModel.IsSpeaking, Mode=TwoWay}"
                                 Label="Read aloud">
                 <FontIcon Glyph="&#xEFA9;" />
@@ -213,7 +235,6 @@
             <ItemsRepeater x:Name="irChat"
                            Background="{StaticResource SystemControlBackgroundListMediumBrush}"
                            CacheMode="BitmapCache"
-                           ContextFlyout="{StaticResource comfly}"
                            ItemsSource="{x:Bind ViewModel.Paragraphs}">
                 <ItemsRepeater.ItemTemplate>
                     <DataTemplate xmlns:vm="using:Collox.ViewModels"

@@ -1,4 +1,6 @@
-﻿namespace Collox.Views;
+﻿using Windows.Win32;
+
+namespace Collox.Views;
 
 public sealed partial class MainPage : Page
 {
@@ -35,6 +37,12 @@ public sealed partial class MainPage : Page
     private void OnQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
         AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxQuerySubmittedEvent(sender, args, NavFrame);
+    }
+
+    private void ShutdownButton_Click(object sender, RoutedEventArgs e)
+    {
+        var hwnd = PInvoke.FindWindow("progman", null);
+        PInvoke.SendMessage(hwnd, PInvoke.WM_CLOSE, 0, 0);
     }
 }
 
