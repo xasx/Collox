@@ -13,6 +13,9 @@ using ABI.Windows.Storage.Streams;
 using System.Collections;
 using Windows.Win32;
 using Windows.Win32.Foundation;
+using System.Timers;
+using Windows.System;
+
 
 namespace Collox.ViewModels;
 
@@ -144,8 +147,30 @@ public partial class WriteViewModel : ObservableObject
     }
 }
 
-public partial class Paragraph
+public partial class Paragraph : ObservableObject
 {
+
+    private static readonly System.Timers.Timer Timer = new System.Timers.Timer()
+    {
+        Interval = 10000,
+        Enabled = true
+    };
+    private static readonly DispatcherQueue DispatcherQueue = DispatcherQueue.GetForCurrentThread();
+
+    public Paragraph()
+    {
+        Timer.Elapsed += (sender, e) =>
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                this.RelativeTimestamp = DateTime.Now - this.Timestamp;
+            });
+        };
+    }
+
+    [ObservableProperty]
+    public partial TimeSpan RelativeTimestamp { get; set; }
+
     public string Text { get; set; }
 
     public DateTime Timestamp { get; set; }
