@@ -49,6 +49,29 @@ public partial class WriteViewModel : ObservableObject
     [RelayCommand]
     private async Task Submit()
     {
+        if (string.IsNullOrWhiteSpace(LastParagraph))
+        {
+            return;
+        }
+        if (LastParagraph.StartsWith("."))
+        {
+            switch (LastParagraph)
+            {
+                case ".clear":
+                    await Clear();
+                    return;
+                case ".save":
+                    await SaveNow();
+                    return;
+                case ".speak":
+                    await SpeakLast();
+                    return;
+                case "..":
+                    Paragraphs.Last().AdditionalSpacing += 42;
+                    return;
+            }
+        }
+
         var paragraph = new Paragraph()
         {
             Text = LastParagraph,
@@ -131,13 +154,6 @@ public partial class WriteViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task Shutdown()
-    {
-        var hwnd = PInvoke.FindWindow("progman", null);
-        PInvoke.SendMessage(hwnd, PInvoke.WM_CLOSE, 0, 0);
-    }
-
-    [RelayCommand]
     public async Task SpeakLast()
     {
         if (Paragraphs.Count > 0)
@@ -174,6 +190,9 @@ public partial class Paragraph : ObservableObject
     public string Text { get; set; }
 
     public DateTime Timestamp { get; set; }
+
+    [ObservableProperty]
+    public partial int AdditionalSpacing { get; set; } = 0;
 
     [RelayCommand]
     public async Task Read()

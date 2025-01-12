@@ -70,15 +70,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Assets\AppIcon.ico" />
-    <Content Remove="Assets\AppIcon.png" />
-    <Content Remove="Assets\hist.png" />
     <Content Remove="Assets\noti.wav" />
     <Content Remove="Assets\Store\BadgeLogo.scale-100.png" />
     <Content Remove="Assets\Store\BadgeLogo.scale-125.png" />
     <Content Remove="Assets\Store\BadgeLogo.scale-150.png" />
     <Content Remove="Assets\Store\BadgeLogo.scale-200.png" />
     <Content Remove="Assets\Store\BadgeLogo.scale-400.png" />
-    <Content Remove="Assets\templ.png" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Views\HistoryPage.xaml" />

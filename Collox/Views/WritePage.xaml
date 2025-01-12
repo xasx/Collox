@@ -12,28 +12,11 @@
       Loaded="tbInput_Loaded"
       mc:Ignorable="d">
     <Page.Resources>
-        <conv:TimeSpanToFriendlyConverter x:Key="tsconv" />
-        <Flyout x:Name="comfly">
-
-            <StackPanel Orientation="Horizontal">
-                <Button Width="200"
-                        Height="200"
-                        Command="{x:Bind ViewModel.ShutdownCommand}">
-                    <StackPanel HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Spacing="8">
-                        <FontIcon HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"
-                                  FontSize="40"
-                                  Glyph="&#xE7E8;" />
-                        <TextBlock HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   FontSize="24"
-                                   Text="Shutdown" />
-                    </StackPanel>
-                </Button>
-            </StackPanel>
+        <Flyout x:Name="taskFly">
+            
         </Flyout>
+        <conv:TimeSpanToFriendlyConverter x:Key="tsconv" />
+
         <Flyout x:Name="setfly"
                 ShowMode="TransientWithDismissOnPointerMoveAway">
             <Flyout.FlyoutPresenterStyle>
@@ -247,16 +230,22 @@
                                        BorderThickness="1"
                                        CornerRadius="8">
 
-                            <ctrls:HeaderedContentControl Margin="8">
+                            <ctrls:HeaderedContentControl x:Name="hcc"
+                                                          Margin="8">
 
                                 <ctrls:HeaderedContentControl.Header>
-                                    <TextBlock Foreground="{StaticResource AccentTextFillColorSecondaryBrush}">
-                                        <Run Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource tsconv}}" />
-                                        <Run Foreground="{StaticResource AccentTextFillColorTertiaryBrush}"
-                                             Text="{x:Bind Timestamp}" />
-                                    </TextBlock>
+                                    <Border Padding="2"
+                                            HorizontalAlignment="Left"
+                                            Background="{StaticResource AccentTextFillColorTertiaryBrush}"
+                                            CornerRadius="4">
+                                        <TextBlock Foreground="{StaticResource TextOnAccentFillColorPrimaryBrush}">
+                                            <Run Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource tsconv}}" />
+                                            <Run Text="{x:Bind Timestamp}" />
+                                        </TextBlock>
+                                    </Border>
                                 </ctrls:HeaderedContentControl.Header>
-                                <uictrls:MarkdownTextBlock Background="Transparent"
+                                <uictrls:MarkdownTextBlock x:Name="mdtbEntry"
+                                                           Background="Transparent"
                                                            FontSize="32"
                                                            Text="{x:Bind Text}"
                                                            TextWrapping="WrapWholeWords" />
@@ -265,6 +254,9 @@
                                     RelativePanel.AlignRightWithPanel="True">
                                 <SymbolIcon Symbol="Volume" />
                             </Button>
+                            <Border Height="{x:Bind AdditionalSpacing, Mode=OneWay}"
+                                    Background="DarkGoldenrod"
+                                    RelativePanel.Below="hcc" />
                         </RelativePanel>
                     </DataTemplate>
                 </ItemsRepeater.ItemTemplate>
@@ -274,7 +266,6 @@
         <InfoBar x:Name="infoBar"
                  Title="Infoooze"
                  Grid.Row="1"
-                 Background="{StaticResource ScrollBarThumbPressedBackgroundThemeBrush}"
                  IsOpen="False"
                  Message="🔴🟠🟡🟢🔵🟣🟤⚫⚪"
                  Severity="Informational" />

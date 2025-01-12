@@ -4,7 +4,7 @@
     {
       "UniqueId": "Collox",
       "Title": "Collox",
-      "ImagePath": "ms-appx:///Assets/AppIcon.png",
+      "IconGlyph": "E8F2",
       "IsSpecialSection": false,
       "ShowItemsWithoutGroup": true,
       "IsExpanded": false,
@@ -13,28 +13,28 @@
           "UniqueId": "Collox.Views.HomeLandingPage",
           "Title": "Collox",
           "Subtitle": "Collox",
-          "ImagePath": "ms-appx:///Assets/AppIcon.png",
+          "IconGlyph": "E80F",
           "HideItem": true
         },
         {
           "UniqueId": "Collox.Views.WritePage",
           "Title": "Write",
           "Subtitle": "Write here",
-          "ImagePath": "ms-appx:///Assets/write.png",
+          "IconGlyph": "EDC6",
           "HideItem": false
         },
         {
           "UniqueId": "Collox.Views.TemplatesPage",
           "Title": "Templates",
           "Subtitle": "Define quick text blocks",
-          "ImagePath": "ms-appx:///Assets/templ.png",
+          "IconGlyph": "F000",
           "HideItem": false
         },
         {
           "UniqueId": "Collox.Views.HistoryPage",
           "Title": "History",
           "Subtitle": "View old documents",
-          "ImagePath": "ms-appx:///Assets/hist.png",
+          "IconGlyph": "E81C",
           "HideItem": false
         }
       ]

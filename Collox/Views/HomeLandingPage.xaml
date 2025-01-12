@@ -7,10 +7,22 @@
       xmlns:local="using:Collox"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d">
-    <dev:AllLandingPage HeaderImage="{ThemeResource HeaderCover}"
-                        HeaderOverlayImage="{ThemeResource HeaderCover}"
-                        HeaderSubtitleText="{x:Bind dev:ProcessInfoHelper.Version}"
-                        HeaderText="{x:Bind dev:ProcessInfoHelper.ProductName}"
-                        JsonNavigationService="{x:Bind local:App.Current.GetNavService}" />
+    <dev:MainLandingPage HeaderImage="{ThemeResource HeaderCover}"
+                         HeaderOverlayImage="{ThemeResource HeaderCover}"
+                         HeaderSubtitleText="{x:Bind dev:ProcessInfoHelper.Version}"
+                         HeaderText="{x:Bind dev:ProcessInfoHelper.ProductName}"
+                         JsonNavigationService="{x:Bind local:App.Current.GetNavService}">
+        <dev:MainLandingPage.HeaderContent>
+            <StackPanel Orientation="Horizontal">
+                <dev:HeaderTile Title="Collox"
+                                Description="Your app to write with TTS support. Best used with an eyetracker."
+                                FontSize="14">
+                    <dev:HeaderTile.Source>
+                        <FontIcon Glyph="&#xE8F2;" />
+                    </dev:HeaderTile.Source>
+                </dev:HeaderTile>
+            </StackPanel>
+        </dev:MainLandingPage.HeaderContent>
+    </dev:MainLandingPage>
 </Page>
 

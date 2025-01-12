@@ -2,11 +2,24 @@
 <Page x:Class="Collox.Views.MainPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:controls="using:CommunityToolkit.WinUI.Controls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:dev="using:DevWinUI"
       xmlns:local="using:Collox"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d">
+    <Page.Resources>
+        <Flyout x:Name="wfly">
+            <StackPanel>
+
+                <controls:SettingsCard Description="You don't know what is what."
+                                       Header="what">
+                    <ToggleSwitch OffContent="Disabled"
+                                  OnContent="Enabed" />
+                </controls:SettingsCard>
+            </StackPanel>
+        </Flyout>
+    </Page.Resources>
     <Grid RowDefinitions="Auto, *">
         <TitleBar x:Name="AppTitleBar"
                   Title="{x:Bind dev:ProcessInfoHelper.ProductName}"
@@ -40,6 +53,14 @@
                                                    FontSize=16}"
                             Style="{ThemeResource SubtleButtonStyle}"
                             ToolTipService.ToolTip="Shutdown" />
+                    <Button x:Name="WhatButton"
+                            Height="32"
+                            Margin="0,0,4,0"
+                            Content="{dev:FontIcon GlyphCode=E77B,
+                                                   FontSize=16}"
+                            Flyout="{StaticResource wfly}"
+                            Style="{ThemeResource SubtleButtonStyle}"
+                            ToolTipService.ToolTip="What" />
                 </StackPanel>
             </TitleBar.Footer>
         </TitleBar>

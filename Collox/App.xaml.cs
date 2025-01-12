@@ -1,4 +1,5 @@
-﻿using Collox.Services;
+﻿using System.Diagnostics;
+using Collox.Services;
 using Windows.Win32;
 
 namespace Collox;
@@ -69,7 +70,15 @@ public partial class App : Application
 
         MainWindow.Activate();
 
-        
+        // right place?
+        this.UnhandledException += Application_UnhandledException;
+    }
+
+    private void Application_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+    {
+        Debug.WriteLine($"An error {e.Exception.Message}{Environment.NewLine}{e}");
+        MessageBox.Show(WinRT.Interop.WindowNative.GetWindowHandle(MainWindow),
+            $"{e.Exception.Message}{Environment.NewLine}{e}", "Error", MessageBoxStyle.ApplicationModal | MessageBoxStyle.IconError | MessageBoxStyle.Ok);
     }
 }
 
