@@ -13,7 +13,7 @@
       mc:Ignorable="d">
     <Page.Resources>
         <Flyout x:Name="taskFly">
-            
+
         </Flyout>
         <conv:TimeSpanToFriendlyConverter x:Key="tsconv" />
 
@@ -278,7 +278,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="48" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="60" />
+                <ColumnDefinition Width="96" />
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0"
                     VerticalAlignment="Center"
@@ -295,17 +295,38 @@
                      PreviewKeyDown="tbInput_PreviewKeyDown"
                      Text="{x:Bind Path=ViewModel.LastParagraph, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
             </TextBox>
-            <Button x:Name="btnSubmit"
-                    Grid.Column="2"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Command="{x:Bind ViewModel.SubmitCommand}">
-                <SymbolIcon Symbol="Send" />
-                <Button.KeyboardAccelerators>
+            <SplitButton x:Name="btnSubmit"
+                         Grid.Column="2"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Command="{x:Bind ViewModel.SubmitCommand}">
+                <SymbolIcon Symbol="{x:Bind ViewModel.SubmitModeIcon, Mode=OneWay}" />
+                <SplitButton.KeyboardAccelerators>
                     <KeyboardAccelerator Key="Enter"
                                          Modifiers="Control" />
-                </Button.KeyboardAccelerators>
-            </Button>
+                </SplitButton.KeyboardAccelerators>
+                <SplitButton.Flyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Command="{x:Bind ViewModel.ChangeModeToWriteCommand}"
+                                        Icon="Send"
+                                        Text="Write text">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="W"
+                                                     Modifiers="Control,Shift" />
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Command="{x:Bind ViewModel.ChangeModeToCmdCommand}"
+                                        Icon="Play"
+                                        Text="Enter commands">
+                            <MenuFlyoutItem.KeyboardAccelerators>
+                                <KeyboardAccelerator Key="P"
+                                                     Modifiers="Control,Shift" />
+                            </MenuFlyoutItem.KeyboardAccelerators>
+                        </MenuFlyoutItem>
+
+                    </MenuFlyout>
+                </SplitButton.Flyout>
+            </SplitButton>
 
 
         </Grid>

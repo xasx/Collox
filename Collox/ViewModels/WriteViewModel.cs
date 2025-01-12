@@ -46,6 +46,9 @@ public partial class WriteViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsBeeping { get; set; } = AppHelper.Settings.AutoBeep;
 
+    [ObservableProperty]
+    public partial Symbol SubmitModeIcon { get; set; } = Symbol.Send;
+
     [RelayCommand]
     private async Task Submit()
     {
@@ -160,6 +163,20 @@ public partial class WriteViewModel : ObservableObject
         {
             ReadText(Paragraphs.Last().Text, SelectedVoice?.Name);
         }
+    }
+
+    [RelayCommand]
+    public async Task ChangeModeToCmd()
+    {
+
+        SubmitModeIcon = Symbol.Play;
+    }
+
+    [RelayCommand]
+    public async Task ChangeModeToWrite()
+    {
+
+        SubmitModeIcon = Symbol.Send;
     }
 }
 
