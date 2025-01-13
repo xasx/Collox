@@ -16,7 +16,6 @@ using Windows.Win32.Foundation;
 using System.Timers;
 using Windows.System;
 
-
 namespace Collox.ViewModels;
 
 public partial class WriteViewModel : ObservableObject
@@ -63,12 +62,15 @@ public partial class WriteViewModel : ObservableObject
                 case ".clear":
                     await Clear();
                     return;
+
                 case ".save":
                     await SaveNow();
                     return;
+
                 case ".speak":
                     await SpeakLast();
                     return;
+
                 case "..":
                     Paragraphs.Last().AdditionalSpacing += 42;
                     return;
@@ -168,26 +170,24 @@ public partial class WriteViewModel : ObservableObject
     [RelayCommand]
     public async Task ChangeModeToCmd()
     {
-
         SubmitModeIcon = Symbol.Play;
     }
 
     [RelayCommand]
     public async Task ChangeModeToWrite()
     {
-
         SubmitModeIcon = Symbol.Send;
     }
 }
 
 public partial class Paragraph : ObservableObject
 {
-
     private static readonly System.Timers.Timer Timer = new System.Timers.Timer()
     {
         Interval = 10000,
         Enabled = true
     };
+
     private static readonly DispatcherQueue DispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
     public Paragraph()

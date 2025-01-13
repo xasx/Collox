@@ -25,6 +25,7 @@ public partial class App : Application
     public App()
     {
         Services = ConfigureServices();
+        this.UnhandledException += Application_UnhandledException;
         this.InitializeComponent();
     }
 
@@ -70,8 +71,12 @@ public partial class App : Application
 
         MainWindow.Activate();
 
-        // right place?
-        this.UnhandledException += Application_UnhandledException;
+        MainWindow.Closed += MainWindow_Closed;
+    }
+
+    private async void MainWindow_Closed(object sender, WindowEventArgs args)
+    {
+       await GetService<IStoreService>().SaveNow();
     }
 
     private void Application_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
