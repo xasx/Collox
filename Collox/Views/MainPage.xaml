@@ -4,7 +4,6 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:controls="using:CommunityToolkit.WinUI.Controls"
       xmlns:conv="using:Collox.Common.Converters"
-      xmlns:core="using:Microsoft.Xaml.Interactions.Core"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:dev="using:DevWinUI"
       xmlns:helpers="using:CommunityToolkit.WinUI.Helpers"
@@ -15,9 +14,9 @@
       mc:Ignorable="d">
 
     <interactivity:Interaction.Behaviors>
-        <core:EventTriggerBehavior EventName="Loaded">
-            <core:InvokeCommandAction Command="{x:Bind ViewModel.InitCommand}" />
-        </core:EventTriggerBehavior>
+        <interactivity:EventTriggerBehavior EventName="Loaded">
+            <interactivity:InvokeCommandAction Command="{x:Bind ViewModel.InitCommand}" />
+        </interactivity:EventTriggerBehavior>
     </interactivity:Interaction.Behaviors>
 
     <Page.Resources>
