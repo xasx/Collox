@@ -1,0 +1,86 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Windows.UI.Notifications;
+using Windows.UI.Notifications.Management;
+
+namespace Collox.Services;
+
+public class UserNotificationService
+{
+    public UserNotificationService()
+    {
+        
+    }
+
+    public async Task Initialize()
+    {
+        // Get the listener
+        UserNotificationListener listener = UserNotificationListener.Current;
+
+        // And request access to the user's notifications (must be called from UI thread)
+        UserNotificationListenerAccessStatus accessStatus = await listener.RequestAccessAsync();
+
+        switch (accessStatus)
+        {
+            // This means the user has granted access.
+            case UserNotificationListenerAccessStatus.Allowed:
+                listener.NotificationChanged += Listener_NotificationChanged;
+                // Yay! Proceed as normal
+                await UpdateUserNotifications(listener);
+                break;
+
+            // This means the user has denied access.
+            // Any further calls to RequestAccessAsync will instantly
+            // return Denied. The user must go to the Windows settings
+            // and manually allow access.
+            case UserNotificationListenerAccessStatus.Denied:
+
+                // Show UI explaining that listener features will not
+                // work until user allows access.
+                break;
+
+            // This means the user closed the prompt without
+            // selecting either allow or deny. Further calls to
+            // RequestAccessAsync will show the dialog again.
+            case UserNotificationListenerAccessStatus.Unspecified:
+
+                // Show UI that allows the user to bring up the prompt again
+                break;
+        }
+
+
+    }
+
+    public delegate void UserNotificationsViewChanged(IReadOnlyList<UserNotification> newView);
+
+    private event UserNotificationsViewChanged _userNotificationsViewChanged;
+
+    public event UserNotificationsViewChanged OnUserNotificationsViewChanged
+    {
+        add {
+            _userNotificationsViewChanged += value;
+            //var cnv = UserNotificationListener.Current.GetNotificationsAsync(NotificationKinds.Toast).GetResults();
+            //value.Invoke(cnv);
+        }
+        remove { _userNotificationsViewChanged -= value; }
+    }
+
+    private async void Listener_NotificationChanged(UserNotificationListener sender, Windows.UI.Notifications.UserNotificationChangedEventArgs args)
+    {
+        await UpdateUserNotifications(sender);
+    }
+
+    private async Task UpdateUserNotifications(UserNotificationListener sender)
+    {
+        var notifs = await sender.GetNotificationsAsync(NotificationKinds.Toast);
+        if (notifs != null)
+        {
+            _userNotificationsViewChanged?.Invoke(notifs);
+        }
+    }
+    public async Task<IReadOnlyList<UserNotification>> GetNotifications() => await UserNotificationListener.Current.GetNotificationsAsync(NotificationKinds.Toast);
+
+}

@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using Collox.Services;
 using CommunityToolkit.Mvvm.Collections;
+using Microsoft.Windows.AppNotifications.Builder;
+using Microsoft.Windows.AppNotifications;
 
 namespace Collox.ViewModels;
 public partial class HistoryViewModel : ObservableObject

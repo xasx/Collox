@@ -1,4 +1,5 @@
-﻿using Windows.Win32;
+﻿using Microsoft.UI.Xaml.Controls.Primitives;
+using Windows.Win32;
 
 namespace Collox.Views;
 
@@ -31,18 +32,23 @@ public sealed partial class MainPage : Page
 
     private void OnTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
-        AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxTextChangedEvent(sender, args, NavFrame);
+        DevWinUI.AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxTextChangedEvent(sender, args, NavFrame);
     }
 
     private void OnQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
-        AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxQuerySubmittedEvent(sender, args, NavFrame);
+        DevWinUI.AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxQuerySubmittedEvent(sender, args, NavFrame);
     }
 
     private void ShutdownButton_Click(object sender, RoutedEventArgs e)
     {
         var hwnd = PInvoke.FindWindow("progman", null);
         PInvoke.SendMessage(hwnd, PInvoke.WM_CLOSE, 0, 0);
+    }
+
+    private void Shield_Click(object sender, RoutedEventArgs e)
+    {
+        FlyoutBase.ShowAttachedFlyout(sender as Shield);
     }
 }
 

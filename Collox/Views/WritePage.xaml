@@ -5,9 +5,13 @@
       xmlns:conv="using:Collox.Common.Converters"
       xmlns:ctrls="using:CommunityToolkit.WinUI.Controls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:dev="using:DevWinUI"
+      xmlns:gaze="using:CommunityToolkit.WinUI.Input.GazeInteraction"
       xmlns:local="using:Collox.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:system="using:System"
       xmlns:uictrls="using:CommunityToolkit.WinUI.UI.Controls"
+      gaze:GazeInput.Interaction="Disabled"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
       Loaded="tbInput_Loaded"
       mc:Ignorable="d">
@@ -118,7 +122,8 @@
             <RowDefinition Height="42" />
         </Grid.RowDefinitions>
 
-        <CommandBar Grid.Row="0"
+        <CommandBar x:Name="cbMain"
+                    Grid.Row="0"
                     Background="Transparent"
                     DefaultLabelPosition="Right"
                     IsOpen="False">
@@ -212,6 +217,25 @@
 
         </CommandBar>
 
+
+
+        <TeachingTip x:Name="ClockTip"
+                     Title="Time"
+                     IsOpen="True"
+                     Subtitle="What time is it?"
+                     Target="{x:Bind tbInput}">
+            <TeachingTip.HeroContent>
+                <TextBlock Margin="16"
+                           FontFamily="Cascadia Code"
+                           Text="{x:Bind system:DateTime.Now, Mode=OneWay}" />
+            </TeachingTip.HeroContent>
+            <TeachingTip.Content>
+                <TextBlock Margin="0,16,0,0"
+                           TextWrapping="WrapWholeWords">
+                </TextBlock>
+            </TeachingTip.Content>
+        </TeachingTip>
+
         <ScrollView x:Name="scroller"
                     Grid.Row="1"
                     HorizontalScrollBarVisibility="Hidden"
@@ -283,7 +307,7 @@
             <Button Grid.Column="0"
                     VerticalAlignment="Center"
                     Flyout="{StaticResource emofly}">
-                <SymbolIcon Symbol="Emoji" />
+                <SymbolIcon Symbol="Emoji2" />
             </Button>
             <TextBox x:Name="tbInput"
                      Grid.Column="1"
@@ -310,18 +334,10 @@
                         <MenuFlyoutItem Command="{x:Bind ViewModel.ChangeModeToWriteCommand}"
                                         Icon="Send"
                                         Text="Write text">
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Key="W"
-                                                     Modifiers="Control,Shift" />
-                            </MenuFlyoutItem.KeyboardAccelerators>
                         </MenuFlyoutItem>
                         <MenuFlyoutItem Command="{x:Bind ViewModel.ChangeModeToCmdCommand}"
                                         Icon="Play"
                                         Text="Enter commands">
-                            <MenuFlyoutItem.KeyboardAccelerators>
-                                <KeyboardAccelerator Key="P"
-                                                     Modifiers="Control,Shift" />
-                            </MenuFlyoutItem.KeyboardAccelerators>
                         </MenuFlyoutItem>
 
                     </MenuFlyout>

@@ -1,6 +1,11 @@
 ﻿using System.Diagnostics;
 using Collox.Services;
+using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
+using Microsoft.Windows.AppLifecycle;
+using Microsoft.Windows.AppNotifications;
 using Windows.Win32;
+using Windows.Win32.Foundation;
 
 namespace Collox;
 
@@ -46,13 +51,56 @@ public partial class App : Application
 
         services.AddSingleton<IStoreService, StoreService>();
         services.AddSingleton<ITemplateService, TemplateService>();
+        services.AddSingleton<UserNotificationService>();
+
 
         return services.BuildServiceProvider();
     }
 
+    public static DispatcherQueue DispatcherQueue { get; private set; }
+
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         MainWindow = new Window();
+
+        AppNotificationManager notificationManager = AppNotificationManager.Default;
+        notificationManager.NotificationInvoked += NotificationManager_NotificationInvoked;
+        notificationManager.Register();
+
+        var activatedArgs = AppInstance.GetCurrent().GetActivatedEventArgs();
+        var activationKind = activatedArgs.Kind;
+        if (activationKind != ExtendedActivationKind.AppNotification)
+        {
+            SetupMainWindow();
+        }
+        else
+        {
+            HandleNotification((AppNotificationActivatedEventArgs)activatedArgs.Data);
+        }
+    }
+
+    private void NotificationManager_NotificationInvoked(AppNotificationManager sender, AppNotificationActivatedEventArgs args)
+    {
+        HandleNotification(args);
+    }
+
+    private void HandleNotification(AppNotificationActivatedEventArgs data)
+    {
+        var dispatcherQueue = MainWindow?.DispatcherQueue ?? DispatcherQueue.GetForCurrentThread();
+
+
+        dispatcherQueue.TryEnqueue(async delegate
+        {
+
+        });
+    }
+
+    private void SetupMainWindow()
+    {
+        if (MainWindow == null)
+        {
+            MainWindow = new Window();
+        }
 
         if (MainWindow.Content is not Frame rootFrame)
         {
@@ -70,6 +118,7 @@ public partial class App : Application
         MainWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
 
         MainWindow.Activate();
+        WindowHelper.ShowWindow(MainWindow);
 
         MainWindow.Closed += MainWindow_Closed;
     }
@@ -81,9 +130,24 @@ public partial class App : Application
 
     private void Application_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {
-        Debug.WriteLine($"An error {e.Exception.Message}{Environment.NewLine}{e}");
-        MessageBox.Show(WinRT.Interop.WindowNative.GetWindowHandle(MainWindow),
-            $"{e.Exception.Message}{Environment.NewLine}{e}", "Error", MessageBoxStyle.ApplicationModal | MessageBoxStyle.IconError | MessageBoxStyle.Ok);
+        Debug.WriteLine($"An error {e.Exception.Message}{Environment.NewLine}{e.Exception}");
+        //MessageBox.Show(WinRT.Interop.WindowNative.GetWindowHandle(MainWindow),
+         //$"{e.Exception.Message}{Environment.NewLine}{e}", "Error", MessageBoxStyle.ApplicationModal | MessageBoxStyle.IconError | MessageBoxStyle.Ok);
     }
 }
 
+static class WindowHelper
+{
+
+    public static void ShowWindow(Window window)
+    {
+        // Bring the window to the foreground... first get the window handle...
+        var hwnd = new HWND(WinRT.Interop.WindowNative.GetWindowHandle(window));
+
+        // Restore window if minimized... requires DLL import above
+        PInvoke.ShowWindow(hwnd, Windows.Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_RESTORE);
+
+        // And call SetForegroundWindow... requires DLL import above
+        PInvoke.SetForegroundWindow(hwnd);
+    }
+}

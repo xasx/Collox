@@ -3,12 +3,26 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+      xmlns:conv="using:Collox.Common.Converters"
+      xmlns:core="using:Microsoft.Xaml.Interactions.Core"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:dev="using:DevWinUI"
+      xmlns:helpers="using:CommunityToolkit.WinUI.Helpers"
+      xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:local="using:Collox"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:notifications="using:Windows.UI.Notifications"
       mc:Ignorable="d">
+
+    <interactivity:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Loaded">
+            <core:InvokeCommandAction Command="{x:Bind ViewModel.InitCommand}" />
+        </core:EventTriggerBehavior>
+    </interactivity:Interaction.Behaviors>
+
     <Page.Resources>
+
+        <conv:VisualToSummaryStringConverter x:Key="vConv" />
         <Flyout x:Name="wfly">
             <StackPanel>
 
@@ -19,11 +33,32 @@
                 </controls:SettingsCard>
             </StackPanel>
         </Flyout>
+
+        <Flyout x:Name="notifly">
+            <GridView Width="256"
+                      ItemsSource="{x:Bind ViewModel.UserNotifications, Mode=OneWay}">
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="notifications:UserNotification">
+                        <Border Width="240"
+                                BorderBrush="{StaticResource ControlStrongStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="4">
+                            <StackPanel>
+                                <TextBlock FontWeight="Bold"
+                                           Text="{x:Bind AppInfo.DisplayInfo.DisplayName}" />
+                                <TextBlock Text="{x:Bind Notification.Visual, Converter={StaticResource vConv}}"
+                                           TextWrapping="WrapWholeWords" />
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </GridView>
+        </Flyout>
     </Page.Resources>
     <Grid RowDefinitions="Auto, *">
         <TitleBar x:Name="AppTitleBar"
                   Title="{x:Bind dev:ProcessInfoHelper.ProductName}"
-                  IconSource="{dev:BitmapIconSource Source=ms-appx:///Assets/AppIcon.png}"
+                  IconSource="{dev:BitmapIconSource Source=ms-appx:///Assets/AppIcon.ico}"
                   IsBackButtonVisible="True"
                   IsPaneToggleButtonVisible="True"
                   Subtitle="{x:Bind dev:ProcessInfoHelper.VersionWithPrefix}">
@@ -71,8 +106,26 @@
             <NavigationView.Header>
                 <dev:BreadcrumbNavigator x:Name="BreadCrumbNav" />
             </NavigationView.Header>
+            <NavigationView.PaneFooter>
+                <StackPanel Padding="8"
+                            Spacing="8">
+                    <dev:Shield Height="32"
+                                FontSize="20"
+                                Status="{x:Bind ViewModel.InternetState.State, Mode=OneWay}">
+                        <FontIcon Glyph="{x:Bind ViewModel.InternetState.Icon, Mode=OneWay}" />
+                    </dev:Shield>
+                    <dev:Shield Height="32"
+                                Click="Shield_Click"
+                                FlyoutBase.AttachedFlyout="{StaticResource notifly}"
+                                FontSize="20"
+                                Status="{x:Bind ViewModel.UserNotifications.Count, Mode=OneWay}">
+                        <FontIcon Glyph="&#xE7E7;" />
+                    </dev:Shield>
+                    <dev:LoadingIndicator IsActive="True"
+                                          Mode="Arcs" />
+                </StackPanel>
+            </NavigationView.PaneFooter>
             <Frame x:Name="NavFrame" />
         </NavigationView>
     </Grid>
 </Page>
-

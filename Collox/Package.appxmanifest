@@ -5,7 +5,10 @@
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-  IgnorableNamespaces="uap rescap">
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  IgnorableNamespaces="uap rescap com desktop uap3">
 
   <Identity
     Name="2985101d-3474-44c0-ab2b-cc6459d26a7c"
@@ -43,11 +46,30 @@
         <uap:SplashScreen Image="Assets\Store\SplashScreen.png" />
         <uap:LockScreen BadgeLogo="Assets\Store\BadgeLogo.png" Notification="badgeAndTileText"/>
       </uap:VisualElements>
+      <Extensions>
+
+        <!--Specify which CLSID to activate when app notification clicked-->
+        <desktop:Extension Category="windows.toastNotificationActivation">
+          <desktop:ToastNotificationActivation ToastActivatorCLSID="992a9fcb-24ae-4690-a0c9-18afd7979aec" />
+        </desktop:Extension>
+
+        <!--Register COM CLSID LocalServer32 registry key-->
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer Executable="Collox.exe" Arguments="----AppNotificationActivated:" DisplayName="App notification activator">
+              <com:Class Id="992a9fcb-24ae-4690-a0c9-18afd7979aec" DisplayName="App notification activator"/>
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
+
+      </Extensions>
     </Application>
   </Applications>
 
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
+    <uap3:Capability Name="userNotificationListener"/>
+    <DeviceCapability Name="gazeInput"/>
     
   </Capabilities>
 </Package>

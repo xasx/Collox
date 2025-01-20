@@ -1,3 +1,5 @@
 ﻿SendMessageW
 FindWindowW
 WM_CLOSE
+ShowWindow
+SetForegroundWindow
