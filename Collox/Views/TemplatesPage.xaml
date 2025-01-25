@@ -9,6 +9,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:uictrls="using:CommunityToolkit.WinUI.UI.Controls"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+      xmlns:dev="using:DevWinUI"
       mc:Ignorable="d">
 
     <interactivity:Interaction.Behaviors>

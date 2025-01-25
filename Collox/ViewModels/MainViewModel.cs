@@ -7,7 +7,7 @@ using Windows.UI.Notifications;
 namespace Collox.ViewModels;
 public partial class MainViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware
 {
-    private readonly DispatcherQueue dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+    private DispatcherQueue dispatcherQueue = DispatcherQueue.GetForCurrentThread();
     public MainViewModel()
     {
         CommunityToolkit.WinUI.Helpers.NetworkHelper.Instance.NetworkChanged += Instance_NetworkChanged;
@@ -31,6 +31,8 @@ public partial class MainViewModel : ObservableObject, ITitleBarAutoSuggestBoxAw
 
         var notifs = await UserNotificationService.GetNotifications();
             UserNotifications.AddRange(notifs);
+
+        dispatcherQueue = DispatcherQueue.GetForCurrentThread();
     }
 
     public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)

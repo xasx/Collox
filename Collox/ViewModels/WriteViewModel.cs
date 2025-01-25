@@ -10,7 +10,7 @@ namespace Collox.ViewModels;
 
 public partial class Paragraph : ObservableObject
 {
-    private static readonly DispatcherQueue DispatcherQueue = DispatcherQueue.GetForCurrentThread();
+    internal static DispatcherQueue DispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
     private static readonly System.Timers.Timer Timer = new System.Timers.Timer()
     {
@@ -19,13 +19,19 @@ public partial class Paragraph : ObservableObject
     };
     public Paragraph()
     {
-        Timer.Elapsed += (sender, e) =>
+        var wel = new WeakEventListener<Paragraph, object, ElapsedEventArgs>(this)
         {
-            DispatcherQueue.TryEnqueue(() =>
+            OnEventAction = (instance, sender, args) =>
             {
-                this.RelativeTimestamp = DateTime.Now - this.Timestamp;
-            });
+                Paragraph.DispatcherQueue.TryEnqueue(() =>
+                {
+                    instance.RelativeTimestamp = DateTime.Now - instance.Timestamp;
+                });
+            },
+            OnDetachAction = (listener) => Timer.Elapsed -= listener.OnEvent
         };
+
+        Timer.Elapsed += wel.OnEvent;
     }
 
     [ObservableProperty]
@@ -166,33 +172,33 @@ public partial class WriteViewModel : ObservableObject
                 await ProcessCommand();
                 break;
         }
-        
+
 
         LastParagraph = string.Empty;
     }
 
     private async Task ProcessCommand()
     {
-         
-            switch (LastParagraph)
-            {
-                case "clear":
-                    await Clear();
-                    return;
 
-                case "save":
-                    await SaveNow();
-                    return;
+        switch (LastParagraph)
+        {
+            case "clear":
+                await Clear();
+                return;
 
-                case "speak":
-                    await SpeakLast();
-                    return;
+            case "save":
+                await SaveNow();
+                return;
 
-                case "..":
-                    Paragraphs.Last().AdditionalSpacing += 42;
-                    return;
-            }
-        
+            case "speak":
+                await SpeakLast();
+                return;
+
+            case "..":
+                Paragraphs.Last().AdditionalSpacing += 42;
+                return;
+        }
+
     }
 
     private async Task AddParagraph()

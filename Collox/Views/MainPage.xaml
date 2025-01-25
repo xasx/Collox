@@ -34,24 +34,28 @@
         </Flyout>
 
         <Flyout x:Name="notifly">
-            <GridView Width="256"
-                      ItemsSource="{x:Bind ViewModel.UserNotifications, Mode=OneWay}">
-                <GridView.ItemTemplate>
+            <ItemsView Width="336"
+                       Height="512"
+                       ItemsSource="{x:Bind ViewModel.UserNotifications, Mode=OneWay}">
+                <ItemsView.ItemTemplate>
                     <DataTemplate x:DataType="notifications:UserNotification">
-                        <Border Width="240"
-                                BorderBrush="{StaticResource ControlStrongStrokeColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="4">
-                            <StackPanel>
-                                <TextBlock FontWeight="Bold"
-                                           Text="{x:Bind AppInfo.DisplayInfo.DisplayName}" />
+                        <ItemContainer Width="320"
+                                       Margin="0,4"
+                                       Padding="4">
+
+                            <StackPanel Margin="4">
+                                <dev:Divider HorizontalContentAlignment="Left">
+                                    <TextBlock FontWeight="Bold"
+                                               Text="{x:Bind AppInfo.DisplayInfo.DisplayName}" />
+                                </dev:Divider>
                                 <TextBlock Text="{x:Bind Notification.Visual, Converter={StaticResource vConv}}"
                                            TextWrapping="WrapWholeWords" />
                             </StackPanel>
-                        </Border>
+
+                        </ItemContainer>
                     </DataTemplate>
-                </GridView.ItemTemplate>
-            </GridView>
+                </ItemsView.ItemTemplate>
+            </ItemsView>
         </Flyout>
     </Page.Resources>
     <Grid RowDefinitions="Auto, *">
@@ -61,13 +65,36 @@
                   IsBackButtonVisible="True"
                   IsPaneToggleButtonVisible="True"
                   Subtitle="{x:Bind dev:ProcessInfoHelper.VersionWithPrefix}">
+            <TitleBar.Header>
+                <StackPanel Orientation="Horizontal"
+                            Spacing="4">
+                    <FontIcon Glyph="&#xE946;" />
+                    <dev:LoadingIndicator Margin="4"
+                                          IsActive="True"
+                                          Mode="Pulse" />
+                </StackPanel>
+            </TitleBar.Header>
+
             <TitleBar.Content>
-                <AutoSuggestBox MinWidth="320"
-                                VerticalAlignment="Center"
-                                PlaceholderText="Search"
-                                QueryIcon="Find"
-                                QuerySubmitted="OnQuerySubmitted"
-                                TextChanged="OnTextChanged" />
+                <StackPanel Orientation="Horizontal">
+                    <MenuBar>
+                        <MenuBarItem Title="File">
+                            <MenuFlyoutItem Text="New" />
+                        </MenuBarItem>
+                        <MenuBarItem Title="Edit">
+                            <MenuFlyoutItem Text="Copy" />
+                            <MenuFlyoutItem Text="Paste" />
+                            <MenuFlyoutItem Text="Cut" />
+                        </MenuBarItem>
+                    </MenuBar>
+
+                    <AutoSuggestBox MinWidth="320"
+                                    VerticalAlignment="Center"
+                                    PlaceholderText="Search"
+                                    QueryIcon="Find"
+                                    QuerySubmitted="OnQuerySubmitted"
+                                    TextChanged="OnTextChanged" />
+                </StackPanel>
             </TitleBar.Content>
             <TitleBar.Footer>
                 <StackPanel Orientation="Horizontal">
@@ -103,7 +130,9 @@
                         IsBackButtonVisible="Collapsed"
                         IsPaneToggleButtonVisible="False">
             <NavigationView.Header>
-                <dev:BreadcrumbNavigator x:Name="BreadCrumbNav" />
+                <StackPanel>
+                    <dev:BreadcrumbNavigator x:Name="BreadCrumbNav" />
+                </StackPanel>
             </NavigationView.Header>
             <NavigationView.PaneFooter>
                 <StackPanel Padding="8"

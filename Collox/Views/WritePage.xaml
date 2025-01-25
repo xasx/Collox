@@ -225,14 +225,13 @@
                      Subtitle="What time is it?"
                      Target="{x:Bind tbInput}">
             <TeachingTip.HeroContent>
+                <dev:Clock HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+            </TeachingTip.HeroContent>
+            <TeachingTip.Content>
                 <TextBlock Margin="16"
                            FontFamily="Cascadia Code"
                            Text="{x:Bind system:DateTime.Now, Mode=OneWay}" />
-            </TeachingTip.HeroContent>
-            <TeachingTip.Content>
-                <TextBlock Margin="0,16,0,0"
-                           TextWrapping="WrapWholeWords">
-                </TextBlock>
             </TeachingTip.Content>
         </TeachingTip>
 
