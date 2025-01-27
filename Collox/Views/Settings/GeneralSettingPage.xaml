@@ -28,6 +28,18 @@
                            Text="{x:Bind ViewModel.BaseFolder}" />
             </controls:SettingsCard>
 
+            <controls:SettingsExpander x:Name="scrot"
+                                       Description="Control the behavior when a new file is created."
+                                       Header="File rotation"
+                                       HeaderIcon="{ui:FontIcon Glyph=&#xE9F3;}">
+                <ToggleSwitch x:Name="tsrot" />
+                <controls:SettingsExpander.Items>
+                    <controls:SettingsCard Description="Select the roll over time"
+                                           IsEnabled="{x:Bind tsrot.IsOn, Mode=OneWay}">
+                        <TimePicker ClockIdentifier="24HourClock" />
+                    </controls:SettingsCard>
+                </controls:SettingsExpander.Items>
+            </controls:SettingsExpander>
         </StackPanel>
     </ScrollView>
 </Page>

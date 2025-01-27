@@ -13,10 +13,14 @@ internal class StoreService : IStoreService
 
     public StoreService()
     {
-        DateTime now = DateTime.Now;
+        currentFilename = GenerateCurrentFilename(DateTime.Now);
+    }
+
+    private string GenerateCurrentFilename(DateTime now)
+    {
         string cfn = $"{now.ToString("yyyy-MM-dd")}.md";
         string fn = $"{now.ToString("yyyy-MM_MMMM")}";
-        currentFilename = Path.Combine(AppHelper.Settings.BaseFolder, fn, cfn);
+        return  Path.Combine(AppHelper.Settings.BaseFolder, fn, cfn);
     }
 
     public Task AppendParagraph(string text, DateTime? timestamp)
@@ -34,12 +38,30 @@ internal class StoreService : IStoreService
         });
     }
 
+    public string GetFilename()
+    {
+        return currentFilename;
+    }
+
     private void Save()
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(currentFilename));
-        File.AppendAllLines(currentFilename, q);
+        var fn = CheckFilename();
+        Directory.CreateDirectory(Path.GetDirectoryName(fn));
+        File.AppendAllLines(fn, q);
         lastSave = DateTime.Now;
         q.Clear();
+    }
+
+    private string CheckFilename()
+    {
+        if (AppHelper.Settings.CustomRotation)
+        {
+            if (TimeOnly.FromDateTime(DateTime.Now) >= AppHelper.Settings.RollOverTime)
+            {
+                currentFilename = GenerateCurrentFilename(DateTime.Now);
+            }
+        }
+        return currentFilename;
     }
 
     public Task SaveNow()

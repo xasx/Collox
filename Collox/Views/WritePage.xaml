@@ -15,7 +15,9 @@
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
       Loaded="tbInput_Loaded"
       mc:Ignorable="d">
+
     <Page.Resources>
+
         <Flyout x:Name="taskFly">
 
         </Flyout>
@@ -53,15 +55,15 @@
                                     <Bold>
                                         <Run Text="{x:Bind Name}" />
                                     </Bold><LineBreak />
-                                    <Run Foreground="{StaticResource AppBarItemDisabledForegroundThemeBrush}"
+                                    <Run Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                          Text="{x:Bind Culture}" />
-                                    <Run Foreground="{StaticResource AppBarItemDisabledForegroundThemeBrush}"
+                                    <Run Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                          Text="•" />
-                                    <Run Foreground="{StaticResource AppBarItemDisabledForegroundThemeBrush}"
+                                    <Run Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                          Text="{x:Bind Gender}" />
-                                    <Run Foreground="{StaticResource AppBarItemDisabledForegroundThemeBrush}"
+                                    <Run Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                          Text="•" />
-                                    <Run Foreground="{StaticResource AppBarItemDisabledForegroundThemeBrush}"
+                                    <Run Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                          Text="{x:Bind Age}" />
                                 </TextBlock>
                             </StackPanel>
@@ -132,8 +134,8 @@
                             Orientation="Horizontal"
                             Spacing="4">
 
-                    <ProgressRing Background="Gold"
-                                  Foreground="SteelBlue"
+                    <ProgressRing Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
+                                  Foreground="{ThemeResource SystemFillColorAttentionBrush}"
                                   IsIndeterminate="False"
                                   Maximum="{x:Bind ViewModel.KeyStrokesCount, Mode=OneWay}"
                                   Value="{x:Bind ViewModel.CharacterCount, Mode=OneWay}" />
@@ -241,15 +243,15 @@
                     HorizontalScrollMode="Disabled"
                     VerticalScrollBarVisibility="Auto">
             <ItemsRepeater x:Name="irChat"
-                           Background="{StaticResource SystemControlBackgroundListMediumBrush}"
+                           Background="{ThemeResource SystemControlBackgroundListMediumBrush}"
                            CacheMode="BitmapCache"
                            ItemsSource="{x:Bind ViewModel.Paragraphs}">
                 <ItemsRepeater.ItemTemplate>
                     <DataTemplate xmlns:vm="using:Collox.ViewModels"
                                   x:DataType="vm:Paragraph">
                         <RelativePanel Margin="8,0,8,8"
-                                       Background="{StaticResource SystemControlBackgroundListLowBrush}"
-                                       BorderBrush="{StaticResource SystemControlForegroundAccentBrush}"
+                                       Background="{ThemeResource SystemControlBackgroundListLowBrush}"
+                                       BorderBrush="{ThemeResource SystemControlForegroundAccentBrush}"
                                        BorderThickness="1"
                                        CornerRadius="8">
 
@@ -259,9 +261,9 @@
                                 <ctrls:HeaderedContentControl.Header>
                                     <Border Padding="2"
                                             HorizontalAlignment="Left"
-                                            Background="{StaticResource AccentTextFillColorTertiaryBrush}"
+                                            Background="{ThemeResource AccentAAFillColorDefaultBrush}"
                                             CornerRadius="4">
-                                        <TextBlock Foreground="{StaticResource TextOnAccentFillColorPrimaryBrush}">
+                                        <TextBlock Foreground="{ThemeResource TextOnAccentAAFillColorPrimary}">
                                             <Run Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource tsconv}}" />
                                             <Run Text="{x:Bind Timestamp}" />
                                         </TextBlock>

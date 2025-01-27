@@ -50,7 +50,7 @@ public partial class Paragraph : ObservableObject
     }
 }
 
-public partial class WriteViewModel : ObservableObject
+public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware
 {
     private static ICollection<VoiceInfo> voiceInfos = new SpeechSynthesizer().GetInstalledVoices().Select(iv => iv.VoiceInfo).ToList();
     private IStoreService storeService;
@@ -227,7 +227,34 @@ public partial class WriteViewModel : ObservableObject
         }
     }
 
+    public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        DevWinUI .AutoSuggestBoxHelper.LoadSuggestions(sender, args, Paragraphs.Where(p => p.Text.Contains( sender.Text)).Select(p => p.Text).ToArray());
+
+    }
+
+    public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+    {
+        // args.QueryText
+        // find the paragraph with the text and determine the index
+        // then scroll to the index
+        var paragraph = Paragraphs.FirstOrDefault(p => p.Text == args.QueryText);
+        if (paragraph != null)
+        {
+            var index = Paragraphs.IndexOf(paragraph);
+            WeakReferenceMessenger.Default.Send(new ParagraphSelectedMessage(index));
+        }
+
+    }
 }
+
+public class ParagraphSelectedMessage : ValueChangedMessage<int>
+{   
+    public ParagraphSelectedMessage(int index) : base(index)
+    {
+    }
+}
+
 public class TextSubmittedMessage : ValueChangedMessage<string>
 {
     public TextSubmittedMessage(string value) : base(value)

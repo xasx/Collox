@@ -21,6 +21,9 @@ public partial class AppConfig : NotifiyingJsonSettings, IVersionable
 
     public bool autoBeep { get; set; }
 
+    public bool customRotation { get; set; }
+
+    public TimeOnly rollOverTime { get; set; }
 
     // Docs: https://github.com/Nucs/JsonSettings
 }

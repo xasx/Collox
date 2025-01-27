@@ -40,7 +40,20 @@ public sealed partial class WritePage : Page
             scroller.ScrollTo(0.0, scroller.ViewportHeight,
                 new ScrollingScrollOptions(ScrollingAnimationMode.Disabled));
         });
+        WeakReferenceMessenger.Default.Register<ParagraphSelectedMessage>(this, (s, e) =>
+        {
+            var item = irChat.TryGetElement(e.Value) as FrameworkElement;
+            if (item != null)
+            {
+                // Translate the item’s position into the scroller’s coordinate space
+                var transform = item.TransformToVisual(scroller);
+                Point offset = transform.TransformPoint(new Point(0, 0));
 
+                // Scroll to that position
+                scroller.ScrollTo(offset.X, offset.Y,
+                    new ScrollingScrollOptions(ScrollingAnimationMode.Enabled));
+            }
+        });
     }
 
     public WriteViewModel ViewModel => (WriteViewModel)this.DataContext;

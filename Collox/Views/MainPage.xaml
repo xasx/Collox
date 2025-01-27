@@ -44,7 +44,8 @@
                                        Padding="4">
 
                             <StackPanel Margin="4">
-                                <dev:Divider HorizontalContentAlignment="Left">
+                                <dev:Divider HorizontalContentAlignment="Left"
+                                             ContentPadding="4">
                                     <TextBlock FontWeight="Bold"
                                                Text="{x:Bind AppInfo.DisplayInfo.DisplayName}" />
                                 </dev:Divider>
