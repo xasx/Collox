@@ -56,6 +56,7 @@ internal class StoreService : IStoreService
     {
         if (AppHelper.Settings.CustomRotation)
         {
+            // Todo check rollover once per day
             if (TimeOnly.FromDateTime(DateTime.Now) >= AppHelper.Settings.RollOverTime)
             {
                 currentFilename = GenerateCurrentFilename(DateTime.Now);

@@ -93,6 +93,9 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     [ObservableProperty]
     public partial Symbol SubmitModeIcon { get; set; } = Symbol.Send;
 
+    [ObservableProperty]
+    public partial string Filename { get; set; } 
+
     [RelayCommand]
     public async Task ChangeModeToCmd()
     {
