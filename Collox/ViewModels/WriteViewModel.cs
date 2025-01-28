@@ -140,7 +140,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     partial void OnIsBeepingChanged(bool value)
     {
-        AppHelper.Settings.AutoRead = value;
+        AppHelper.Settings.AutoBeep = value;
     }
 
     partial void OnIsSpeakingChanged(bool value)

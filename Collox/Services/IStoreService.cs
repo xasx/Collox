@@ -9,4 +9,6 @@ public interface IStoreService
     Task SaveNow();
 
     Task<IDictionary<string, ICollection<MarkdownRecording>>> Load();
+
+    string GetFilename();
 }

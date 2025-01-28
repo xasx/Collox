@@ -25,5 +25,9 @@ public partial class AppConfig : NotifiyingJsonSettings, IVersionable
 
     public TimeOnly rollOverTime { get; set; }
 
+    public bool writeDelimiters { get; set; } = true;
+
+    public bool deferredWrite { get; set; } = true;
+
     // Docs: https://github.com/Nucs/JsonSettings
 }

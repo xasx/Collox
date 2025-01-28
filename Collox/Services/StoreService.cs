@@ -1,5 +1,7 @@
 ﻿using System.Globalization;
 using Collox.Models;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 
 namespace Collox.Services;
 
@@ -9,7 +11,12 @@ internal class StoreService : IStoreService
 
     private DateTime lastSave = DateTime.MinValue;
 
-    private Queue<string> q = new Queue<string>();
+    private DateTime lastROD = DateTime.MinValue;
+
+    private bool newday;
+
+    private readonly Queue<string> q = new Queue<string>();
+    
 
     public StoreService()
     {
@@ -27,11 +34,11 @@ internal class StoreService : IStoreService
     {
         return Task.Run(() =>
         {
-            q.Enqueue($"<!-- collox.bop:{Guid.NewGuid()} -->");
+            q.EnqueueIf(AppHelper.Settings.WriteDelimiters, $"<!-- collox.bop:{Guid.NewGuid()} -->");
             q.Enqueue(timestamp?.ToMdTimestamp());
             q.Enqueue(text.AsMdBq());
-
-            if (DateTime.Now - lastSave >= TimeSpan.FromSeconds(30))
+            q.EnqueueIf(AppHelper.Settings.WriteDelimiters, "<!-- collox.eop -->");
+        if (!AppHelper.Settings.DeferredWrite || DateTime.Now - lastSave >= TimeSpan.FromSeconds(30))
             {
                 Save();
             }
@@ -56,10 +63,18 @@ internal class StoreService : IStoreService
     {
         if (AppHelper.Settings.CustomRotation)
         {
-            // Todo check rollover once per day
-            if (TimeOnly.FromDateTime(DateTime.Now) >= AppHelper.Settings.RollOverTime)
+            var now = DateTime.Now;
+            if (newday || DateOnly.FromDateTime(now) > DateOnly.FromDateTime(lastROD))
             {
-                currentFilename = GenerateCurrentFilename(DateTime.Now);
+                newday = true; // save some comparisons 
+                if (TimeOnly.FromDateTime(now) >= AppHelper.Settings.RollOverTime)
+                {
+                    var oldfn = currentFilename;
+                    currentFilename = GenerateCurrentFilename(now);
+                    lastROD = now;
+                    WeakReferenceMessenger.Default.Send(new PropertyChangedMessage<string>(this, "Filename", oldfn, currentFilename));
+                    newday = false;
+                }
             }
         }
         return currentFilename;
@@ -92,13 +107,12 @@ internal class StoreService : IStoreService
                         lines = await sr.ReadToEndAsync();
                     }
                     var date = DateOnly.Parse(f.Name.Substring(0, 10));
+                    
                     var rec = new MarkdownRecording()
                     {
                         Date = date,
                         Preview = lines
                     };
-
-
 
                     list.Add(rec);
                 }
@@ -124,7 +138,6 @@ public static class Extensions
                 writer.WriteLine(line);
 
             }
-            writer.WriteLine("<!-- collox.eop -->");
             return writer.ToString();
         }
     }
@@ -132,5 +145,13 @@ public static class Extensions
     public static string ToMdTimestamp(this DateTime dateTime)
     {
         return string.Concat("##### ", dateTime.ToString("G"), Environment.NewLine);
+    }
+
+    public static void EnqueueIf<T>(this Queue<T> queue, bool condition, T element)
+    {
+        if (condition)
+        {
+            queue.Enqueue(element);
+        }
     }
 }

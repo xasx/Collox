@@ -9,6 +9,7 @@
       xmlns:helpers="using:CommunityToolkit.WinUI.Helpers"
       xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:local="using:Collox"
+      xmlns:marquee="using:CommunityToolkit.Labs.WinUI.MarqueeTextRns"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:notifications="using:Windows.UI.Notifications"
       mc:Ignorable="d">
@@ -30,6 +31,17 @@
                     <ToggleSwitch OffContent="Disabled"
                                   OnContent="Enabed" />
                 </controls:SettingsCard>
+            </StackPanel>
+        </Flyout>
+
+        <Flyout x:Name="infofly">
+            <StackPanel Width="256">
+
+                <marquee:MarqueeText Behavior="Bouncing"
+                                     Direction="Left"
+                                     RepeatBehavior="Forever"
+                                     Speed="32"
+                                     Text="{x:Bind ViewModel.DocumentFilename, Mode=OneWay}" />
             </StackPanel>
         </Flyout>
 
@@ -69,7 +81,9 @@
             <TitleBar.Header>
                 <StackPanel Orientation="Horizontal"
                             Spacing="4">
-                    <FontIcon Glyph="&#xE946;" />
+                    <Button Flyout="{StaticResource infofly}">
+                        <FontIcon Glyph="&#xE946;" />
+                    </Button>
                     <dev:LoadingIndicator Margin="4"
                                           IsActive="True"
                                           Mode="Pulse" />
