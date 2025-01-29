@@ -36,12 +36,14 @@
 
         <Flyout x:Name="infofly">
             <StackPanel Width="256">
-
-                <marquee:MarqueeText Behavior="Bouncing"
-                                     Direction="Left"
-                                     RepeatBehavior="Forever"
-                                     Speed="32"
-                                     Text="{x:Bind ViewModel.DocumentFilename, Mode=OneWay}" />
+                <controls:HeaderedContentControl FontWeight="SemiBold"
+                                                 Header="Current document">
+                    <marquee:MarqueeText Behavior="Bouncing"
+                                         Direction="Left"
+                                         RepeatBehavior="Forever"
+                                         Speed="32"
+                                         Text="{x:Bind ViewModel.DocumentFilename, Mode=OneWay}" />
+                </controls:HeaderedContentControl>
             </StackPanel>
         </Flyout>
 
@@ -57,7 +59,7 @@
 
                             <StackPanel Margin="4">
                                 <dev:Divider HorizontalContentAlignment="Left"
-                                             ContentPadding="4">
+                                             ContentPadding="0">
                                     <TextBlock FontWeight="Bold"
                                                Text="{x:Bind AppInfo.DisplayInfo.DisplayName}" />
                                 </dev:Divider>

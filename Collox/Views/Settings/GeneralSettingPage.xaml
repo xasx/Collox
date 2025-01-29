@@ -40,6 +40,16 @@
                     </controls:SettingsCard>
                 </controls:SettingsExpander.Items>
             </controls:SettingsExpander>
+            <controls:SettingsCard Description="Insert comments as delimiters surrounding a message."
+                                   Header="Write delimiters"
+                                   HeaderIcon="{ui:FontIcon Glyph=&#xE943;}">
+                <ToggleSwitch IsOn="{x:Bind ViewModel.WriteDelimiters}" />
+            </controls:SettingsCard>
+            <controls:SettingsCard Description="Only write after at least 30 seconds."
+                                   Header="Deferred write"
+                                   HeaderIcon="{ui:FontIcon Glyph=&#xE917;}">
+                <ToggleSwitch IsOn="{x:Bind ViewModel.DeferredWrite}" />
+            </controls:SettingsCard>
         </StackPanel>
     </ScrollView>
 </Page>

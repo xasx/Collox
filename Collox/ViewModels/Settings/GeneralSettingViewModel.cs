@@ -12,6 +12,12 @@ public partial class GeneralSettingViewModel : ObservableObject
     [ObservableProperty]
     public partial bool CustomRotation { get; set; } = AppHelper.Settings.CustomRotation;
 
+    [ObservableProperty]
+    public partial bool WriteDelimiters { get; set; } = AppHelper.Settings.WriteDelimiters;
+
+    [ObservableProperty]
+    public partial bool DeferredWrite { get; set; } = AppHelper.Settings.DeferredWrite;
+
     [RelayCommand]
     public async Task SelectBaseFolder()
     {
@@ -37,5 +43,15 @@ public partial class GeneralSettingViewModel : ObservableObject
     partial void OnCustomRotationChanged(bool value)
     {
         AppHelper.Settings.CustomRotation = value;
+    }
+
+    partial void OnWriteDelimitersChanged(bool value)
+    {
+        AppHelper.Settings.WriteDelimiters = value;
+    }
+
+    partial void OnDeferredWriteChanged(bool value)
+    {
+        AppHelper.Settings.DeferredWrite = value;
     }
 }
