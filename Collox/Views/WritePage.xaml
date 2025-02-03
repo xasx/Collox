@@ -2,6 +2,7 @@
 <Page x:Class="Collox.Views.WritePage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:cc="using:Collox.Common"
       xmlns:conv="using:Collox.Common.Converters"
       xmlns:ctrls="using:CommunityToolkit.WinUI.Controls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -11,6 +12,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:system="using:System"
       xmlns:uictrls="using:CommunityToolkit.WinUI.UI.Controls"
+      xmlns:vm="using:Collox.ViewModels"
       gaze:GazeInput.Interaction="Disabled"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
       Loaded="tbInput_Loaded"
@@ -114,6 +116,64 @@
                 </ScrollView>
             </StackPanel>
         </Flyout>
+        <DataTemplate x:Name="DefaultTemplate"
+                      x:DataType="vm:Paragraph">
+
+            <StackPanel>
+                <TextBlock Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource tsconv}}" />
+                <TextBlock Text="{x:Bind Timestamp}" />
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate x:Name="TextParagraphTemplate"
+                      x:DataType="vm:TextParagraph">
+            <RelativePanel Margin="8,0,8,8"
+                           Background="{ThemeResource SystemControlBackgroundListLowBrush}"
+                           BorderBrush="{ThemeResource SystemControlForegroundAccentBrush}"
+                           BorderThickness="1"
+                           CornerRadius="8">
+
+                <ctrls:HeaderedContentControl x:Name="hcc"
+                                              Margin="8">
+
+                    <ctrls:HeaderedContentControl.Header>
+                        <Border Padding="2"
+                                HorizontalAlignment="Left"
+                                Background="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                CornerRadius="4">
+                            <TextBlock Foreground="{ThemeResource TextOnAccentAAFillColorPrimary}">
+                                <Run Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource tsconv}}" />
+                                <Run Text="{x:Bind Timestamp}" />
+                            </TextBlock>
+                        </Border>
+                    </ctrls:HeaderedContentControl.Header>
+                    <uictrls:MarkdownTextBlock x:Name="mdtbEntry"
+                                               Background="Transparent"
+                                               FontSize="32"
+                                               Text="{x:Bind Text}"
+                                               TextWrapping="WrapWholeWords" />
+                </ctrls:HeaderedContentControl>
+                <Button Command="{x:Bind ReadCommand}"
+                        RelativePanel.AlignRightWithPanel="True">
+                    <SymbolIcon Symbol="Volume" />
+                </Button>
+                <Border Height="{x:Bind AdditionalSpacing, Mode=OneWay}"
+                        Background="DarkGoldenrod"
+                        RelativePanel.Below="hcc" />
+            </RelativePanel>
+        </DataTemplate>
+
+        <DataTemplate x:Name="TimeTemplate"
+                      x:DataType="vm:TimeParagraph">
+            <TextBlock Margin="16"
+                       FontSize="24"
+                       FontWeight="SemiBold"
+                       Text="{x:Bind Time}" />
+        </DataTemplate>
+
+        <cc:ParagraphTemplateSelector x:Name="ParagraphsTemplate"
+                                      DefaultTemplate="{StaticResource DefaultTemplate}"
+                                      TextTemplate="{StaticResource TextParagraphTemplate}"
+                                      TimeTemplate="{StaticResource TimeTemplate}" />
     </Page.Resources>
 
     <Grid>
@@ -146,6 +206,7 @@
                     </StackPanel>
                 </StackPanel>
             </AppBarElementContainer>
+
             <AppBarButton Command="{x:Bind ViewModel.SaveNowCommand}"
                           Icon="Save"
                           Label="Save">
@@ -154,10 +215,12 @@
                                          Modifiers="Control" />
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
+
             <AppBarToggleButton Icon="SaveLocal"
                                 IsChecked="True"
                                 IsEnabled="False"
                                 Label="Auto save" />
+
             <AppBarButton Command="{x:Bind ViewModel.ClearCommand}"
                           Icon="Clear"
                           Label="Clear">
@@ -166,6 +229,7 @@
                                          Modifiers="Control" />
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
+
             <AppBarButton Icon="Page"
                           Label="Insert template">
                 <AppBarButton.Flyout>
@@ -180,7 +244,6 @@
                     </MenuFlyout>
                 </AppBarButton.Flyout>
             </AppBarButton>
-
 
             <AppBarButton Command="{x:Bind ViewModel.SpeakLastCommand}"
                           Label="Read last">
@@ -199,6 +262,7 @@
                                          Modifiers="Control" />
                 </AppBarToggleButton.KeyboardAccelerators>
             </AppBarToggleButton>
+
             <AppBarToggleButton IsChecked="{x:Bind ViewModel.IsBeeping, Mode=TwoWay}"
                                 Label="Beep">
                 <FontIcon Glyph="&#xEA8F;" />
@@ -219,24 +283,6 @@
 
         </CommandBar>
 
-
-
-        <TeachingTip x:Name="ClockTip"
-                     Title="Time"
-                     IsOpen="True"
-                     Subtitle="What time is it?"
-                     Target="{x:Bind tbInput}">
-            <TeachingTip.HeroContent>
-                <dev:Clock HorizontalAlignment="Center"
-                           VerticalAlignment="Center" />
-            </TeachingTip.HeroContent>
-            <TeachingTip.Content>
-                <TextBlock Margin="16"
-                           FontFamily="Cascadia Code"
-                           Text="{x:Bind system:DateTime.Now, Mode=OneWay}" />
-            </TeachingTip.Content>
-        </TeachingTip>
-
         <ScrollView x:Name="scroller"
                     Grid.Row="1"
                     HorizontalScrollBarVisibility="Hidden"
@@ -245,55 +291,20 @@
             <ItemsRepeater x:Name="irChat"
                            Background="{ThemeResource SystemControlBackgroundListMediumBrush}"
                            CacheMode="BitmapCache"
-                           ItemsSource="{x:Bind ViewModel.Paragraphs}">
-                <ItemsRepeater.ItemTemplate>
-                    <DataTemplate xmlns:vm="using:Collox.ViewModels"
-                                  x:DataType="vm:Paragraph">
-                        <RelativePanel Margin="8,0,8,8"
-                                       Background="{ThemeResource SystemControlBackgroundListLowBrush}"
-                                       BorderBrush="{ThemeResource SystemControlForegroundAccentBrush}"
-                                       BorderThickness="1"
-                                       CornerRadius="8">
-
-                            <ctrls:HeaderedContentControl x:Name="hcc"
-                                                          Margin="8">
-
-                                <ctrls:HeaderedContentControl.Header>
-                                    <Border Padding="2"
-                                            HorizontalAlignment="Left"
-                                            Background="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                            CornerRadius="4">
-                                        <TextBlock Foreground="{ThemeResource TextOnAccentAAFillColorPrimary}">
-                                            <Run Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource tsconv}}" />
-                                            <Run Text="{x:Bind Timestamp}" />
-                                        </TextBlock>
-                                    </Border>
-                                </ctrls:HeaderedContentControl.Header>
-                                <uictrls:MarkdownTextBlock x:Name="mdtbEntry"
-                                                           Background="Transparent"
-                                                           FontSize="32"
-                                                           Text="{x:Bind Text}"
-                                                           TextWrapping="WrapWholeWords" />
-                            </ctrls:HeaderedContentControl>
-                            <Button Command="{x:Bind ReadCommand}"
-                                    RelativePanel.AlignRightWithPanel="True">
-                                <SymbolIcon Symbol="Volume" />
-                            </Button>
-                            <Border Height="{x:Bind AdditionalSpacing, Mode=OneWay}"
-                                    Background="DarkGoldenrod"
-                                    RelativePanel.Below="hcc" />
-                        </RelativePanel>
-                    </DataTemplate>
-                </ItemsRepeater.ItemTemplate>
-            </ItemsRepeater>
+                           ItemTemplate="{StaticResource ParagraphsTemplate}"
+                           ItemsSource="{x:Bind ViewModel.Paragraphs}" />
         </ScrollView>
 
         <InfoBar x:Name="infoBar"
-                 Title="Infoooze"
+                 Title="Current Context"
                  Grid.Row="1"
-                 IsOpen="False"
-                 Message="🔴🟠🟡🟢🔵🟣🟤⚫⚪"
-                 Severity="Informational" />
+                 IsOpen="True"
+                 Message="{x:Bind ConversationContext, Mode=OneTime}"
+                 Severity="Informational">
+            <InfoBar.Resources>
+                <ResourceDictionary Source="ms-appx:///DevWinUI.Controls/Themes/InfoBarInformationalColor.xaml" />
+            </InfoBar.Resources>
+        </InfoBar>
 
         <uictrls:MarkdownTextBlock Grid.Row="2"
                                    FontSize="22"

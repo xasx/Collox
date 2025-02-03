@@ -10,8 +10,9 @@
 
     <Grid>
         <dev:Particle Density="16"
-                      Foreground="PaleTurquoise"
-                      IsPointerEnable="True" />
+                      IsPointerEnable="True"
+                      LineColor="PaleTurquoise"
+                      ParticleColor="MediumTurquoise" />
         <dev:HeaderTile Title="Collox"
                         Description="Your app to write with TTS support. Best used with an eyetracker."
                         FontSize="14">

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -58,11 +59,14 @@ public sealed partial class WritePage : Page
 
     public WriteViewModel ViewModel => (WriteViewModel)this.DataContext;
 
+    public string ConversationContext { get; set; }
+
     private void tbInput_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
     {
         ViewModel.KeyStrokesCount++;
         if (e.Key == VirtualKey.Enter)
         {
+            // todo does not always work
             if ((InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift)
                 == CoreVirtualKeyStates.Down ||
             InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.CapitalLock)

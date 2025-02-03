@@ -16,7 +16,7 @@ public partial class NavigationPageMappings
     public static Dictionary<string, Type> PageDictionary { get; } = new Dictionary<string, Type>
     {
         {"Collox.Views.HomeLandingPage", typeof(Collox.Views.HomeLandingPage)},
-        {"Collox.Views.WritePage", typeof(Collox.Views.WritePage)},
+        {"Collox.Views.TabWritePage", typeof(Collox.Views.TabWritePage)},
         {"Collox.Views.TemplatesPage", typeof(Collox.Views.TemplatesPage)},
         {"Collox.Views.HistoryPage", typeof(Collox.Views.HistoryPage)},
     };

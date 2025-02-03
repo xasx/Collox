@@ -17,7 +17,7 @@
           "HideItem": true
         },
         {
-          "UniqueId": "Collox.Views.WritePage",
+          "UniqueId": "Collox.Views.TabWritePage",
           "Title": "Write",
           "Subtitle": "Write here",
           "IconGlyph": "EDC6",

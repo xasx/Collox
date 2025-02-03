@@ -48,6 +48,9 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>BreadcrumbPageMappings.cs</LastGenOutput>
     </None>
+    <Page Update="Views\TabWritePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\HistoryPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -79,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Views\HistoryPage.xaml" />
+    <None Remove="Views\TabWritePage.xaml" />
     <None Remove="Views\TemplatesPage.xaml" />
     <None Remove="Views\WritePage.xaml" />
   </ItemGroup>
@@ -95,7 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Common" Version="8.4.0" />
-    <PackageReference Include="CommunityToolkit.Labs.WinUI.MarqueeText" Version="0.1.250128-build.2028" />
+    <PackageReference Include="CommunityToolkit.Labs.WinUI.MarqueeText" Version="0.1.250129-build.2033" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.250129-preview2" />
     <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.250129-preview2" />

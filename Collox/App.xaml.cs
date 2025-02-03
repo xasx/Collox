@@ -48,6 +48,7 @@ public partial class App : Application
         services.AddTransient<WriteViewModel>();
         services.AddTransient<TemplatesViewModel>();
         services.AddTransient<HistoryViewModel>();
+        services.AddTransient<TabWriteViewModel>();
 
         services.AddSingleton<IStoreService, StoreService>();
         services.AddSingleton<ITemplateService, TemplateService>();

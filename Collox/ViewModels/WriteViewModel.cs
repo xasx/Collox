@@ -1,54 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.Speech.Synthesis;
-using System.Timers;
 using Collox.Services;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
-using Windows.System;
+using Markdig;
 
 namespace Collox.ViewModels;
-
-public partial class Paragraph : ObservableObject
-{
-    internal static DispatcherQueue DispatcherQueue = DispatcherQueue.GetForCurrentThread();
-
-    private static readonly System.Timers.Timer Timer = new System.Timers.Timer()
-    {
-        Interval = 10000,
-        Enabled = true
-    };
-    public Paragraph()
-    {
-        var wel = new WeakEventListener<Paragraph, object, ElapsedEventArgs>(this)
-        {
-            OnEventAction = (instance, sender, args) =>
-            {
-                Paragraph.DispatcherQueue.TryEnqueue(() =>
-                {
-                    instance.RelativeTimestamp = DateTime.Now - instance.Timestamp;
-                });
-            },
-            OnDetachAction = (listener) => Timer.Elapsed -= listener.OnEvent
-        };
-
-        Timer.Elapsed += wel.OnEvent;
-    }
-
-    [ObservableProperty]
-    public partial int AdditionalSpacing { get; set; } = 0;
-
-    [ObservableProperty]
-    public partial TimeSpan RelativeTimestamp { get; set; }
-
-    public string Text { get; set; }
-
-    public DateTime Timestamp { get; set; }
-    [RelayCommand]
-    public async Task Read()
-    {
-        WriteViewModel.ReadText(Text, AppHelper.Settings.Voice);
-    }
-}
 
 public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware
 {
@@ -94,7 +51,10 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     public partial Symbol SubmitModeIcon { get; set; } = Symbol.Send;
 
     [ObservableProperty]
-    public partial string Filename { get; set; } 
+    public partial string Filename { get; set; }
+
+    [ObservableProperty]
+    public partial bool ClockShown { get; set; }
 
     [RelayCommand]
     public async Task ChangeModeToCmd()
@@ -120,7 +80,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     {
         if (Paragraphs.Count > 0)
         {
-            ReadText(Paragraphs.Last().Text, SelectedVoice?.Name);
+            ReadText(StripMd(Paragraphs.Where(p => p is TextParagraph)
+                .Cast<TextParagraph>().Last().Text), SelectedVoice?.Name);
         }
     }
 
@@ -200,13 +161,22 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             case "..":
                 Paragraphs.Last().AdditionalSpacing += 42;
                 return;
+
+            case "time":
+                TimeParagraph timeParagraph = new TimeParagraph()
+                {
+                    Time = DateTime.Now.TimeOfDay,
+                };
+                
+                Paragraphs.Add(timeParagraph);
+                return;
         }
 
     }
 
     private async Task AddParagraph()
     {
-        var paragraph = new Paragraph()
+        var paragraph = new TextParagraph()
         {
             Text = LastParagraph,
             Timestamp = DateTime.Now
@@ -230,9 +200,20 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         }
     }
 
+    private static string StripMd(string mdText)
+    {
+        var p = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+        var content = Markdown.ToPlainText(mdText, p);
+        
+        return content;
+
+    }
+
     public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
-        DevWinUI .AutoSuggestBoxHelper.LoadSuggestions(sender, args, Paragraphs.Where(p => p.Text.Contains( sender.Text)).Select(p => p.Text).ToArray());
+        DevWinUI.AutoSuggestBoxHelper.LoadSuggestions(sender, args, Paragraphs
+            .Where(p => p is TextParagraph).Cast<TextParagraph>()
+            .Where(p => p.Text.Contains(sender.Text)).Select(p => p.Text).ToArray());
 
     }
 
@@ -241,7 +222,9 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         // args.QueryText
         // find the paragraph with the text and determine the index
         // then scroll to the index
-        var paragraph = Paragraphs.FirstOrDefault(p => p.Text == args.QueryText);
+        var paragraph = Paragraphs
+            .Where(p => p is TextParagraph).Cast<TextParagraph>()
+            .FirstOrDefault(p => p.Text == args.QueryText);
         if (paragraph != null)
         {
             var index = Paragraphs.IndexOf(paragraph);
@@ -252,7 +235,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 }
 
 public class ParagraphSelectedMessage : ValueChangedMessage<int>
-{   
+{
     public ParagraphSelectedMessage(int index) : base(index)
     {
     }
