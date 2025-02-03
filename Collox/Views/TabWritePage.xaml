@@ -18,6 +18,50 @@
              TabItemsSource="{x:Bind ViewModel.Contexts}"
              TabWidthMode="SizeToContent">
 
+        <TabView.KeyboardAccelerators>
+            <KeyboardAccelerator Key="T"
+                                 Invoked="NewTabKeyboardAccelerator_Invoked"
+                                 Modifiers="Control" />
+            <KeyboardAccelerator Key="W"
+                                 Invoked="CloseCurrentTabKeyboardAccelerator_Invoked"
+                                 Modifiers="Control" />
+            <KeyboardAccelerator Key="Number1"
+                                 Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+                                 Modifiers="Control" />
+            <KeyboardAccelerator Key="Number2"
+                                 Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+                                 Modifiers="Control" />
+            <KeyboardAccelerator Key="Number3"
+                                 Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+                                 Modifiers="Control" />
+            <KeyboardAccelerator Key="Number4"
+                                 Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+                                 Modifiers="Control" />
+            <KeyboardAccelerator Key="Number5"
+                                 Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+                                 Modifiers="Control" />
+            <KeyboardAccelerator Key="Number6"
+                                 Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+                                 Modifiers="Control" />
+            <KeyboardAccelerator Key="Number7"
+                                 Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+                                 Modifiers="Control" />
+            <KeyboardAccelerator Key="Number8"
+                                 Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+                                 Modifiers="Control" />
+            <KeyboardAccelerator Key="Number9"
+                                 Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"
+                                 Modifiers="Control" />
+        </TabView.KeyboardAccelerators>
+
+        <TabView.TabStripFooter>
+            <StackPanel HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                <Button>
+                    <FontIcon Glyph="&#xEADF;" />
+                </Button>
+            </StackPanel>
+        </TabView.TabStripFooter>
 
         <TabView.TabItemTemplate>
             <DataTemplate x:DataType="vm:TabData">

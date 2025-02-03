@@ -59,7 +59,15 @@ public sealed partial class WritePage : Page
 
     public WriteViewModel ViewModel => (WriteViewModel)this.DataContext;
 
-    public string ConversationContext { get; set; }
+    public string ConversationContext
+    {
+        get;
+        set
+        {
+            field = value;
+            ViewModel.ConversationContext = value;
+        }
+    }
 
     private void tbInput_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
     {

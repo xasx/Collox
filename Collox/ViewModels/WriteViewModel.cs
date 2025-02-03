@@ -20,6 +20,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     [ObservableProperty]
     public partial int CharacterCount { get; set; }
 
+    public string ConversationContext { get; set; } = string.Empty;
+
     public ICollection<VoiceInfo> InstalledVoices
     {
         get
@@ -184,7 +186,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         Paragraphs.Add(paragraph);
 
         CharacterCount = Math.Min(KeyStrokesCount, CharacterCount + LastParagraph.Length);
-        await storeService.AppendParagraph(paragraph.Text, paragraph.Timestamp);
+        await storeService.AppendParagraph(paragraph.Text, ConversationContext, paragraph.Timestamp);
         WeakReferenceMessenger.Default.Send(new TextSubmittedMessage(LastParagraph));
 
         if (IsBeeping)

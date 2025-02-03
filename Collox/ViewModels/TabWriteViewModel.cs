@@ -21,6 +21,15 @@ public partial class TabWriteViewModel : ObservableObject
         Contexts.Add(newTab);
         SelectedTab = newTab;
     }
+
+    [RelayCommand]
+    public void RemoveContext()
+    {
+        if (Contexts.Count > 1)
+        {
+            Contexts.Remove(SelectedTab);
+        }
+    }
 }
 
 public record TabData(string Context, bool IsCloseable);

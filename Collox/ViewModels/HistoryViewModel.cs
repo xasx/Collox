@@ -36,11 +36,6 @@ public partial class HistoryViewModel : ObservableObject
             }
         }
     }
-
-    partial void OnSelectedHistoryEntryChanged(HistoryEntry value)
-    {
-        Debug.WriteLine(value.Preview.Truncate(200));
-    }
 }
 
 public class HistoryEntry

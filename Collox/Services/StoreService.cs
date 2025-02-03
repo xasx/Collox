@@ -16,7 +16,7 @@ internal class StoreService : IStoreService
     private bool newday;
 
     private readonly Queue<string> q = new Queue<string>();
-    
+
 
     public StoreService()
     {
@@ -27,18 +27,20 @@ internal class StoreService : IStoreService
     {
         string cfn = $"{now.ToString("yyyy-MM-dd")}.md";
         string fn = $"{now.ToString("yyyy-MM_MMMM")}";
-        return  Path.Combine(AppHelper.Settings.BaseFolder, fn, cfn);
+        return Path.Combine(AppHelper.Settings.BaseFolder, fn, cfn);
     }
 
-    public Task AppendParagraph(string text, DateTime? timestamp)
+    public Task AppendParagraph(string text, string context, DateTime? timestamp)
     {
         return Task.Run(() =>
         {
             q.EnqueueIf(AppHelper.Settings.WriteDelimiters, $"<!-- collox.bop:{Guid.NewGuid()} -->");
             q.Enqueue(timestamp?.ToMdTimestamp());
+            q.EnqueueIf(context != "Default", $"_{context}_");
+            q.Enqueue(Environment.NewLine);
             q.Enqueue(text.AsMdBq());
             q.EnqueueIf(AppHelper.Settings.WriteDelimiters, "<!-- collox.eop -->");
-        if (!AppHelper.Settings.DeferredWrite || DateTime.Now - lastSave >= TimeSpan.FromSeconds(30))
+            if (!AppHelper.Settings.DeferredWrite || DateTime.Now - lastSave >= TimeSpan.FromSeconds(30))
             {
                 Save();
             }
@@ -107,7 +109,7 @@ internal class StoreService : IStoreService
                         lines = await sr.ReadToEndAsync();
                     }
                     var date = DateOnly.Parse(f.Name.Substring(0, 10));
-                    
+
                     var rec = new MarkdownRecording()
                     {
                         Date = date,
@@ -144,7 +146,7 @@ public static class Extensions
 
     public static string ToMdTimestamp(this DateTime dateTime)
     {
-        return string.Concat("##### ", dateTime.ToString("G"), Environment.NewLine);
+        return $"**{dateTime.ToString("G")}**";
     }
 
     public static void EnqueueIf<T>(this Queue<T> queue, bool condition, T element)

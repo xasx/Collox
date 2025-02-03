@@ -47,9 +47,9 @@
             <MenuFlyout x:Key="HistFly">
                 <MenuFlyoutItem Command="{x:Bind ViewModel.LoadHistoryCommand}"
                                 CommandParameter="{Binding}"
-                                Text="View">
+                                Text="Reload">
                     <MenuFlyoutItem.Icon>
-                        <SymbolIcon Symbol="Zoom" />
+                        <SymbolIcon Symbol="OpenLocal" />
                     </MenuFlyoutItem.Icon>
                 </MenuFlyoutItem>
             </MenuFlyout>
