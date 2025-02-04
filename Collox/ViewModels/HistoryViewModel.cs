@@ -11,7 +11,7 @@ public partial class HistoryViewModel : ObservableObject
 
     public HistoryViewModel()
     {
-        Histories = new ObservableGroupedCollection<string, HistoryEntry>();
+        Histories = [];
     }
 
     public ObservableGroupedCollection<string, HistoryEntry> Histories { get; set; }
@@ -23,15 +23,15 @@ public partial class HistoryViewModel : ObservableObject
     public async Task LoadHistory()
     {
         Histories.Clear();
-        var hist = await storeService.Load();
-        foreach (var (month, hists) in hist)
+        var historyData = await storeService.Load();
+        foreach (var (month, historyItems) in historyData)
         {
-            foreach (var hihi in hists)
+            foreach (var historyItem in historyItems)
             {
                 Histories.AddItem(month, new HistoryEntry()
                 {
-                    Day = hihi.Date,
-                    Preview = hihi.Preview
+                    Day = historyItem.Date,
+                    Preview = historyItem.Preview
                 });
             }
         }
@@ -42,5 +42,4 @@ public class HistoryEntry
 {
     public DateOnly Day { get; set; }
     public string Preview { get; set; }
-
 }

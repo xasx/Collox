@@ -142,32 +142,42 @@
                                 CornerRadius="4">
                             <TextBlock Foreground="{ThemeResource TextOnAccentAAFillColorPrimary}">
                                 <Run Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource tsconv}}" />
-                                <Run Text="{x:Bind Timestamp}" />
+                                <Run Text="{x:Bind Timestamp, Mode=OneTime}" />
                             </TextBlock>
                         </Border>
                     </ctrls:HeaderedContentControl.Header>
                     <uictrls:MarkdownTextBlock x:Name="mdtbEntry"
                                                Background="Transparent"
                                                FontSize="32"
-                                               Text="{x:Bind Text}"
+                                               Text="{x:Bind Text, Mode=OneTime}"
                                                TextWrapping="WrapWholeWords" />
                 </ctrls:HeaderedContentControl>
                 <Button Command="{x:Bind ReadCommand}"
                         RelativePanel.AlignRightWithPanel="True">
                     <SymbolIcon Symbol="Volume" />
                 </Button>
+                <TextBlock x:Name="tbComment"
+                           Margin="8"
+                           Foreground="{ThemeResource AccentTextFillColorSecondaryBrush}"
+                           RelativePanel.Below="hcc"
+                           Text="{x:Bind Comment, Mode=OneWay}" />
                 <Border Height="{x:Bind AdditionalSpacing, Mode=OneWay}"
                         Background="DarkGoldenrod"
-                        RelativePanel.Below="hcc" />
+                        RelativePanel.Below="tbComment" />
             </RelativePanel>
         </DataTemplate>
 
         <DataTemplate x:Name="TimeTemplate"
                       x:DataType="vm:TimeParagraph">
-            <TextBlock Margin="16"
-                       FontSize="24"
-                       FontWeight="SemiBold"
-                       Text="{x:Bind Time}" />
+            <StackPanel Padding="16"
+                        Orientation="Horizontal">
+                <FontIcon VerticalAlignment="Center"
+                          Glyph="&#xE823;" />
+                <TextBlock VerticalAlignment="Center"
+                           FontSize="24"
+                           FontWeight="SemiBold"
+                           Text="{x:Bind Time}" />
+            </StackPanel>
         </DataTemplate>
 
         <cc:ParagraphTemplateSelector x:Name="ParagraphsTemplate"
@@ -336,11 +346,15 @@
                          HorizontalAlignment="Center"
                          VerticalAlignment="Center"
                          Command="{x:Bind ViewModel.SubmitCommand}">
-                <SymbolIcon Symbol="{x:Bind ViewModel.SubmitModeIcon, Mode=OneWay}" />
                 <SplitButton.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="Enter"
-                                         Modifiers="Control" />
+                    <KeyboardAccelerator Key="M"
+                                         Invoked="ChangeModeKeyboardAccelerator_Invoked"
+                                         Modifiers="Control">
+
+                    </KeyboardAccelerator>
                 </SplitButton.KeyboardAccelerators>
+                <SymbolIcon Symbol="{x:Bind ViewModel.SubmitModeIcon, Mode=OneWay}" />
+
                 <SplitButton.Flyout>
                     <MenuFlyout>
                         <MenuFlyoutItem Command="{x:Bind ViewModel.ChangeModeToWriteCommand}"

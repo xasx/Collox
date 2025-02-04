@@ -34,8 +34,8 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
         await UserNotificationService.Initialize();
         UserNotificationService.OnUserNotificationsViewChanged += UserNotificationService_OnUserNotificationsViewChanged;
 
-        var notifs = await UserNotificationService.GetNotifications();
-            UserNotifications.AddRange(notifs);
+        var userNotifications = await UserNotificationService.GetNotifications();
+            UserNotifications.AddRange(userNotifications);
 
         dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 

@@ -86,25 +86,11 @@
                     <Button Flyout="{StaticResource infofly}">
                         <FontIcon Glyph="&#xE946;" />
                     </Button>
-                    <dev:LoadingIndicator Margin="4"
-                                          IsActive="True"
-                                          Mode="Pulse" />
                 </StackPanel>
             </TitleBar.Header>
 
             <TitleBar.Content>
                 <StackPanel Orientation="Horizontal">
-                    <MenuBar>
-                        <MenuBarItem Title="File">
-                            <MenuFlyoutItem Text="New" />
-                        </MenuBarItem>
-                        <MenuBarItem Title="Edit">
-                            <MenuFlyoutItem Text="Copy" />
-                            <MenuFlyoutItem Text="Paste" />
-                            <MenuFlyoutItem Text="Cut" />
-                        </MenuBarItem>
-                    </MenuBar>
-
                     <AutoSuggestBox MinWidth="320"
                                     VerticalAlignment="Center"
                                     PlaceholderText="Search"
@@ -153,6 +139,7 @@
             </NavigationView.Header>
             <NavigationView.PaneFooter>
                 <StackPanel Padding="8"
+                            Orientation="Horizontal"
                             Spacing="8">
                     <dev:Shield Height="32"
                                 FontSize="20"
@@ -166,8 +153,6 @@
                                 Status="{x:Bind ViewModel.UserNotifications.Count, Mode=OneWay}">
                         <FontIcon Glyph="&#xE7E7;" />
                     </dev:Shield>
-                    <dev:LoadingIndicator IsActive="True"
-                                          Mode="Arcs" />
                 </StackPanel>
             </NavigationView.PaneFooter>
             <Frame x:Name="NavFrame" />

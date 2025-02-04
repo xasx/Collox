@@ -165,4 +165,10 @@ public sealed partial class WritePage : Page
     {
         setfly.Hide();
     }
+
+    private void ChangeModeKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        ViewModel.SwitchModeCommand.Execute(null);
+        args.Handled = true;
+    }
 }

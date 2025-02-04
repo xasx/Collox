@@ -4,6 +4,7 @@ using Collox.Services;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Markdig;
+using Microsoft.Extensions.AI;
 
 namespace Collox.ViewModels;
 
@@ -68,6 +69,19 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     public async Task ChangeModeToWrite()
     {
         SubmitModeIcon = Symbol.Send;
+    }
+
+    [RelayCommand]
+    public void SwitchMode()
+    {
+        if (SubmitModeIcon == Symbol.Send)
+        {
+            ChangeModeToCmd();
+        }
+        else
+        {
+            ChangeModeToWrite();
+        }
     }
 
     [RelayCommand]
@@ -185,9 +199,9 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         };
         Paragraphs.Add(paragraph);
 
-        CharacterCount = Math.Min(KeyStrokesCount, CharacterCount + LastParagraph.Length);
+        CharacterCount = Math.Min(KeyStrokesCount, CharacterCount + paragraph.Text.Length);
         await storeService.AppendParagraph(paragraph.Text, ConversationContext, paragraph.Timestamp);
-        WeakReferenceMessenger.Default.Send(new TextSubmittedMessage(LastParagraph));
+        WeakReferenceMessenger.Default.Send(new TextSubmittedMessage(paragraph.Text));
 
         if (IsBeeping)
         {
@@ -198,7 +212,24 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
         if (IsSpeaking)
         {
-            ReadText(LastParagraph, SelectedVoice?.Name);
+            ReadText(paragraph.Text, SelectedVoice?.Name);
+        }
+        paragraph.Comment = await AddComment(paragraph.Text);
+    }
+
+    private static async Task<string> AddComment(string text)
+    {
+        try
+        {
+            IChatClient client = new OllamaChatClient(
+                new Uri("http://localhost:11434/"), "phi4");
+
+            var answer = await client.CompleteAsync($"What is the essence of the following text? \"{text}\" Please stick to the language of the text and limit your answer to a few words.");
+            return answer.Message.Text;
+        }
+        catch (Exception ex)
+        {
+            return ex.Message;
         }
     }
 

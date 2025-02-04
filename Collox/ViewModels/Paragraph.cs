@@ -44,6 +44,9 @@ public partial class TextParagraph : Paragraph
 
     public string Text { get; set; }
 
+    [ObservableProperty]
+    public partial string Comment { get; set; }
+
     [RelayCommand]
     public async Task Read()
     {
