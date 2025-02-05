@@ -5,14 +5,15 @@ namespace Collox.ViewModels;
 
 public partial class Paragraph : ObservableObject
 {
-    internal static DispatcherQueue DispatcherQueue = DispatcherQueue.GetForCurrentThread();
+    private static readonly DispatcherQueue DispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
-    private static readonly System.Timers.Timer Timer = new System.Timers.Timer()
+    private static readonly System.Timers.Timer Timer = new()
     {
         Interval = 10000,
         Enabled = true
     };
-    public Paragraph()
+
+    protected Paragraph()
     {
         var wel = new WeakEventListener<Paragraph, object, ElapsedEventArgs>(this)
         {
@@ -35,20 +36,20 @@ public partial class Paragraph : ObservableObject
     [ObservableProperty]
     public partial TimeSpan RelativeTimestamp { get; set; }
 
-    public DateTime Timestamp { get; set; }
-    
+    public DateTime Timestamp { get; init; }
+
 }
 
 public partial class TextParagraph : Paragraph
 {
 
-    public string Text { get; set; }
+    public string Text { get; init; }
 
     [ObservableProperty]
     public partial string Comment { get; set; }
 
     [RelayCommand]
-    public async Task Read()
+    public void Read()
     {
         WriteViewModel.ReadText(Text, AppHelper.Settings.Voice);
     }
@@ -56,6 +57,6 @@ public partial class TextParagraph : Paragraph
 
 public partial class  TimeParagraph : Paragraph
 {
-    public TimeSpan Time { get; set; }
+    public TimeSpan Time { get; init; }
 }
 

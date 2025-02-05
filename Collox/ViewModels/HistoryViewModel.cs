@@ -1,20 +1,12 @@
-﻿using System.Diagnostics;
-using Collox.Services;
+﻿using Collox.Services;
 using CommunityToolkit.Mvvm.Collections;
-using Microsoft.Windows.AppNotifications.Builder;
-using Microsoft.Windows.AppNotifications;
 
 namespace Collox.ViewModels;
 public partial class HistoryViewModel : ObservableObject
 {
     private readonly IStoreService storeService = App.GetService<IStoreService>();
 
-    public HistoryViewModel()
-    {
-        Histories = [];
-    }
-
-    public ObservableGroupedCollection<string, HistoryEntry> Histories { get; set; }
+    public ObservableGroupedCollection<string, HistoryEntry> Histories { get; set; } = [];
 
     [ObservableProperty]
     public partial HistoryEntry SelectedHistoryEntry { get; set; }
@@ -40,6 +32,6 @@ public partial class HistoryViewModel : ObservableObject
 
 public class HistoryEntry
 {
-    public DateOnly Day { get; set; }
-    public string Preview { get; set; }
+    public DateOnly Day { get; init; }
+    public string Preview { get; init; }
 }

@@ -10,13 +10,8 @@ namespace Collox.ViewModels;
 
 public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware
 {
-    private static ICollection<VoiceInfo> voiceInfos = new SpeechSynthesizer().GetInstalledVoices().Select(iv => iv.VoiceInfo).ToList();
-    private IStoreService storeService;
-
-    public WriteViewModel()
-    {
-        storeService = App.GetService<IStoreService>();
-    }
+    private static readonly ICollection<VoiceInfo> voiceInfos = new SpeechSynthesizer().GetInstalledVoices().Select(iv => iv.VoiceInfo).ToList();
+    private readonly IStoreService storeService = App.GetService<IStoreService>();
 
     [ObservableProperty]
     public partial int CharacterCount { get; set; }
@@ -48,7 +43,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     [ObservableProperty]
     public partial VoiceInfo SelectedVoice { get; set; }
-        = voiceInfos.Where(vi => vi.Name == AppHelper.Settings.Voice).FirstOrDefault();
+        = voiceInfos.FirstOrDefault(vi => vi.Name == Settings.Voice);
 
     [ObservableProperty]
     public partial Symbol SubmitModeIcon { get; set; } = Symbol.Send;
@@ -60,13 +55,13 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     public partial bool ClockShown { get; set; }
 
     [RelayCommand]
-    public async Task ChangeModeToCmd()
+    public void ChangeModeToCmd()
     {
         SubmitModeIcon = Symbol.Play;
     }
 
     [RelayCommand]
-    public async Task ChangeModeToWrite()
+    public void ChangeModeToWrite()
     {
         SubmitModeIcon = Symbol.Send;
     }
@@ -92,7 +87,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     }
 
     [RelayCommand]
-    public async Task SpeakLast()
+    public void SpeakLast()
     {
         if (Paragraphs.Count > 0)
         {
@@ -171,7 +166,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 return;
 
             case "speak":
-                await SpeakLast();
+                SpeakLast();
                 return;
 
             case "..":
@@ -183,7 +178,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 {
                     Time = DateTime.Now.TimeOfDay,
                 };
-                
+
                 Paragraphs.Add(timeParagraph);
                 return;
         }
@@ -237,14 +232,14 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     {
         var p = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
         var content = Markdown.ToPlainText(mdText, p);
-        
+
         return content;
 
     }
 
     public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
-        DevWinUI.AutoSuggestBoxHelper.LoadSuggestions(sender, args, Paragraphs
+        AutoSuggestBoxHelper.LoadSuggestions(sender, args, Paragraphs
             .Where(p => p is TextParagraph).Cast<TextParagraph>()
             .Where(p => p.Text.Contains(sender.Text)).Select(p => p.Text).ToArray());
 
@@ -267,16 +262,6 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     }
 }
 
-public class ParagraphSelectedMessage : ValueChangedMessage<int>
-{
-    public ParagraphSelectedMessage(int index) : base(index)
-    {
-    }
-}
+public class ParagraphSelectedMessage(int index) : ValueChangedMessage<int>(index);
 
-public class TextSubmittedMessage : ValueChangedMessage<string>
-{
-    public TextSubmittedMessage(string value) : base(value)
-    {
-    }
-}
+public class TextSubmittedMessage(string value) : ValueChangedMessage<string>(value);

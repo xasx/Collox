@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using Collox.Services;
-using CommunityToolkit.WinUI.Media;
 
 namespace Collox.ViewModels;
 
@@ -28,7 +21,7 @@ public partial class TemplatesViewModel : ObservableObject
 
     public Template TemplateToEdit { get; set; }
 
-    private ITemplateService templateService = App.GetService<ITemplateService>();
+    private readonly ITemplateService templateService = App.GetService<ITemplateService>();
 
     [RelayCommand]
     public async Task SaveTemplate()
@@ -41,7 +34,7 @@ public partial class TemplatesViewModel : ObservableObject
             //Templates.Remove(TemplateToEdit);
             TemplateToEdit.Name = Name;
             TemplateToEdit.Content = Content;
-            
+
             TemplateToEdit = null;
             IsEditing = false;
         }
@@ -68,7 +61,7 @@ public partial class TemplatesViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task EditTemplate()
+    public void EditTemplate()
     {
         Name = SelectedTemplate.Name;
         Content = SelectedTemplate.Content;
@@ -85,7 +78,7 @@ public partial class TemplatesViewModel : ObservableObject
             Content = SelectedTemplate.Content
         };
 
-        
+
         await templateService.SaveTemplate(dt.Name, dt.Content);
 
         Templates.Add(dt);

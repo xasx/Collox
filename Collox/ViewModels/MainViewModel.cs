@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Timers;
 using Collox.Services;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
@@ -64,10 +63,7 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
 
     private void Instance_NetworkChanged(object sender, EventArgs e)
     {
-        dispatcherQueue.TryEnqueue(() =>
-        {
-            RefreshInternetState();
-        });
+        dispatcherQueue.TryEnqueue(RefreshInternetState);
     }
 
     private void RefreshInternetState()
@@ -84,7 +80,7 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
         }
 
     }
-    private void UserNotificationService_OnUserNotificationsViewChanged(IReadOnlyList<Windows.UI.Notifications.UserNotification> newView)
+    private void UserNotificationService_OnUserNotificationsViewChanged(IReadOnlyList<UserNotification> newView)
     {
         dispatcherQueue.TryEnqueue(() =>
         {
