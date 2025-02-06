@@ -1,27 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Collox.Models;
-using Windows.Services.Maps.LocalSearch;
-using Windows.System.Implementation.FileExplorer;
 
 namespace Collox.Services;
 
 public class TemplateService : ITemplateService
 {
-    private string templatesDir = Path.Combine(
+    private readonly string templatesDir = Path.Combine(
         AppHelper.Settings.BaseFolder, "Templates");
     private IDictionary<string, MarkdownTemplate> cache;
 
-    public TemplateService()
-    {
-
-    }
     public async Task DeleteTemplate(string name)
     {
         await Task.Run(() =>
@@ -50,7 +37,7 @@ public class TemplateService : ITemplateService
             throw new Exception($"The template \"{name}\" already exists.");
         }
 
-        await File.WriteAllTextAsync(filename, content);
+        await File.WriteAllTextAsync(filename!, content);
         cache.Add(name, new MarkdownTemplate()
         {
             Name = name, FileName = filename, Content = content
@@ -61,7 +48,7 @@ public class TemplateService : ITemplateService
     {
 
         var filenames = Directory.GetFiles(templatesDir);
-        IDictionary<string, MarkdownTemplate> templates = new Dictionary<string, MarkdownTemplate>(); ;
+        IDictionary<string, MarkdownTemplate> templates = new Dictionary<string, MarkdownTemplate>();
         foreach (var filename in filenames)
         {
             var name = Path.GetFileNameWithoutExtension(filename);

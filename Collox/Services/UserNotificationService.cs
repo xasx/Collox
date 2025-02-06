@@ -1,20 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.UI.Notifications;
+﻿using Windows.UI.Notifications;
 using Windows.UI.Notifications.Management;
 
 namespace Collox.Services;
 
 public class UserNotificationService
 {
-    public UserNotificationService()
-    {
-        
-    }
-
     public async Task Initialize()
     {
         // Get the listener
@@ -68,9 +58,9 @@ public class UserNotificationService
         remove { _userNotificationsViewChanged -= value; }
     }
 
-    private async void Listener_NotificationChanged(UserNotificationListener sender, Windows.UI.Notifications.UserNotificationChangedEventArgs args)
+    private void Listener_NotificationChanged(UserNotificationListener sender, UserNotificationChangedEventArgs args)
     {
-        await UpdateUserNotifications(sender);
+        UpdateUserNotifications(sender).Wait(TimeSpan.FromSeconds(1));
     }
 
     private async Task UpdateUserNotifications(UserNotificationListener sender)

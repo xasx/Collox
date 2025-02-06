@@ -25,8 +25,8 @@ internal class StoreService : IStoreService
 
     private string GenerateCurrentFilename(DateTime now)
     {
-        string cfn = $"{now.ToString("yyyy-MM-dd")}.md";
-        string fn = $"{now.ToString("yyyy-MM_MMMM")}";
+        string cfn = $"{now:yyyy-MM-dd}.md";
+        string fn = $"{now:yyyy-MM_MMMM}";
         return Path.Combine(AppHelper.Settings.BaseFolder, fn, cfn);
     }
 
@@ -55,7 +55,7 @@ internal class StoreService : IStoreService
     private void Save()
     {
         var fn = CheckFilename();
-        Directory.CreateDirectory(Path.GetDirectoryName(fn));
+        Directory.CreateDirectory(Path.GetDirectoryName(fn)!);
         File.AppendAllLines(fn, q);
         lastSave = DateTime.Now;
         q.Clear();
@@ -68,7 +68,7 @@ internal class StoreService : IStoreService
             var now = DateTime.Now;
             if (newday || DateOnly.FromDateTime(now) > DateOnly.FromDateTime(lastROD))
             {
-                newday = true; // save some comparisons 
+                newday = true; // save some comparisons
                 if (TimeOnly.FromDateTime(now) >= AppHelper.Settings.RollOverTime)
                 {
                     var oldfn = currentFilename;
@@ -84,10 +84,7 @@ internal class StoreService : IStoreService
 
     public Task SaveNow()
     {
-        return Task.Run(() =>
-        {
-            Save();
-        });
+        return Task.Run(Save);
     }
 
     public Task<IDictionary<string, ICollection<MarkdownRecording>>> Load()
@@ -103,7 +100,7 @@ internal class StoreService : IStoreService
                 var list = new List<MarkdownRecording>();
                 foreach (var f in files)
                 {
-                    var lines = string.Empty;
+                    string lines;
                     using (var sr = f.OpenText())
                     {
                         lines = await sr.ReadToEndAsync();
@@ -130,23 +127,20 @@ public static class Extensions
 {
     public static string AsMdBq(this string text)
     {
-        using (StringWriter writer = new StringWriter())
-        using (StringReader reader = new StringReader(text))
+        using StringWriter writer = new StringWriter();
+        using StringReader reader = new StringReader(text);
+        while (reader.ReadLine() is { } line)
         {
-            string line;
-            while ((line = reader.ReadLine()) != null)
-            {
-                writer.Write("> ");
-                writer.WriteLine(line);
+            writer.Write("> ");
+            writer.WriteLine(line);
 
-            }
-            return writer.ToString();
         }
+        return writer.ToString();
     }
 
     public static string ToMdTimestamp(this DateTime dateTime)
     {
-        return $"**{dateTime.ToString("G")}**";
+        return $"**{dateTime:G}**";
     }
 
     public static void EnqueueIf<T>(this Queue<T> queue, bool condition, T element)
