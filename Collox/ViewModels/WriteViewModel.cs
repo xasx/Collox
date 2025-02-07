@@ -10,11 +10,12 @@ namespace Collox.ViewModels;
 
 public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware
 {
-    private static readonly ICollection<VoiceInfo> voiceInfos = new SpeechSynthesizer().GetInstalledVoices().Select(iv => iv.VoiceInfo).ToList();
+    private static readonly ICollection<VoiceInfo> voiceInfos =
+        [.. new SpeechSynthesizer().GetInstalledVoices().Select(iv => iv.VoiceInfo)];
+
     private readonly IStoreService storeService = App.GetService<IStoreService>();
 
-    [ObservableProperty]
-    public partial int CharacterCount { get; set; }
+    [ObservableProperty] public partial int CharacterCount { get; set; }
 
     public string ConversationContext { get; set; } = string.Empty;
 
@@ -26,33 +27,25 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         }
     }
 
-    [ObservableProperty]
-    public partial bool IsBeeping { get; set; } = AppHelper.Settings.AutoBeep;
+    [ObservableProperty] public partial bool IsBeeping { get; set; } = AppHelper.Settings.AutoBeep;
 
-    [ObservableProperty]
-    public partial bool IsSpeaking { get; set; } = AppHelper.Settings.AutoRead;
+    [ObservableProperty] public partial bool IsSpeaking { get; set; } = AppHelper.Settings.AutoRead;
 
-    [ObservableProperty]
-    public partial int KeyStrokesCount { get; set; }
+    [ObservableProperty] public partial int KeyStrokesCount { get; set; }
 
-    [ObservableProperty]
-    public partial string LastParagraph { get; set; } = string.Empty;
+    [ObservableProperty] public partial string LastParagraph { get; set; } = string.Empty;
 
-    [ObservableProperty]
-    public partial ObservableCollection<Paragraph> Paragraphs { get; set; } = [];
+    [ObservableProperty] public partial ObservableCollection<Paragraph> Paragraphs { get; set; } = [];
 
     [ObservableProperty]
     public partial VoiceInfo SelectedVoice { get; set; }
         = voiceInfos.FirstOrDefault(vi => vi.Name == Settings.Voice);
 
-    [ObservableProperty]
-    public partial Symbol SubmitModeIcon { get; set; } = Symbol.Send;
+    [ObservableProperty] public partial Symbol SubmitModeIcon { get; set; } = Symbol.Send;
 
-    [ObservableProperty]
-    public partial string Filename { get; set; }
+    [ObservableProperty] public partial string Filename { get; set; }
 
-    [ObservableProperty]
-    public partial bool ClockShown { get; set; }
+    [ObservableProperty] public partial bool ClockShown { get; set; }
 
     [RelayCommand]
     public void ChangeModeToCmd()
@@ -138,6 +131,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         {
             return;
         }
+
         switch (SubmitModeIcon)
         {
             case Symbol.Send:
@@ -147,13 +141,12 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 await ProcessCommand();
                 break;
         }
-
-
-        LastParagraph = string.Empty;
+        // Any code here will run after processing the command or adding the paragraph
     }
 
     private async Task ProcessCommand()
     {
+        LastParagraph = string.Empty;
 
         switch (LastParagraph)
         {
@@ -174,7 +167,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 return;
 
             case "time":
-                TimeParagraph timeParagraph = new TimeParagraph()
+                var timeParagraph = new TimeParagraph()
                 {
                     Time = DateTime.Now.TimeOfDay,
                 };
@@ -182,7 +175,6 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 Paragraphs.Add(timeParagraph);
                 return;
         }
-
     }
 
     private async Task AddParagraph()
@@ -190,9 +182,12 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         var paragraph = new TextParagraph()
         {
             Text = LastParagraph,
-            Timestamp = DateTime.Now
+            Timestamp = DateTime.Now,
+            IsLoading = true
         };
         Paragraphs.Add(paragraph);
+
+        LastParagraph = string.Empty;
 
         CharacterCount = Math.Min(KeyStrokesCount, CharacterCount + paragraph.Text.Length);
         await storeService.AppendParagraph(paragraph.Text, ConversationContext, paragraph.Timestamp);
@@ -209,23 +204,35 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         {
             ReadText(paragraph.Text, SelectedVoice?.Name);
         }
-        paragraph.Comment = await AddComment(paragraph.Text);
+
+        await AddComment(paragraph);
     }
 
-    private static async Task<string> AddComment(string text)
+    private async Task AddComment(TextParagraph textParagraph)
     {
         try
         {
             IChatClient client = new OllamaChatClient(
                 new Uri("http://localhost:11434/"), "phi4");
 
-            var answer = await client.CompleteAsync($"What is the essence of the following text? \"{text}\" Please stick to the language of the text and limit your answer to a few words.");
-            return answer.Message.Text;
+            var answer = await client.CompleteAsync(
+                $"""
+                 What is the essence of the following text? 
+                 
+                 {textParagraph.Text}
+                 
+                 Please stick to the language of the text and limit your answer to a few words.
+                 """
+            );
+
+            textParagraph.Comment = answer.Message.Text;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return ex.Message;
+            textParagraph.Comment = "Error";
         }
+
+        textParagraph.IsLoading = false;
     }
 
     private static string StripMd(string mdText)
@@ -234,15 +241,13 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         var content = Markdown.ToPlainText(mdText, p);
 
         return content;
-
     }
 
     public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
-        AutoSuggestBoxHelper.LoadSuggestions(sender, args, Paragraphs
+        AutoSuggestBoxHelper.LoadSuggestions(sender, args, [.. Paragraphs
             .Where(p => p is TextParagraph).Cast<TextParagraph>()
-            .Where(p => p.Text.Contains(sender.Text)).Select(p => p.Text).ToArray());
-
+            .Where(p => p.Text.Contains(sender.Text)).Select(p => p.Text)]);
     }
 
     public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
@@ -258,7 +263,6 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             var index = Paragraphs.IndexOf(paragraph);
             WeakReferenceMessenger.Default.Send(new ParagraphSelectedMessage(index));
         }
-
     }
 }
 

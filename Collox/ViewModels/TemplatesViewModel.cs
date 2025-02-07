@@ -87,14 +87,14 @@ public partial class TemplatesViewModel : ObservableObject
     [RelayCommand]
     public async Task LoadTemplates()
     {
-        var tc = await templateService.LoadTemplates();
+        var templates = await templateService.LoadTemplates();
         Templates.Clear();
-        foreach (var tt in tc)
+        foreach (var templateEntry in templates)
         {
             var t = new Template()
             {
-                Name = tt.Value.Name,
-                Content = tt.Value.Content
+                Name = templateEntry.Value.Name,
+                Content = templateEntry.Value.Content
             };
             Templates.Add(t);
         }

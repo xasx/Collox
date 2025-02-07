@@ -11,7 +11,7 @@ namespace Collox;
 
 public partial class App : Application
 {
-    public static Window MainWindow = Window.Current;
+    public static Window MainWindow;
     public IServiceProvider Services { get; }
     public new static App Current => (App)Application.Current;
     public IJsonNavigationService GetNavService => GetService<IJsonNavigationService>();
@@ -30,11 +30,11 @@ public partial class App : Application
     public App()
     {
         Services = ConfigureServices();
-        this.UnhandledException += Application_UnhandledException;
-        this.InitializeComponent();
+        UnhandledException += Application_UnhandledException;
+        InitializeComponent();
     }
 
-    private static IServiceProvider ConfigureServices()
+    private static ServiceProvider ConfigureServices()
     {
         var services = new ServiceCollection();
         services.AddSingleton<IThemeService, ThemeService>();
@@ -58,13 +58,11 @@ public partial class App : Application
         return services.BuildServiceProvider();
     }
 
-    public static DispatcherQueue DispatcherQueue { get; private set; }
-
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         MainWindow = new Window();
 
-        AppNotificationManager notificationManager = AppNotificationManager.Default;
+        var notificationManager = AppNotificationManager.Default;
         notificationManager.NotificationInvoked += NotificationManager_NotificationInvoked;
         notificationManager.Register();
 
@@ -92,7 +90,7 @@ public partial class App : Application
 
         dispatcherQueue.TryEnqueue(async delegate
         {
-
+            await Task.CompletedTask;
         });
     }
 
@@ -108,10 +106,7 @@ public partial class App : Application
             MainWindow.Content = rootFrame = new Frame();
         }
 
-        if (GetThemeService != null)
-        {
-            GetThemeService.AutoInitialize(MainWindow);
-        }
+        GetThemeService?.AutoInitialize(MainWindow);
 
         rootFrame.Navigate(typeof(MainPage));
 
@@ -137,7 +132,7 @@ public partial class App : Application
     }
 }
 
-static class WindowHelper
+internal static class WindowHelper
 {
 
     public static void ShowWindow(Window window)

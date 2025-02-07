@@ -29,12 +29,12 @@
                 <controls:SettingsCard Description="You don't know what is what."
                                        Header="what">
                     <ToggleSwitch OffContent="Disabled"
-                                  OnContent="Enabed" />
+                                  OnContent="Enabled" />
                 </controls:SettingsCard>
             </StackPanel>
         </Flyout>
 
-        <Flyout x:Name="infofly">
+        <Flyout x:Name="Infofly">
             <StackPanel Width="256">
                 <controls:HeaderedContentControl FontWeight="SemiBold"
                                                  Header="Current document">
@@ -83,7 +83,7 @@
             <TitleBar.Header>
                 <StackPanel Orientation="Horizontal"
                             Spacing="4">
-                    <Button Flyout="{StaticResource infofly}">
+                    <Button Flyout="{StaticResource Infofly}">
                         <FontIcon Glyph="&#xE946;" />
                     </Button>
                 </StackPanel>

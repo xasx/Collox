@@ -48,6 +48,9 @@ public partial class TextParagraph : Paragraph
     [ObservableProperty]
     public partial string Comment { get; set; }
 
+    [ObservableProperty]
+    public partial bool IsLoading { get; set; }
+
     [RelayCommand]
     public void Read()
     {

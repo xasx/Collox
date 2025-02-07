@@ -6,26 +6,24 @@
       xmlns:conv="using:Collox.Common.Converters"
       xmlns:ctrls="using:CommunityToolkit.WinUI.Controls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:dev="using:DevWinUI"
       xmlns:gaze="using:CommunityToolkit.WinUI.Input.GazeInteraction"
-      xmlns:local="using:Collox.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:system="using:System"
       xmlns:uictrls="using:CommunityToolkit.WinUI.UI.Controls"
       xmlns:vm="using:Collox.ViewModels"
+      xmlns:winUi="using:CommunityToolkit.WinUI"
       gaze:GazeInput.Interaction="Disabled"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-      Loaded="tbInput_Loaded"
+      Loaded="InputBox_Loaded"
       mc:Ignorable="d">
 
     <Page.Resources>
 
-        <Flyout x:Name="taskFly">
+        <Flyout x:Name="TaskFly">
 
         </Flyout>
-        <conv:TimeSpanToFriendlyConverter x:Key="tsconv" />
+        <conv:TimeSpanToFriendlyConverter x:Key="TSConv" />
 
-        <Flyout x:Name="setfly"
+        <Flyout x:Name="Setfly"
                 ShowMode="TransientWithDismissOnPointerMoveAway">
             <Flyout.FlyoutPresenterStyle>
                 <Style TargetType="FlyoutPresenter">
@@ -75,21 +73,23 @@
                 </GridView>
             </StackPanel>
         </Flyout>
-        <Flyout x:Name="emofly">
+        <Flyout x:Name="Emofly">
             <StackPanel Width="400"
                         Height="400">
-                <ctrls:Segmented x:Name="segm">
-                    <ctrls:SegmentedItem Content="Faces" />
-                    <ctrls:SegmentedItem Content="People" />
-                    <ctrls:SegmentedItem Content="Nature" />
+                <ctrls:Segmented x:Name="EmoSegment">
+                    <ctrls:SegmentedItem Icon="{winUi:FontIcon Glyph=&#xED54;}" />
+                    <ctrls:SegmentedItem Icon="{winUi:FontIcon Glyph=&#xED53;}" />
+                    <ctrls:SegmentedItem Icon="{winUi:FontIcon Glyph=&#xED55;}" />
+                    <ctrls:SegmentedItem Icon="{winUi:FontIcon Glyph=&#xED56;}" />
+                    <ctrls:SegmentedItem Icon="{winUi:FontIcon Glyph=&#xED57;}" />
+                    <ctrls:SegmentedItem Icon="{winUi:FontIcon Glyph=&#xED58;}" />
+                    <ctrls:SegmentedItem Icon="{winUi:FontIcon Glyph=&#xEB51;}" />
                 </ctrls:Segmented>
 
 
-                <ScrollView x:Name="svEmo"
-                            Height="380"
+                <ScrollView Height="380"
                             ContentOrientation="Vertical">
                     <ItemsRepeater xmlns:et="using:EmojiToolkit"
-                                   x:Name="irEmo"
                                    ItemsSource="{x:Bind et:Emoji.All, Mode=OneTime}">
                         <ItemsRepeater.ItemTemplate>
                             <DataTemplate x:DataType="et:EmojiRecord">
@@ -120,7 +120,7 @@
                       x:DataType="vm:Paragraph">
 
             <StackPanel>
-                <TextBlock Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource tsconv}}" />
+                <TextBlock Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource TSConv}}" />
                 <TextBlock Text="{x:Bind Timestamp}" />
             </StackPanel>
         </DataTemplate>
@@ -141,29 +141,34 @@
                                 Background="{ThemeResource AccentAAFillColorDefaultBrush}"
                                 CornerRadius="4">
                             <TextBlock Foreground="{ThemeResource TextOnAccentAAFillColorPrimary}">
-                                <Run Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource tsconv}}" />
+                                <Run Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource TSConv}}" />
                                 <Run Text="{x:Bind Timestamp, Mode=OneTime}" />
                             </TextBlock>
                         </Border>
                     </ctrls:HeaderedContentControl.Header>
-                    <uictrls:MarkdownTextBlock x:Name="mdtbEntry"
+                    <uictrls:MarkdownTextBlock x:Name="MessageMdTBlock"
                                                Background="Transparent"
                                                FontSize="32"
                                                Text="{x:Bind Text, Mode=OneTime}"
                                                TextWrapping="WrapWholeWords" />
                 </ctrls:HeaderedContentControl>
-                <Button Command="{x:Bind ReadCommand}"
+                <Button x:Name="BtnRead"
+                        Command="{x:Bind ReadCommand}"
                         RelativePanel.AlignRightWithPanel="True">
                     <SymbolIcon Symbol="Volume" />
                 </Button>
-                <TextBlock x:Name="tbComment"
+                <TextBlock x:Name="TbComment"
                            Margin="8"
                            Foreground="{ThemeResource AccentTextFillColorSecondaryBrush}"
                            RelativePanel.Below="hcc"
                            Text="{x:Bind Comment, Mode=OneWay}" />
+                <ProgressRing IsActive="{x:Bind IsLoading, Mode=OneWay}"
+                              IsIndeterminate="True"
+                              RelativePanel.AlignRightWithPanel="True"
+                              RelativePanel.Below="BtnRead" />
                 <Border Height="{x:Bind AdditionalSpacing, Mode=OneWay}"
                         Background="DarkGoldenrod"
-                        RelativePanel.Below="tbComment" />
+                        RelativePanel.Below="TbComment" />
             </RelativePanel>
         </DataTemplate>
 
@@ -194,8 +199,7 @@
             <RowDefinition Height="42" />
         </Grid.RowDefinitions>
 
-        <CommandBar x:Name="cbMain"
-                    Grid.Row="0"
+        <CommandBar Grid.Row="0"
                     Background="Transparent"
                     DefaultLabelPosition="Right"
                     IsOpen="False">
@@ -243,8 +247,8 @@
             <AppBarButton Icon="Page"
                           Label="Insert template">
                 <AppBarButton.Flyout>
-                    <MenuFlyout x:Name="templatesFlyout"
-                                Opening="templatesFlyout_Opening">
+                    <MenuFlyout x:Name="TemplatesFlyout"
+                                Opening="TemplatesFlyout_Opening">
                         <MenuFlyoutItem Click="MenuFlyoutItem_Click"
                                         Icon="Edit"
                                         Tag="predefined"
@@ -256,33 +260,33 @@
             </AppBarButton>
 
             <AppBarButton Command="{x:Bind ViewModel.SpeakLastCommand}"
+                          Icon="{winUi:FontIcon Glyph=&#xEFA9;}"
                           Label="Read last">
-                <FontIcon Glyph="&#xEFA9;" />
                 <AppBarButton.KeyboardAccelerators>
                     <KeyboardAccelerator Key="R"
                                          Modifiers="Control,Shift" />
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
 
-            <AppBarToggleButton IsChecked="{x:Bind ViewModel.IsSpeaking, Mode=TwoWay}"
+            <AppBarToggleButton Icon="{winUi:FontIcon Glyph=&#xEFA9;}"
+                                IsChecked="{x:Bind ViewModel.IsSpeaking, Mode=TwoWay}"
                                 Label="Read aloud">
-                <FontIcon Glyph="&#xEFA9;" />
                 <AppBarToggleButton.KeyboardAccelerators>
                     <KeyboardAccelerator Key="R"
                                          Modifiers="Control" />
                 </AppBarToggleButton.KeyboardAccelerators>
             </AppBarToggleButton>
 
-            <AppBarToggleButton IsChecked="{x:Bind ViewModel.IsBeeping, Mode=TwoWay}"
+            <AppBarToggleButton Icon="{winUi:FontIcon Glyph=&#xEF8F;}"
+                                IsChecked="{x:Bind ViewModel.IsBeeping, Mode=TwoWay}"
                                 Label="Beep">
-                <FontIcon Glyph="&#xEA8F;" />
                 <AppBarToggleButton.KeyboardAccelerators>
                     <KeyboardAccelerator Key="B"
                                          Modifiers="Control" />
                 </AppBarToggleButton.KeyboardAccelerators>
             </AppBarToggleButton>
 
-            <AppBarButton Flyout="{StaticResource setfly}"
+            <AppBarButton Flyout="{StaticResource Setfly}"
                           Icon="Setting"
                           Label="Settings">
                 <AppBarButton.KeyboardAccelerators>
@@ -293,7 +297,7 @@
 
         </CommandBar>
 
-        <ScrollView x:Name="scroller"
+        <ScrollView x:Name="Scroller"
                     Grid.Row="1"
                     HorizontalScrollBarVisibility="Hidden"
                     HorizontalScrollMode="Disabled"
@@ -305,8 +309,7 @@
                            ItemsSource="{x:Bind ViewModel.Paragraphs}" />
         </ScrollView>
 
-        <InfoBar x:Name="infoBar"
-                 Title="Current Context"
+        <InfoBar Title="Current Context"
                  Grid.Row="1"
                  IsOpen="True"
                  Message="{x:Bind ConversationContext, Mode=OneTime}"
@@ -318,7 +321,7 @@
 
         <uictrls:MarkdownTextBlock Grid.Row="2"
                                    FontSize="22"
-                                   Text="{x:Bind tbInput.Text, Mode=OneWay}"
+                                   Text="{x:Bind TbInput.Text, Mode=OneWay}"
                                    TextWrapping="WrapWholeWords" />
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
@@ -328,20 +331,20 @@
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0"
                     VerticalAlignment="Center"
-                    Flyout="{StaticResource emofly}">
+                    Flyout="{StaticResource Emofly}">
                 <SymbolIcon Symbol="Emoji2" />
             </Button>
-            <TextBox x:Name="tbInput"
+            <TextBox x:Name="TbInput"
                      Grid.Column="1"
                      AcceptsReturn="True"
                      FontSize="22"
                      IsTextPredictionEnabled="True"
-                     Loaded="tbInput_Loaded"
+                     Loaded="InputBox_Loaded"
                      PlaceholderText="Your message"
-                     PreviewKeyDown="tbInput_PreviewKeyDown"
+                     PreviewKeyDown="InputBox_PreviewKeyDown"
                      Text="{x:Bind Path=ViewModel.LastParagraph, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
             </TextBox>
-            <SplitButton x:Name="btnSubmit"
+            <SplitButton x:Name="BtnSubmit"
                          Grid.Column="2"
                          HorizontalAlignment="Center"
                          VerticalAlignment="Center"
