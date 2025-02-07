@@ -215,17 +215,17 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             IChatClient client = new OllamaChatClient(
                 new Uri("http://localhost:11434/"), "phi4");
 
-            var answer = await client.CompleteAsync(
-                $"""
-                 What is the essence of the following text? 
+            var prompt = $"""
+                 What is the essence of the following text? Please stick to the language of the text and limit your answer to a few words.
                  
                  {textParagraph.Text}
                  
-                 Please stick to the language of the text and limit your answer to a few words.
-                 """
-            );
+                 """;
 
-            textParagraph.Comment = answer.Message.Text;
+            await foreach (var update in client.CompleteStreamingAsync(prompt))
+            {
+                textParagraph.Comment += update.Text;
+            }
         }
         catch (Exception)
         {
