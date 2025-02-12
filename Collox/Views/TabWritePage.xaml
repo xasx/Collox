@@ -7,15 +7,17 @@
       xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:local="using:Collox.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="using:CommunityToolkit.WinUI.Controls"
       xmlns:vm="using:Collox.ViewModels"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
       mc:Ignorable="d">
 
-    <TabView HorizontalAlignment="Stretch"
+    <TabView x:Name="MainTabView"
+             HorizontalAlignment="Stretch"
              VerticalAlignment="Stretch"
-             AddTabButtonCommand="{x:Bind ViewModel.AddContextCommand}"
+             AddTabButtonClick="MainTabView_AddTabButtonClick"
              SelectedItem="{x:Bind ViewModel.SelectedTab, Mode=TwoWay}"
-             TabItemsSource="{x:Bind ViewModel.Contexts}"
+             TabItemsSource="{x:Bind ViewModel.Contexts, Mode=OneWay}"
              TabWidthMode="SizeToContent">
 
         <TabView.KeyboardAccelerators>
@@ -59,6 +61,21 @@
                         Orientation="Horizontal">
                 <Button>
                     <FontIcon Glyph="&#xEADF;" />
+                    <Button.Flyout>
+                        <Flyout>
+                            <StackPanel>
+                                <ui:SettingsCard Command="{x:Bind ViewModel.AddContextCommand}"
+                                                 Description="add a new tab"
+                                                 Header="Add Tab"
+                                                 HeaderIcon="{dev:FontIcon GlyphCode=E710}"
+                                                 IsClickEnabled="True">
+                                </ui:SettingsCard>
+                                <ui:SettingsCard Click="SettingsCard_Click"
+                                                 IsClickEnabled="True">
+                                </ui:SettingsCard>
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
                 </Button>
             </StackPanel>
         </TabView.TabStripFooter>
@@ -66,10 +83,38 @@
         <TabView.TabItemTemplate>
             <DataTemplate x:DataType="vm:TabData">
                 <TabViewItem CloseRequested="TabViewItem_CloseRequested"
-                             Header="{x:Bind Context}"
                              IconSource="{dev:FontIconSource GlyphCode=E8BD}"
                              IsClosable="{x:Bind IsCloseable}">
-                    <local:WritePage ConversationContext="{x:Bind Context}" />
+                    <!--<local:WritePage ConversationContext="{x:Bind Context, Mode=OneWay}" />-->
+                    <Frame x:Name="TabFrame">
+                        <local:WritePage ConversationContext="{x:Bind}" />
+                    </Frame>
+                    <TabViewItem.HeaderTemplate>
+                        <DataTemplate x:DataType="vm:TabData">
+                            <ui:SwitchPresenter TargetType="x:Boolean"
+                                                Value="{x:Bind IsEditing, Mode=OneWay}">
+                                <ui:Case Value="True">
+                                    <TextBox x:Name="ContextBox"
+                                             Margin="0,0,0,0"
+                                             Padding="0,0,0,0"
+                                             VerticalAlignment="Center"
+                                             AcceptsReturn="True"
+                                             PreviewKeyDown="ContextBox_OnPreviewKeyDown"
+                                             Tag="{x:Bind}"
+                                             Text="{x:Bind Context, Mode=TwoWay}"
+                                             TextAlignment="Center" />
+                                </ui:Case>
+                                <ui:Case Value="False">
+                                    <TextBlock Margin="0,0,0,0"
+                                               Padding="0,0,0,0"
+                                               VerticalAlignment="Center"
+                                               Tag="{x:Bind}"
+                                               Text="{x:Bind Context, Mode=OneWay}"
+                                               TextAlignment="Center" />
+                                </ui:Case>
+                            </ui:SwitchPresenter>
+                        </DataTemplate>
+                    </TabViewItem.HeaderTemplate>
                 </TabViewItem>
             </DataTemplate>
         </TabView.TabItemTemplate>

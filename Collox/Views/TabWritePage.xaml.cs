@@ -1,4 +1,9 @@
-﻿using Microsoft.UI.Xaml.Input;
+﻿using System.ComponentModel.Design;
+using System.Diagnostics;
+using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
+using TextBox = Microsoft.UI.Xaml.Controls.TextBox;
 
 
 namespace Collox.Views;
@@ -9,6 +14,51 @@ public sealed partial class TabWritePage : Page
     {
         this.InitializeComponent();
         this.DataContext = App.GetService<TabWriteViewModel>();
+
+        WeakReferenceMessenger.Default.Register<FocusTabMessage>(this, (s, e) =>
+        {
+            // find textbox in tab header
+            //DispatcherQueue.TryEnqueue(() => SetFocusOnTab(e.Value, MainTabView));
+            // SetFocusOnTab(e.Value, MainTabView);
+            var tim=DispatcherQueue.CreateTimer();
+            tim.Interval = TimeSpan.FromMilliseconds(100);
+            
+            tim.Tick += (s, ea) =>
+            {
+                SetFocusOnTab(e.Value, MainTabView);
+                tim.Stop();
+            };
+            tim.Start();
+        });
+    }
+
+    private void SetFocusOnTab(TabData e, DependencyObject root)
+    {
+        var c = VisualTreeHelper.GetChildrenCount(root);
+
+        for (int i = 0; i < c; i++)
+        {
+            var child = VisualTreeHelper.GetChild(root, i);
+            if (child is TextBox tb)
+            {
+                if (tb.Tag is TabData td)
+                {
+                    if (td == e)
+                    {
+                        tb.SelectAll();
+                        tb.Focus(FocusState.Programmatic);
+                        return;
+                    }
+                }
+            }
+
+            else
+            {
+                if (child is WritePage) continue;
+                Debug.WriteLine(child);
+                SetFocusOnTab(e, child);
+            }
+        }
     }
 
     private TabWriteViewModel ViewModel => DataContext as TabWriteViewModel;
@@ -80,5 +130,28 @@ public sealed partial class TabWritePage : Page
     {
         ViewModel.AddContextCommand.Execute(null);
         args.Handled = true;
+    }
+
+    private void ContextBox_OnPreviewKeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        if (e.Key == Windows.System.VirtualKey.Enter)
+        {
+            var tb = sender as TextBox;
+            if (tb.Tag is TabData td)
+            {
+                td.IsEditing = false;
+            }
+            e.Handled = true;
+        }
+    }
+
+    private void MainTabView_AddTabButtonClick(TabView sender, object args)
+    {
+        ViewModel.AddContextCommand.Execute(null);
+    }
+
+    private void SettingsCard_Click(object sender, RoutedEventArgs e)
+    {
+       SetFocusOnTab(  ViewModel.SelectedTab, MainTabView);
     }
 }

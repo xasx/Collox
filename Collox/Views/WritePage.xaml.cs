@@ -44,7 +44,7 @@ public sealed partial class WritePage : Page
 
     public WriteViewModel ViewModel => (WriteViewModel)DataContext;
 
-    public string ConversationContext
+    public TabData ConversationContext
     {
         get;
         set

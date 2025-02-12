@@ -34,7 +34,7 @@ public partial class Paragraph : ObservableObject
     public partial int AdditionalSpacing { get; set; } = 0;
 
     [ObservableProperty]
-    public partial TimeSpan RelativeTimestamp { get; set; }
+    public partial TimeSpan RelativeTimestamp { get; set; } = TimeSpan.Zero;
 
     public DateTime Timestamp { get; init; }
 
