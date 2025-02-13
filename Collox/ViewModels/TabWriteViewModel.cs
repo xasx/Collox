@@ -49,7 +49,8 @@ public partial class TabData : ObservableObject
     [ObservableProperty]
     public partial string Context { get; set; }
 
-    public bool IsCloseable { get; init; }
+    [ObservableProperty]
+    public partial bool IsCloseable { get; set; }
 
     [ObservableProperty]
     public partial bool IsEditing { get; set; }

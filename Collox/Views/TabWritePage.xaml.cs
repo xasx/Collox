@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.Design;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
@@ -17,9 +16,6 @@ public sealed partial class TabWritePage : Page
 
         WeakReferenceMessenger.Default.Register<FocusTabMessage>(this, (s, e) =>
         {
-            // find textbox in tab header
-            //DispatcherQueue.TryEnqueue(() => SetFocusOnTab(e.Value, MainTabView));
-            // SetFocusOnTab(e.Value, MainTabView);
             var tim=DispatcherQueue.CreateTimer();
             tim.Interval = TimeSpan.FromMilliseconds(100);
             
@@ -51,7 +47,6 @@ public sealed partial class TabWritePage : Page
                     }
                 }
             }
-
             else
             {
                 if (child is WritePage) continue;

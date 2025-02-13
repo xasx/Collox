@@ -44,11 +44,11 @@ public sealed partial class WritePage : Page
 
     public WriteViewModel ViewModel => (WriteViewModel)DataContext;
 
+   
     public TabData ConversationContext
     {
         get;
-        set
-        {
+        set {
             field = value;
             ViewModel.ConversationContext = value;
         }
@@ -65,21 +65,16 @@ public sealed partial class WritePage : Page
             InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.CapitalLock)
                 == CoreVirtualKeyStates.Down))
             {
-                //ViewModel.LastParagraph += Environment.NewLine;
-                //tbInput.Text += Environment.NewLine;
-                //tbInput.Select(tbInput.Text.Length, 0);
                 e.Handled = false;
             }
             else
             {
-                // todo test for empty input and do smth
                 BtnSubmit.Command.Execute(null);
                 //This will prevent system from adding new line
                 e.Handled = true;
             }
         }
         else
-
         {
             e.Handled = false;
         }
@@ -93,32 +88,27 @@ public sealed partial class WritePage : Page
     private const string predefined = "predefined";
     private async void TemplatesFlyout_Opening(object sender, object e)
     {
-        // todo no abuse
         var vm = App.GetService<TemplatesViewModel>();
         await vm.LoadTemplates();
         var gfi = TemplatesFlyout.Items
             .Where(item => (string)item.Tag != predefined).ToList();
-        //var gfi =  from item in templatesFlyout.Items
-        //           where item.Tag == generated
-        //           select item;
-
 
         foreach (var item in gfi)
         {
             TemplatesFlyout.Items.Remove(item);
         }
 
-        foreach (var tt in vm.Templates)
+        foreach (var templateItem in vm.Templates)
         {
             TemplatesFlyout.Items.Add(
                 new MenuFlyoutItem
                 {
-                    Text = tt.Name,
+                    Text = templateItem.Name,
                     Icon = new SymbolIcon(Symbol.Document),
-                    Tag = tt.Content,
+                    Tag = templateItem.Content,
                     Command = new RelayCommand(() =>
                     {
-                        var doc = Document.CreateDefault(tt.Content).DocumentOrThrow;
+                        var doc = Document.CreateDefault(templateItem.Content).DocumentOrThrow;
                         var tti = doc.Render(Context.CreateBuiltin(new Dictionary<Value, Value>
                         {
                             ["now"] = Value.FromLazy(() => Value.FromString(DateTime.Now.ToString("F")))
@@ -136,7 +126,6 @@ public sealed partial class WritePage : Page
         ViewModel.KeyStrokesCount++;
         TbInput.Focus(FocusState.Programmatic);
         TbInput.Select(TbInput.Text.Length, 0);
-        //svEmo.ScrollTo()
     }
 
     private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)

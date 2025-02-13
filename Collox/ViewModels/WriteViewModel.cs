@@ -132,9 +132,10 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         {
             return;
         }
+        ConversationContext.IsEditing = false;
 
         switch (SubmitModeIcon)
-        {
+        {            
             case Symbol.Send:
                 await AddParagraph();
                 break;
@@ -175,6 +176,10 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
                 Paragraphs.Add(timeParagraph);
                 return;
+
+            case "pin":
+                ConversationContext.IsCloseable = false;
+                return; 
         }
     }
 
@@ -217,10 +222,12 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 new Uri("http://localhost:11434/"), "phi4");
 
             var prompt = $"""
-                 What is the essence of the following text? Please stick to the language of the text and limit your answer to a few words.
-                 
+                 Please give me a couple of alternatives to the following text between BEGIN and END?
+                 Stick to the language of the sentence. Only output the alternatives.
+
+                 BEGIN
                  {textParagraph.Text}
-                 
+                 END
                  """;
 
             await foreach (var update in client.CompleteStreamingAsync(prompt))
@@ -253,9 +260,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
-        // args.QueryText
-        // find the paragraph with the text and determine the index
-        // then scroll to the index
+        
         var paragraph = Paragraphs
             .Where(p => p is TextParagraph).Cast<TextParagraph>()
             .FirstOrDefault(p => p.Text == args.QueryText);

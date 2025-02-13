@@ -6,6 +6,7 @@
       xmlns:conv="using:Collox.Common.Converters"
       xmlns:ctrls="using:CommunityToolkit.WinUI.Controls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:dev="using:DevWinUI"
       xmlns:gaze="using:CommunityToolkit.WinUI.Input.GazeInteraction"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:uictrls="using:CommunityToolkit.WinUI.UI.Controls"
@@ -161,11 +162,12 @@
                            Margin="8"
                            Foreground="{ThemeResource AccentTextFillColorSecondaryBrush}"
                            RelativePanel.Below="hcc"
-                           Text="{x:Bind Comment, Mode=OneWay}" />
-                <ProgressRing IsActive="{x:Bind IsLoading, Mode=OneWay}"
-                              IsIndeterminate="True"
-                              RelativePanel.AlignRightWithPanel="True"
-                              RelativePanel.Below="BtnRead" />
+                           Text="{x:Bind Comment, Mode=OneWay}"
+                           TextWrapping="WrapWholeWords" />
+                <dev:LoadingIndicator IsActive="{x:Bind IsLoading, Mode=OneWay}"
+                                      Mode="ArcsRing"
+                                      RelativePanel.AlignRightWithPanel="True"
+                                      RelativePanel.Below="BtnRead" />
                 <Border Height="{x:Bind AdditionalSpacing, Mode=OneWay}"
                         Background="DarkGoldenrod"
                         RelativePanel.Below="TbComment" />

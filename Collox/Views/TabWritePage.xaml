@@ -84,10 +84,9 @@
             <DataTemplate x:DataType="vm:TabData">
                 <TabViewItem CloseRequested="TabViewItem_CloseRequested"
                              IconSource="{dev:FontIconSource GlyphCode=E8BD}"
-                             IsClosable="{x:Bind IsCloseable}">
-                    <!--<local:WritePage ConversationContext="{x:Bind Context, Mode=OneWay}" />-->
+                             IsClosable="{x:Bind IsCloseable, Mode=OneWay}">
                     <Frame x:Name="TabFrame">
-                        <local:WritePage ConversationContext="{x:Bind}" />
+                        <local:WritePage ConversationContext="{x:Bind Mode=OneWay}" />
                     </Frame>
                     <TabViewItem.HeaderTemplate>
                         <DataTemplate x:DataType="vm:TabData">
