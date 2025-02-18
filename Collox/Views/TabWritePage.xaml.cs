@@ -4,22 +4,21 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using TextBox = Microsoft.UI.Xaml.Controls.TextBox;
 
-
 namespace Collox.Views;
 
 public sealed partial class TabWritePage : Page
 {
     public TabWritePage()
     {
-        this.InitializeComponent();
-        this.DataContext = App.GetService<TabWriteViewModel>();
+        InitializeComponent();
+        DataContext = App.GetService<TabWriteViewModel>();
 
-        WeakReferenceMessenger.Default.Register<FocusTabMessage>(this, (s, e) =>
+        WeakReferenceMessenger.Default.Register<FocusTabMessage>(this, (__, e) =>
         {
             var tim=DispatcherQueue.CreateTimer();
             tim.Interval = TimeSpan.FromMilliseconds(100);
-            
-            tim.Tick += (s, ea) =>
+
+            tim.Tick += (_, ___) =>
             {
                 SetFocusOnTab(e.Value, MainTabView);
                 tim.Stop();
@@ -28,7 +27,7 @@ public sealed partial class TabWritePage : Page
         });
     }
 
-    private void SetFocusOnTab(TabData e, DependencyObject root)
+    private void SetFocusOnTab(TabData tab, DependencyObject root)
     {
         var c = VisualTreeHelper.GetChildrenCount(root);
 
@@ -39,7 +38,7 @@ public sealed partial class TabWritePage : Page
             {
                 if (tb.Tag is TabData td)
                 {
-                    if (td == e)
+                    if (td == tab)
                     {
                         tb.SelectAll();
                         tb.Focus(FocusState.Programmatic);
@@ -51,27 +50,23 @@ public sealed partial class TabWritePage : Page
             {
                 if (child is WritePage) continue;
                 Debug.WriteLine(child);
-                SetFocusOnTab(e, child);
+                SetFocusOnTab(tab, child);
             }
         }
     }
 
     private TabWriteViewModel ViewModel => DataContext as TabWriteViewModel;
 
-
     private void TabViewItem_CloseRequested(TabViewItem sender, TabViewTabCloseRequestedEventArgs args)
     {
-        var item = args.Item as TabData;
-        if (item != null)
+        if (args.Item is TabData item)
         {
-            ViewModel.Contexts.Remove(item);
+            ViewModel.RemoveContext(item);
         }
     }
 
-
     private void NavigateToNumberedTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
-
         int tabToSelect = 0;
 
         switch (sender.Key)
@@ -132,10 +127,12 @@ public sealed partial class TabWritePage : Page
         if (e.Key == Windows.System.VirtualKey.Enter)
         {
             var tb = sender as TextBox;
-            if (tb.Tag is TabData td)
+            if (tb?.Tag is TabData td)
             {
                 td.IsEditing = false;
+                ViewModel.UpdateContext(td);
             }
+
             e.Handled = true;
         }
     }
@@ -147,6 +144,6 @@ public sealed partial class TabWritePage : Page
 
     private void SettingsCard_Click(object sender, RoutedEventArgs e)
     {
-       SetFocusOnTab(  ViewModel.SelectedTab, MainTabView);
+       SetFocusOnTab(ViewModel.SelectedTab, MainTabView);
     }
 }

@@ -118,7 +118,7 @@
             </StackPanel>
         </Flyout>
         <DataTemplate x:Name="DefaultTemplate"
-                      x:DataType="vm:Paragraph">
+                      x:DataType="vm:ColloxMessage">
 
             <StackPanel>
                 <TextBlock Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource TSConv}}" />
@@ -126,7 +126,7 @@
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Name="TextParagraphTemplate"
-                      x:DataType="vm:TextParagraph">
+                      x:DataType="vm:TextColloxMessage">
             <RelativePanel Margin="8,0,8,8"
                            Background="{ThemeResource SystemControlBackgroundListLowBrush}"
                            BorderBrush="{ThemeResource SystemControlForegroundAccentBrush}"
@@ -175,7 +175,7 @@
         </DataTemplate>
 
         <DataTemplate x:Name="TimeTemplate"
-                      x:DataType="vm:TimeParagraph">
+                      x:DataType="vm:TimeColloxMessage">
             <StackPanel Padding="16"
                         Orientation="Horizontal">
                 <FontIcon VerticalAlignment="Center"

@@ -5,6 +5,8 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Markdig;
 using Microsoft.Extensions.AI;
+using Microsoft.UI.Xaml.Documents;
+using OllamaSharp;
 
 namespace Collox.ViewModels;
 
@@ -36,7 +38,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     [ObservableProperty] public partial string LastParagraph { get; set; } = string.Empty;
 
-    [ObservableProperty] public partial ObservableCollection<Paragraph> Paragraphs { get; set; } = [];
+    [ObservableProperty] public partial ObservableCollection<ColloxMessage> Paragraphs { get; set; } = [];
 
     [ObservableProperty]
     public partial VoiceInfo SelectedVoice { get; set; }
@@ -85,8 +87,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     {
         if (Paragraphs.Count > 0)
         {
-            ReadText(StripMd(Paragraphs.Where(p => p is TextParagraph)
-                .Cast<TextParagraph>().Last().Text), SelectedVoice?.Name);
+            ReadText(StripMd(Paragraphs.Where(p => p is TextColloxMessage)
+                .Cast<TextColloxMessage>().Last().Text), SelectedVoice?.Name);
         }
     }
 
@@ -135,7 +137,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         ConversationContext.IsEditing = false;
 
         switch (SubmitModeIcon)
-        {            
+        {
             case Symbol.Send:
                 await AddParagraph();
                 break;
@@ -169,7 +171,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 return;
 
             case "time":
-                var timeParagraph = new TimeParagraph()
+                var timeParagraph = new TimeColloxMessage()
                 {
                     Time = DateTime.Now.TimeOfDay,
                 };
@@ -179,13 +181,13 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
             case "pin":
                 ConversationContext.IsCloseable = false;
-                return; 
+                return;
         }
     }
 
     private async Task AddParagraph()
     {
-        var paragraph = new TextParagraph()
+        var paragraph = new TextColloxMessage()
         {
             Text = LastParagraph,
             Timestamp = DateTime.Now,
@@ -214,33 +216,39 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         await AddComment(paragraph);
     }
 
-    private async Task AddComment(TextParagraph textParagraph)
+    private async Task AddComment(TextColloxMessage textColloxMessage)
     {
+        if (!AppHelper.Settings.EnableAI)
+        {
+            textColloxMessage.IsLoading = false;
+            return;
+        }
         try
         {
-            IChatClient client = new OllamaChatClient(
-                new Uri("http://localhost:11434/"), "phi4");
+            var client = new OllamaApiClient(
+                new Uri("http://localhost:11434/"), "phi");
 
             var prompt = $"""
                  Please give me a couple of alternatives to the following text between BEGIN and END?
                  Stick to the language of the sentence. Only output the alternatives.
 
                  BEGIN
-                 {textParagraph.Text}
+                 {textColloxMessage.Text}
                  END
                  """;
 
             await foreach (var update in client.CompleteStreamingAsync(prompt))
             {
-                textParagraph.Comment += update.Text;
+                textColloxMessage.Comment += update.Text;
             }
         }
         catch (Exception)
         {
-            textParagraph.Comment = "Error";
+            textColloxMessage.Comment = "Error";
         }
 
-        textParagraph.IsLoading = false;
+        textColloxMessage.IsLoading = false;
+        WeakReferenceMessenger.Default.Send(new TextSubmittedMessage(textColloxMessage.Text));
     }
 
     private static string StripMd(string mdText)
@@ -254,15 +262,15 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
         AutoSuggestBoxHelper.LoadSuggestions(sender, args, [.. Paragraphs
-            .Where(p => p is TextParagraph).Cast<TextParagraph>()
+            .Where(p => p is TextColloxMessage).Cast<TextColloxMessage>()
             .Where(p => p.Text.Contains(sender.Text)).Select(p => p.Text)]);
     }
 
     public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
-        
+
         var paragraph = Paragraphs
-            .Where(p => p is TextParagraph).Cast<TextParagraph>()
+            .Where(p => p is TextColloxMessage).Cast<TextColloxMessage>()
             .FirstOrDefault(p => p.Text == args.QueryText);
         if (paragraph != null)
         {

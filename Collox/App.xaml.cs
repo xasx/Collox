@@ -6,6 +6,7 @@ using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.AppNotifications;
 using Windows.Win32;
 using Windows.Win32.Foundation;
+using WinUIEx;
 
 namespace Collox;
 
@@ -53,7 +54,7 @@ public partial class App : Application
         services.AddSingleton<IStoreService, StoreService>();
         services.AddSingleton<ITemplateService, TemplateService>();
         services.AddSingleton<UserNotificationService>();
-
+        services.AddSingleton<ITabContextService, TabContextService>();
 
         return services.BuildServiceProvider();
     }
@@ -128,7 +129,13 @@ public partial class App : Application
     {
         Debug.WriteLine($"An error {e.Exception.Message}{Environment.NewLine}{e.Exception}");
         //MessageBox.Show(WinRT.Interop.WindowNative.GetWindowHandle(MainWindow),
-         //$"{e.Exception.Message}{Environment.NewLine}{e}", "Error", MessageBoxStyle.ApplicationModal | MessageBoxStyle.IconError | MessageBoxStyle.Ok);
+        //$"{e.Exception.Message}{Environment.NewLine}{e}", "Error", MessageBoxStyle.ApplicationModal | MessageBoxStyle.IconError | MessageBoxStyle.Ok);
+
+        ErrorWindow errorWindow = new ErrorWindow
+        {
+            ReportedException = e.Exception
+        };
+        errorWindow.Show();
     }
 }
 

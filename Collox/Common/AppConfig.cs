@@ -29,5 +29,7 @@ public partial class AppConfig : NotifiyingJsonSettings, IVersionable
 
     public bool deferredWrite { get; set; } = true;
 
+    public bool enableAI { get; set; } =true;
+
     // Docs: https://github.com/Nucs/JsonSettings
 }

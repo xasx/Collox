@@ -13,11 +13,11 @@ public class ParagraphTemplateSelector : DataTemplateSelector
     public DataTemplate TimeTemplate { get; set; }
     protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
     {
-        if (item is TextParagraph)
+        if (item is TextColloxMessage)
         {
             return TextTemplate;
         }
-        else if (item is TimeParagraph)
+        else if (item is TimeColloxMessage)
         {
             return TimeTemplate;
         }

@@ -12,6 +12,14 @@
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
       mc:Ignorable="d">
 
+
+    <interactivity:Interaction.Behaviors>
+        <interactivity:EventTriggerBehavior EventName="Loaded">
+            <interactivity:InvokeCommandAction Command="{x:Bind ViewModel.LoadTabsCommand}" />
+        </interactivity:EventTriggerBehavior>
+    </interactivity:Interaction.Behaviors>
+
+
     <TabView x:Name="MainTabView"
              HorizontalAlignment="Stretch"
              VerticalAlignment="Stretch"
@@ -100,7 +108,7 @@
                                              AcceptsReturn="True"
                                              PreviewKeyDown="ContextBox_OnPreviewKeyDown"
                                              Tag="{x:Bind}"
-                                             Text="{x:Bind Context, Mode=TwoWay}"
+                                             Text="{x:Bind Context, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              TextAlignment="Center" />
                                 </ui:Case>
                                 <ui:Case Value="False">

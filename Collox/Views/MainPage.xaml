@@ -26,10 +26,9 @@
         <Flyout x:Name="wfly">
             <StackPanel>
 
-                <controls:SettingsCard Description="You don't know what is what."
-                                       Header="what">
-                    <ToggleSwitch OffContent="Disabled"
-                                  OnContent="Enabled" />
+                <controls:SettingsCard Description="Use AI in-app"
+                                       Header="AI">
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsAIEnabled, Mode=TwoWay}" />
                 </controls:SettingsCard>
             </StackPanel>
         </Flyout>
@@ -76,20 +75,20 @@
     <Grid RowDefinitions="Auto, *">
         <TitleBar x:Name="AppTitleBar"
                   Title="{x:Bind dev:ProcessInfoHelper.ProductName}"
-                  IconSource="{dev:BitmapIconSource Source=ms-appx:///Assets/AppIcon.ico}"
+                  IconSource="{dev:BitmapIconSource Source=ms-appx:///Assets/Store/Square44x44Logo.altform-unplated_targetsize-256.png}"
                   IsBackButtonVisible="True"
                   IsPaneToggleButtonVisible="True"
                   Subtitle="{x:Bind dev:ProcessInfoHelper.VersionWithPrefix}">
-            <TitleBar.Header>
+            <TitleBar.LeftContent>
                 <StackPanel Orientation="Horizontal"
                             Spacing="4">
                     <Button Flyout="{StaticResource Infofly}">
                         <FontIcon Glyph="&#xE946;" />
                     </Button>
                 </StackPanel>
-            </TitleBar.Header>
+            </TitleBar.LeftContent>
 
-            <TitleBar.Content>
+            <TitleBar.CenterContent>
                 <StackPanel Orientation="Horizontal">
                     <AutoSuggestBox MinWidth="320"
                                     VerticalAlignment="Center"
@@ -98,8 +97,9 @@
                                     QuerySubmitted="OnQuerySubmitted"
                                     TextChanged="OnTextChanged" />
                 </StackPanel>
-            </TitleBar.Content>
-            <TitleBar.Footer>
+            </TitleBar.CenterContent>
+
+            <TitleBar.RightContent>
                 <StackPanel Orientation="Horizontal">
                     <Button x:Name="ThemeButton"
                             Height="32"
@@ -126,7 +126,7 @@
                             Style="{ThemeResource SubtleButtonStyle}"
                             ToolTipService.ToolTip="What" />
                 </StackPanel>
-            </TitleBar.Footer>
+            </TitleBar.RightContent>
         </TitleBar>
         <NavigationView x:Name="NavView"
                         Grid.Row="1"

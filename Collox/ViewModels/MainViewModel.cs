@@ -16,6 +16,14 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
     }
 
     [ObservableProperty]
+    public partial bool  IsAIEnabled { get; set; } = AppHelper.Settings.EnableAI;
+
+    partial void OnIsAIEnabledChanged(bool value)
+    {
+        AppHelper.Settings.EnableAI = value;
+    }
+
+    [ObservableProperty]
     public partial InternetState InternetState { get; set; } = new InternetState();
 
     [ObservableProperty]
@@ -43,12 +51,10 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
 
     public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
-
     }
 
     public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
-
     }
 
     public void Receive(PropertyChangedMessage<string> message)
@@ -58,7 +64,6 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
         {
             DocumentFilename = message.NewValue;
         }
-
     }
 
     private void Instance_NetworkChanged(object sender, EventArgs e)
@@ -78,8 +83,8 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
             InternetState.State = "offline";
             InternetState.Icon = "\uF384";
         }
-
     }
+
     private void UserNotificationService_OnUserNotificationsViewChanged(IReadOnlyList<UserNotification> newView)
     {
         dispatcherQueue.TryEnqueue(() =>
