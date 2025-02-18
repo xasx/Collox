@@ -1,5 +1,6 @@
 ﻿namespace Collox.Services;
-public partial  interface ITabContextService
+
+public interface ITabContextService
 {
     void SaveNewTab(TabContext tabContext);
 
@@ -16,5 +17,5 @@ public class TabContext
 {
     public string Name { get; set; }
 
-    public bool  IsCloseable { get; set; }
+    public bool IsCloseable { get; set; }
 }

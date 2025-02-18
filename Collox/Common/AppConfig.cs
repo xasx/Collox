@@ -2,12 +2,10 @@
 using Nucs.JsonSettings.Modulation;
 
 namespace Collox.Common;
+
 [GenerateAutoSaveOnChange]
 public partial class AppConfig : NotifiyingJsonSettings, IVersionable
 {
-    [EnforcedVersion("1.0.0.0")]
-    public Version Version { get; set; } = new Version(1, 0, 0, 0);
-
     public string fileName { get; set; } = Constants.AppConfigPath;
 
     public string lastUpdateCheck { get; set; }
@@ -29,7 +27,9 @@ public partial class AppConfig : NotifiyingJsonSettings, IVersionable
 
     public bool deferredWrite { get; set; } = true;
 
-    public bool enableAI { get; set; } =true;
+    public bool enableAI { get; set; } = true;
+
+    [EnforcedVersion("1.0.0.0")] public Version Version { get; set; } = new(1, 0, 0, 0);
 
     // Docs: https://github.com/Nucs/JsonSettings
 }

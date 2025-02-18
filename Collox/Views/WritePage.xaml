@@ -1,4 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <Page x:Class="Collox.Views.WritePage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -19,9 +20,7 @@
 
     <Page.Resources>
 
-        <Flyout x:Name="TaskFly">
-
-        </Flyout>
+        <Flyout x:Name="TaskFly" />
         <conv:TimeSpanToFriendlyConverter x:Key="TSConv" />
 
         <Flyout x:Name="Setfly"
@@ -55,7 +54,8 @@
                                            Margin="4">
                                     <Bold>
                                         <Run Text="{x:Bind Name}" />
-                                    </Bold><LineBreak />
+                                    </Bold>
+                                    <LineBreak />
                                     <Run Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                          Text="{x:Bind Culture}" />
                                     <Run Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -91,7 +91,7 @@
                 <ScrollView Height="380"
                             ContentOrientation="Vertical">
                     <ItemsRepeater xmlns:et="using:EmojiToolkit"
-                                   ItemsSource="{x:Bind et:Emoji.All, Mode=OneTime}">
+                                   ItemsSource="{x:Bind et:Emoji.All}">
                         <ItemsRepeater.ItemTemplate>
                             <DataTemplate x:DataType="et:EmojiRecord">
                                 <Button Padding="0"
@@ -101,7 +101,7 @@
                                     <FontIcon Margin="0"
                                               FontFamily="Segoe UI Emoji"
                                               FontSize="32"
-                                              Glyph="{x:Bind Raw, Mode=OneTime}" />
+                                              Glyph="{x:Bind Raw}" />
                                 </Button>
 
 
@@ -143,14 +143,14 @@
                                 CornerRadius="4">
                             <TextBlock Foreground="{ThemeResource TextOnAccentAAFillColorPrimary}">
                                 <Run Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource TSConv}}" />
-                                <Run Text="{x:Bind Timestamp, Mode=OneTime}" />
+                                <Run Text="{x:Bind Timestamp}" />
                             </TextBlock>
                         </Border>
                     </ctrls:HeaderedContentControl.Header>
                     <uictrls:MarkdownTextBlock x:Name="MessageMdTBlock"
                                                Background="Transparent"
                                                FontSize="32"
-                                               Text="{x:Bind Text, Mode=OneTime}"
+                                               Text="{x:Bind Text}"
                                                TextWrapping="WrapWholeWords" />
                 </ctrls:HeaderedContentControl>
                 <Button x:Name="BtnRead"
@@ -344,8 +344,7 @@
                      Loaded="InputBox_Loaded"
                      PlaceholderText="Your message"
                      PreviewKeyDown="InputBox_PreviewKeyDown"
-                     Text="{x:Bind Path=ViewModel.LastParagraph, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-            </TextBox>
+                     Text="{x:Bind Path=ViewModel.LastParagraph, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <SplitButton x:Name="BtnSubmit"
                          Grid.Column="2"
                          HorizontalAlignment="Center"
@@ -354,9 +353,7 @@
                 <SplitButton.KeyboardAccelerators>
                     <KeyboardAccelerator Key="M"
                                          Invoked="ChangeModeKeyboardAccelerator_Invoked"
-                                         Modifiers="Control">
-
-                    </KeyboardAccelerator>
+                                         Modifiers="Control" />
                 </SplitButton.KeyboardAccelerators>
                 <SymbolIcon Symbol="{x:Bind ViewModel.SubmitModeIcon, Mode=OneWay}" />
 
@@ -364,12 +361,10 @@
                     <MenuFlyout>
                         <MenuFlyoutItem Command="{x:Bind ViewModel.ChangeModeToWriteCommand}"
                                         Icon="Send"
-                                        Text="Write text">
-                        </MenuFlyoutItem>
+                                        Text="Write text" />
                         <MenuFlyoutItem Command="{x:Bind ViewModel.ChangeModeToCmdCommand}"
                                         Icon="Play"
-                                        Text="Enter commands">
-                        </MenuFlyoutItem>
+                                        Text="Enter commands" />
 
                     </MenuFlyout>
                 </SplitButton.Flyout>

@@ -1,6 +1,7 @@
 ﻿using Collox.Models;
 
 namespace Collox.Services;
+
 public interface IStoreService
 {
     Task AppendParagraph(string text, string Context, DateTime? timestamp);

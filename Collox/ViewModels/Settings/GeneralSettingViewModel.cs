@@ -1,22 +1,18 @@
 ﻿using Windows.Storage.Pickers;
 
 namespace Collox.ViewModels;
+
 public partial class GeneralSettingViewModel : ObservableObject
 {
-    [ObservableProperty]
-    public partial string BaseFolder { get; set; } = AppHelper.Settings.BaseFolder;
+    [ObservableProperty] public partial string BaseFolder { get; set; } = Settings.BaseFolder;
 
-    [ObservableProperty]
-    public partial TimeOnly RollOverTime { get; set; } = AppHelper.Settings.RollOverTime;
+    [ObservableProperty] public partial TimeOnly RollOverTime { get; set; } = Settings.RollOverTime;
 
-    [ObservableProperty]
-    public partial bool CustomRotation { get; set; } = AppHelper.Settings.CustomRotation;
+    [ObservableProperty] public partial bool CustomRotation { get; set; } = Settings.CustomRotation;
 
-    [ObservableProperty]
-    public partial bool WriteDelimiters { get; set; } = AppHelper.Settings.WriteDelimiters;
+    [ObservableProperty] public partial bool WriteDelimiters { get; set; } = Settings.WriteDelimiters;
 
-    [ObservableProperty]
-    public partial bool DeferredWrite { get; set; } = AppHelper.Settings.DeferredWrite;
+    [ObservableProperty] public partial bool DeferredWrite { get; set; } = Settings.DeferredWrite;
 
     [RelayCommand]
     public async Task SelectBaseFolder()
@@ -29,29 +25,29 @@ public partial class GeneralSettingViewModel : ObservableObject
         }
     }
 
-    
+
     partial void OnBaseFolderChanged(string value)
     {
-        AppHelper.Settings.BaseFolder = value;
+        Settings.BaseFolder = value;
     }
 
     partial void OnRollOverTimeChanged(TimeOnly value)
     {
-        AppHelper.Settings.RollOverTime = value;
+        Settings.RollOverTime = value;
     }
 
     partial void OnCustomRotationChanged(bool value)
     {
-        AppHelper.Settings.CustomRotation = value;
+        Settings.CustomRotation = value;
     }
 
     partial void OnWriteDelimitersChanged(bool value)
     {
-        AppHelper.Settings.WriteDelimiters = value;
+        Settings.WriteDelimiters = value;
     }
 
     partial void OnDeferredWriteChanged(bool value)
     {
-        AppHelper.Settings.DeferredWrite = value;
+        Settings.DeferredWrite = value;
     }
 }

@@ -11,7 +11,9 @@ public class TabContextService : ITabContextService
     public IList<TabContext> GetTabs()
     {
         if (_tabs.Count == 0)
+        {
             LoadTabs();
+        }
 
         return _tabs;
     }
@@ -38,17 +40,20 @@ public class TabContextService : ITabContextService
         _tabs.Add(tabContext);
         SaveTabs();
     }
+
     private void LoadTabs()
     {
         if (!File.Exists(_tabsFilePath))
+        {
             return;
+        }
 
         _tabs.Clear();
 
         // Load tabs from disk
-        string jsonString = File.ReadAllText(_tabsFilePath);
+        var jsonString = File.ReadAllText(_tabsFilePath);
         // Parse the string to a JsonArray
-        JsonArray tabs = JsonArray.Parse(jsonString);
+        var tabs = JsonArray.Parse(jsonString);
         // Deserialize the JsonArray to a list of TabContext
         _tabs.AddRange(tabs.Select(tab => new TabContext
         {
@@ -67,11 +72,11 @@ public class TabContextService : ITabContextService
             {
                 ["Name"] = JsonValue.CreateStringValue(tab.Name),
                 ["IsCloseable"] = JsonValue.CreateBooleanValue(tab.IsCloseable)
-            }),
+            })
         ];
 
         // Serialize the JsonArray to a string
-        string jsonString = tabs.Stringify();
+        var jsonString = tabs.Stringify();
 
         // Save the string to a file (example path)
         File.WriteAllText(_tabsFilePath, jsonString);

@@ -5,13 +5,15 @@ namespace Collox.Services;
 
 public class UserNotificationService
 {
+    public delegate void UserNotificationsViewChanged(IReadOnlyList<UserNotification> newView);
+
     public async Task Initialize()
     {
         // Get the listener
-        UserNotificationListener listener = UserNotificationListener.Current;
+        var listener = UserNotificationListener.Current;
 
         // And request access to the user's notifications (must be called from UI thread)
-        UserNotificationListenerAccessStatus accessStatus = await listener.RequestAccessAsync();
+        var accessStatus = await listener.RequestAccessAsync();
 
         switch (accessStatus)
         {
@@ -40,22 +42,16 @@ public class UserNotificationService
                 // Show UI that allows the user to bring up the prompt again
                 break;
         }
-
-
     }
-
-    public delegate void UserNotificationsViewChanged(IReadOnlyList<UserNotification> newView);
 
     private event UserNotificationsViewChanged _userNotificationsViewChanged;
 
     public event UserNotificationsViewChanged OnUserNotificationsViewChanged
     {
-        add {
-            _userNotificationsViewChanged += value;
-            //var cnv = UserNotificationListener.Current.GetNotificationsAsync(NotificationKinds.Toast).GetResults();
-            //value.Invoke(cnv);
-        }
-        remove { _userNotificationsViewChanged -= value; }
+        add => _userNotificationsViewChanged += value;
+        //var cnv = UserNotificationListener.Current.GetNotificationsAsync(NotificationKinds.Toast).GetResults();
+        //value.Invoke(cnv);
+        remove => _userNotificationsViewChanged -= value;
     }
 
     private void Listener_NotificationChanged(UserNotificationListener sender, UserNotificationChangedEventArgs args)
@@ -71,6 +67,9 @@ public class UserNotificationService
             _userNotificationsViewChanged?.Invoke(notifs);
         }
     }
-    public async Task<IReadOnlyList<UserNotification>> GetNotifications() => await UserNotificationListener.Current.GetNotificationsAsync(NotificationKinds.Toast);
 
+    public async Task<IReadOnlyList<UserNotification>> GetNotifications()
+    {
+        return await UserNotificationListener.Current.GetNotificationsAsync(NotificationKinds.Toast);
+    }
 }

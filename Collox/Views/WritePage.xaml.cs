@@ -12,10 +12,12 @@ using Microsoft.UI.Xaml.Input;
 namespace Collox.Views;
 
 /// <summary>
-/// An empty page that can be used on its own or navigated to within a Frame.
+///     An empty page that can be used on its own or navigated to within a Frame.
 /// </summary>
 public sealed partial class WritePage : Page
 {
+    private const string predefined = "predefined";
+
     public WritePage()
     {
         InitializeComponent();
@@ -44,11 +46,12 @@ public sealed partial class WritePage : Page
 
     public WriteViewModel ViewModel => (WriteViewModel)DataContext;
 
-   
+
     public TabData ConversationContext
     {
         get;
-        set {
+        set
+        {
             field = value;
             ViewModel.ConversationContext = value;
         }
@@ -60,10 +63,10 @@ public sealed partial class WritePage : Page
         if (e.Key == VirtualKey.Enter)
         {
             // todo does not always work
-            if ((InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift)
+            if (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift)
                 == CoreVirtualKeyStates.Down ||
-            InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.CapitalLock)
-                == CoreVirtualKeyStates.Down))
+                InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.CapitalLock)
+                == CoreVirtualKeyStates.Down)
             {
                 e.Handled = false;
             }
@@ -85,7 +88,6 @@ public sealed partial class WritePage : Page
         TbInput.Focus(FocusState.Programmatic);
     }
 
-    private const string predefined = "predefined";
     private async void TemplatesFlyout_Opening(object sender, object e)
     {
         var vm = App.GetService<TemplatesViewModel>();
@@ -140,7 +142,8 @@ public sealed partial class WritePage : Page
         Setfly.Hide();
     }
 
-    private void ChangeModeKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    private void ChangeModeKeyboardAccelerator_Invoked(KeyboardAccelerator sender,
+        KeyboardAcceleratorInvokedEventArgs args)
     {
         ViewModel.SwitchModeCommand.Execute(null);
         args.Handled = true;

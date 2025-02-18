@@ -11,17 +11,23 @@ public partial class TabWriteViewModel : ObservableObject
     {
         Context = "Default",
         IsCloseable = false,
-        IsEditing = false,
+        IsEditing = false
     };
 
+    private readonly Dictionary<TabData, TabContext> tabContexts = [];
+
     private readonly ITabContextService tabContextService = App.GetService<ITabContextService>();
+
+    [ObservableProperty] public partial ObservableCollection<TabData> Contexts { get; set; } = [initialTab];
+
+    [ObservableProperty] public partial TabData SelectedTab { get; set; } = initialTab;
 
     [RelayCommand]
     public void LoadTabs()
     {
         foreach (var tab in tabContextService.GetTabs())
         {
-            var tabDataItem = new TabData()
+            var tabDataItem = new TabData
             {
                 Context = tab.Name,
                 IsCloseable = tab.IsCloseable,
@@ -32,20 +38,13 @@ public partial class TabWriteViewModel : ObservableObject
         }
     }
 
-    [ObservableProperty]
-    public partial ObservableCollection<TabData> Contexts { get; set; } = [initialTab];
-
-    [ObservableProperty] public partial TabData SelectedTab { get; set; } = initialTab;
-
-    private readonly Dictionary<TabData, TabContext> tabContexts = [];
-
     [RelayCommand]
     public void AddContext()
     {
         var context = $"Context {Contexts.Count + 1}";
 
         var newTabContext = new TabContext { Name = context, IsCloseable = true };
-        var newTab = new TabData()
+        var newTab = new TabData
         {
             Context = context,
             IsCloseable = true,
@@ -87,14 +86,11 @@ public partial class TabWriteViewModel : ObservableObject
 
 public partial class TabData : ObservableObject
 {
-    [ObservableProperty]
-    public partial string Context { get; set; }
+    [ObservableProperty] public partial string Context { get; set; }
 
-    [ObservableProperty]
-    public partial bool IsCloseable { get; set; }
+    [ObservableProperty] public partial bool IsCloseable { get; set; }
 
-    [ObservableProperty]
-    public partial bool IsEditing { get; set; }
+    [ObservableProperty] public partial bool IsEditing { get; set; }
 }
 
 public class FocusTabMessage(TabData tabData) : ValueChangedMessage<TabData>(tabData);

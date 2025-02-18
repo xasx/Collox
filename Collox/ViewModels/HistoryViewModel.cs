@@ -2,14 +2,14 @@
 using CommunityToolkit.Mvvm.Collections;
 
 namespace Collox.ViewModels;
+
 public partial class HistoryViewModel : ObservableObject
 {
     private readonly IStoreService storeService = App.GetService<IStoreService>();
 
     public ObservableGroupedCollection<string, HistoryEntry> Histories { get; set; } = [];
 
-    [ObservableProperty]
-    public partial HistoryEntry SelectedHistoryEntry { get; set; }
+    [ObservableProperty] public partial HistoryEntry SelectedHistoryEntry { get; set; }
 
     [RelayCommand]
     public async Task LoadHistory()
@@ -20,7 +20,7 @@ public partial class HistoryViewModel : ObservableObject
         {
             foreach (var historyItem in historyItems)
             {
-                Histories.AddItem(month, new HistoryEntry()
+                Histories.AddItem(month, new HistoryEntry
                 {
                     Day = historyItem.Date,
                     Preview = historyItem.Preview

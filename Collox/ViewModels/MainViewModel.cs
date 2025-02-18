@@ -1,61 +1,32 @@
 ﻿using System.Collections.ObjectModel;
+using Windows.System;
+using Windows.UI.Notifications;
 using Collox.Services;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
-using Windows.System;
-using Windows.UI.Notifications;
+using NetworkHelper = CommunityToolkit.WinUI.Helpers.NetworkHelper;
 
 namespace Collox.ViewModels;
-public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyChangedMessage<string>>, ITitleBarAutoSuggestBoxAware
+
+public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyChangedMessage<string>>,
+    ITitleBarAutoSuggestBoxAware
 {
     private DispatcherQueue dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
     public MainViewModel()
     {
-        CommunityToolkit.WinUI.Helpers.NetworkHelper.Instance.NetworkChanged += Instance_NetworkChanged;
+        NetworkHelper.Instance.NetworkChanged += Instance_NetworkChanged;
     }
 
-    [ObservableProperty]
-    public partial bool  IsAIEnabled { get; set; } = AppHelper.Settings.EnableAI;
+    [ObservableProperty] public partial bool IsAIEnabled { get; set; } = Settings.EnableAI;
 
-    partial void OnIsAIEnabledChanged(bool value)
-    {
-        AppHelper.Settings.EnableAI = value;
-    }
+    [ObservableProperty] public partial InternetState InternetState { get; set; } = new();
 
-    [ObservableProperty]
-    public partial InternetState InternetState { get; set; } = new InternetState();
+    [ObservableProperty] public partial ObservableCollection<UserNotification> UserNotifications { get; set; } = [];
 
-    [ObservableProperty]
-    public partial ObservableCollection<UserNotification> UserNotifications { get; set; } = [];
-
-    [ObservableProperty]
-    public partial string DocumentFilename { get; set; }
+    [ObservableProperty] public partial string DocumentFilename { get; set; }
 
     private UserNotificationService UserNotificationService { get; } = App.GetService<UserNotificationService>();
-
-    [RelayCommand]
-    public async Task Init()
-    {
-        RefreshInternetState();
-        await UserNotificationService.Initialize();
-        UserNotificationService.OnUserNotificationsViewChanged += UserNotificationService_OnUserNotificationsViewChanged;
-
-        var userNotifications = await UserNotificationService.GetNotifications();
-            UserNotifications.AddRange(userNotifications);
-
-        dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-
-        DocumentFilename = App.GetService<IStoreService>().GetFilename();
-    }
-
-    public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
-    {
-    }
-
-    public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
-    {
-    }
 
     public void Receive(PropertyChangedMessage<string> message)
     {
@@ -66,6 +37,35 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
         }
     }
 
+    public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+    {
+    }
+
+    public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+    }
+
+    partial void OnIsAIEnabledChanged(bool value)
+    {
+        Settings.EnableAI = value;
+    }
+
+    [RelayCommand]
+    public async Task Init()
+    {
+        RefreshInternetState();
+        await UserNotificationService.Initialize();
+        UserNotificationService.OnUserNotificationsViewChanged +=
+            UserNotificationService_OnUserNotificationsViewChanged;
+
+        var userNotifications = await UserNotificationService.GetNotifications();
+        UserNotifications.AddRange(userNotifications);
+
+        dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+
+        DocumentFilename = App.GetService<IStoreService>().GetFilename();
+    }
+
     private void Instance_NetworkChanged(object sender, EventArgs e)
     {
         dispatcherQueue.TryEnqueue(RefreshInternetState);
@@ -73,7 +73,7 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
 
     private void RefreshInternetState()
     {
-        if (CommunityToolkit.WinUI.Helpers.NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable)
+        if (NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable)
         {
             InternetState.State = "online";
             InternetState.Icon = "\uE774";
@@ -97,9 +97,7 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
 
 public partial class InternetState : ObservableObject
 {
-    [ObservableProperty]
-    public partial string Icon { get; set; } = "\uF384";
+    [ObservableProperty] public partial string Icon { get; set; } = "\uF384";
 
-    [ObservableProperty]
-    public partial string State { get; set; } = "offline";
+    [ObservableProperty] public partial string State { get; set; } = "offline";
 }

@@ -1,28 +1,9 @@
-﻿using Collox;
-using CommunityToolkit.WinUI.UI.Controls;
-using Windows.System;
+﻿using Windows.System;
 
 namespace Collox.ViewModels;
+
 public partial class AppUpdateSettingViewModel : ObservableObject
 {
-    [ObservableProperty]
-    public partial string CurrentVersion { get; set; }
-
-    [ObservableProperty]
-    public partial string LastUpdateCheck { get; set; }
-
-    [ObservableProperty]
-    public partial bool IsUpdateAvailable { get; set; }
-
-    [ObservableProperty]
-    public partial bool IsLoading { get; set; }
-
-    [ObservableProperty]
-    public partial bool IsCheckButtonEnabled { get; set; } = true;
-
-    [ObservableProperty]
-    public partial string LoadingStatus { get; set; } = "Status";
-
     private string ChangeLog = string.Empty;
 
     public AppUpdateSettingViewModel()
@@ -30,6 +11,18 @@ public partial class AppUpdateSettingViewModel : ObservableObject
         CurrentVersion = $"Current Version {ProcessInfoHelper.VersionWithPrefix}";
         LastUpdateCheck = Settings.LastUpdateCheck;
     }
+
+    [ObservableProperty] public partial string CurrentVersion { get; set; }
+
+    [ObservableProperty] public partial string LastUpdateCheck { get; set; }
+
+    [ObservableProperty] public partial bool IsUpdateAvailable { get; set; }
+
+    [ObservableProperty] public partial bool IsLoading { get; set; }
+
+    [ObservableProperty] public partial bool IsCheckButtonEnabled { get; set; } = true;
+
+    [ObservableProperty] public partial string LoadingStatus { get; set; } = "Status";
 
     [RelayCommand]
     private async Task CheckForUpdateAsync()
@@ -43,22 +36,25 @@ public partial class AppUpdateSettingViewModel : ObservableObject
             try
             {
                 //Todo: Fix UserName and Repo
-                string username = "";
-                string repo = "";
+                var username = "";
+                var repo = "";
                 LastUpdateCheck = DateTime.Now.ToShortDateString();
                 Settings.LastUpdateCheck = DateTime.Now.ToShortDateString();
-                var update = await UpdateHelper.CheckUpdateAsync(username, repo, new Version(ProcessInfoHelper.Version));
+                var update =
+                    await UpdateHelper.CheckUpdateAsync(username, repo, new Version(ProcessInfoHelper.Version));
                 if (update.StableRelease.IsExistNewVersion)
                 {
                     IsUpdateAvailable = true;
                     ChangeLog = update.StableRelease.Changelog;
-                    LoadingStatus = $"We found a new version {update.StableRelease.TagName} Created at {update.StableRelease.CreatedAt} and Published at {update.StableRelease.PublishedAt}";
+                    LoadingStatus =
+                        $"We found a new version {update.StableRelease.TagName} Created at {update.StableRelease.CreatedAt} and Published at {update.StableRelease.PublishedAt}";
                 }
                 else if (update.PreRelease.IsExistNewVersion)
                 {
                     IsUpdateAvailable = true;
                     ChangeLog = update.PreRelease.Changelog;
-                    LoadingStatus = $"We found a new PreRelease Version {update.PreRelease.TagName} Created at {update.PreRelease.CreatedAt} and Published at {update.PreRelease.PublishedAt}";
+                    LoadingStatus =
+                        $"We found a new PreRelease Version {update.PreRelease.TagName} Created at {update.PreRelease.CreatedAt} and Published at {update.PreRelease.PublishedAt}";
                 }
                 else
                 {
@@ -76,6 +72,7 @@ public partial class AppUpdateSettingViewModel : ObservableObject
         {
             LoadingStatus = "Error Connection";
         }
+
         IsLoading = false;
         IsCheckButtonEnabled = true;
     }
@@ -90,7 +87,7 @@ public partial class AppUpdateSettingViewModel : ObservableObject
     [RelayCommand]
     private async Task GetReleaseNotesAsync()
     {
-        ContentDialog dialog = new ContentDialog()
+        var dialog = new ContentDialog
         {
             Title = "Release Note",
             CloseButtonText = "Close",

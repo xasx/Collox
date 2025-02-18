@@ -1,12 +1,12 @@
-﻿using Collox;
-using Microsoft.UI.Xaml.Media;
+﻿using Microsoft.UI.Xaml.Media;
 
 namespace Collox.Views;
+
 public sealed partial class ThemeSettingPage : Page
 {
     public ThemeSettingPage()
     {
-        this.InitializeComponent();
+        InitializeComponent();
     }
 
     private void OnColorChanged(ColorPicker sender, ColorChangedEventArgs args)
@@ -28,9 +28,8 @@ public sealed partial class ThemeSettingPage : Page
             {
                 App.Current.GetThemeService.SetBackdropTintColor(color.Color);
             }
+
             TintBox.Fill = new SolidColorBrush(color.Color);
         }
     }
 }
-
-

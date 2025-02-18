@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Windows.System;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
@@ -15,7 +16,7 @@ public sealed partial class TabWritePage : Page
 
         WeakReferenceMessenger.Default.Register<FocusTabMessage>(this, (__, e) =>
         {
-            var tim=DispatcherQueue.CreateTimer();
+            var tim = DispatcherQueue.CreateTimer();
             tim.Interval = TimeSpan.FromMilliseconds(100);
 
             tim.Tick += (_, ___) =>
@@ -27,11 +28,13 @@ public sealed partial class TabWritePage : Page
         });
     }
 
+    private TabWriteViewModel ViewModel => DataContext as TabWriteViewModel;
+
     private void SetFocusOnTab(TabData tab, DependencyObject root)
     {
         var c = VisualTreeHelper.GetChildrenCount(root);
 
-        for (int i = 0; i < c; i++)
+        for (var i = 0; i < c; i++)
         {
             var child = VisualTreeHelper.GetChild(root, i);
             if (child is TextBox tb)
@@ -48,14 +51,16 @@ public sealed partial class TabWritePage : Page
             }
             else
             {
-                if (child is WritePage) continue;
+                if (child is WritePage)
+                {
+                    continue;
+                }
+
                 Debug.WriteLine(child);
                 SetFocusOnTab(tab, child);
             }
         }
     }
-
-    private TabWriteViewModel ViewModel => DataContext as TabWriteViewModel;
 
     private void TabViewItem_CloseRequested(TabViewItem sender, TabViewTabCloseRequestedEventArgs args)
     {
@@ -65,37 +70,38 @@ public sealed partial class TabWritePage : Page
         }
     }
 
-    private void NavigateToNumberedTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    private void NavigateToNumberedTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender,
+        KeyboardAcceleratorInvokedEventArgs args)
     {
-        int tabToSelect = 0;
+        var tabToSelect = 0;
 
         switch (sender.Key)
         {
-            case Windows.System.VirtualKey.Number1:
+            case VirtualKey.Number1:
                 tabToSelect = 0;
                 break;
-            case Windows.System.VirtualKey.Number2:
+            case VirtualKey.Number2:
                 tabToSelect = 1;
                 break;
-            case Windows.System.VirtualKey.Number3:
+            case VirtualKey.Number3:
                 tabToSelect = 2;
                 break;
-            case Windows.System.VirtualKey.Number4:
+            case VirtualKey.Number4:
                 tabToSelect = 3;
                 break;
-            case Windows.System.VirtualKey.Number5:
+            case VirtualKey.Number5:
                 tabToSelect = 4;
                 break;
-            case Windows.System.VirtualKey.Number6:
+            case VirtualKey.Number6:
                 tabToSelect = 5;
                 break;
-            case Windows.System.VirtualKey.Number7:
+            case VirtualKey.Number7:
                 tabToSelect = 6;
                 break;
-            case Windows.System.VirtualKey.Number8:
+            case VirtualKey.Number8:
                 tabToSelect = 7;
                 break;
-            case Windows.System.VirtualKey.Number9:
+            case VirtualKey.Number9:
                 // Select the last tab
                 tabToSelect = ViewModel.Contexts.Count - 1;
                 break;
@@ -110,7 +116,8 @@ public sealed partial class TabWritePage : Page
         args.Handled = true;
     }
 
-    private void CloseCurrentTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    private void CloseCurrentTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender,
+        KeyboardAcceleratorInvokedEventArgs args)
     {
         ViewModel.RemoveContextCommand.Execute(null);
         args.Handled = true;
@@ -124,7 +131,7 @@ public sealed partial class TabWritePage : Page
 
     private void ContextBox_OnPreviewKeyDown(object sender, KeyRoutedEventArgs e)
     {
-        if (e.Key == Windows.System.VirtualKey.Enter)
+        if (e.Key == VirtualKey.Enter)
         {
             var tb = sender as TextBox;
             if (tb?.Tag is TabData td)
@@ -144,6 +151,6 @@ public sealed partial class TabWritePage : Page
 
     private void SettingsCard_Click(object sender, RoutedEventArgs e)
     {
-       SetFocusOnTab(ViewModel.SelectedTab, MainTabView);
+        SetFocusOnTab(ViewModel.SelectedTab, MainTabView);
     }
 }

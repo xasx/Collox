@@ -5,29 +5,29 @@ namespace Collox.ViewModels;
 
 public partial class TemplatesViewModel : ObservableObject
 {
-    [ObservableProperty]
-    public partial string Name { get; set; }
+    private readonly ITemplateService templateService = App.GetService<ITemplateService>();
 
-    [ObservableProperty]
-    public partial string Content { get; set; }
+    [ObservableProperty] public partial string Name { get; set; }
 
-    [ObservableProperty]
-    public partial Template SelectedTemplate { get; set; }
+    [ObservableProperty] public partial string Content { get; set; }
 
-    [ObservableProperty]
-    public partial ObservableCollection<Template> Templates { get; set; } = [];
+    [ObservableProperty] public partial Template SelectedTemplate { get; set; }
+
+    [ObservableProperty] public partial ObservableCollection<Template> Templates { get; set; } = [];
 
     public bool IsEditing { get; set; }
 
     public Template TemplateToEdit { get; set; }
 
-    private readonly ITemplateService templateService = App.GetService<ITemplateService>();
-
     [RelayCommand]
     public async Task SaveTemplate()
     {
         // todo
-        if (Name.IsWhiteSpace() || Name == string.Empty) return;
+        if (Name.IsWhiteSpace() || Name == string.Empty)
+        {
+            return;
+        }
+
         if (IsEditing)
         {
             await templateService.EditTemplate(TemplateToEdit.Name, Name, Content);
@@ -48,6 +48,7 @@ public partial class TemplatesViewModel : ObservableObject
             };
             Templates.Add(t);
         }
+
         Name = string.Empty;
         Content = string.Empty;
     }
@@ -72,7 +73,7 @@ public partial class TemplatesViewModel : ObservableObject
     [RelayCommand]
     public async Task DuplicateTemplate()
     {
-        var dt = new Template()
+        var dt = new Template
         {
             Name = SelectedTemplate.Name + " - Duplicate",
             Content = SelectedTemplate.Content
@@ -91,7 +92,7 @@ public partial class TemplatesViewModel : ObservableObject
         Templates.Clear();
         foreach (var templateEntry in templates)
         {
-            var t = new Template()
+            var t = new Template
             {
                 Name = templateEntry.Value.Name,
                 Content = templateEntry.Value.Content
@@ -103,10 +104,7 @@ public partial class TemplatesViewModel : ObservableObject
 
 public partial class Template : ObservableObject
 {
-    [ObservableProperty]
-    public partial string Name { get; set; } = "default";
+    [ObservableProperty] public partial string Name { get; set; } = "default";
 
-    [ObservableProperty]
-    public partial string Content { get; set; } = "# Generic template 01";
-
+    [ObservableProperty] public partial string Content { get; set; } = "# Generic template 01";
 }

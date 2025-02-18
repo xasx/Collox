@@ -1,4 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
+
 <Page x:Class="Collox.Views.TabWritePage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -76,11 +77,9 @@
                                                  Description="add a new tab"
                                                  Header="Add Tab"
                                                  HeaderIcon="{dev:FontIcon GlyphCode=E710}"
-                                                 IsClickEnabled="True">
-                                </ui:SettingsCard>
+                                                 IsClickEnabled="True" />
                                 <ui:SettingsCard Click="SettingsCard_Click"
-                                                 IsClickEnabled="True">
-                                </ui:SettingsCard>
+                                                 IsClickEnabled="True" />
                             </StackPanel>
                         </Flyout>
                     </Button.Flyout>

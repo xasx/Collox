@@ -1,4 +1,5 @@
 ﻿namespace Collox.Models;
+
 public class ConversationContribution
 {
     public DateTime Timestamp { get; set; }

@@ -1,15 +1,15 @@
-﻿using Microsoft.UI.Xaml.Controls.Primitives;
-using Windows.Win32;
+﻿using Windows.Win32;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using AutoSuggestBoxHelper = DevWinUI.AutoSuggestBoxHelper;
 
 namespace Collox.Views;
 
 public sealed partial class MainPage : Page
 {
-    public MainViewModel ViewModel { get; }
     public MainPage()
     {
         ViewModel = App.GetService<MainViewModel>();
-        this.InitializeComponent();
+        InitializeComponent();
         App.MainWindow.ExtendsContentIntoTitleBar = true;
         App.MainWindow.SetTitleBar(AppTitleBar);
 
@@ -25,6 +25,8 @@ public sealed partial class MainPage : Page
         }
     }
 
+    public MainViewModel ViewModel { get; }
+
     private void ThemeButton_Click(object sender, RoutedEventArgs e)
     {
         ThemeService.ChangeThemeWithoutSave(App.MainWindow);
@@ -32,12 +34,12 @@ public sealed partial class MainPage : Page
 
     private void OnTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
-        DevWinUI.AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxTextChangedEvent(sender, args, NavFrame);
+        AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxTextChangedEvent(sender, args, NavFrame);
     }
 
     private void OnQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
-        DevWinUI.AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxQuerySubmittedEvent(sender, args, NavFrame);
+        AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxQuerySubmittedEvent(sender, args, NavFrame);
     }
 
     private void ShutdownButton_Click(object sender, RoutedEventArgs e)
@@ -51,4 +53,3 @@ public sealed partial class MainPage : Page
         FlyoutBase.ShowAttachedFlyout(sender as Shield);
     }
 }
-

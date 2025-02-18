@@ -7,15 +7,14 @@ namespace Collox.Services;
 
 internal class StoreService : IStoreService
 {
+    private readonly Queue<string> q = new();
     private string currentFilename;
-
-    private DateTime lastSave = DateTime.MinValue;
 
     private DateTime lastROD = DateTime.MinValue;
 
-    private bool newday;
+    private DateTime lastSave = DateTime.MinValue;
 
-    private readonly Queue<string> q = new Queue<string>();
+    private bool newday;
 
 
     public StoreService()
@@ -23,24 +22,17 @@ internal class StoreService : IStoreService
         currentFilename = GenerateCurrentFilename(DateTime.Now);
     }
 
-    private string GenerateCurrentFilename(DateTime now)
-    {
-        string cfn = $"{now:yyyy-MM-dd}.md";
-        string fn = $"{now:yyyy-MM_MMMM}";
-        return Path.Combine(AppHelper.Settings.BaseFolder, fn, cfn);
-    }
-
     public Task AppendParagraph(string text, string context, DateTime? timestamp)
     {
         return Task.Run(() =>
         {
-            q.EnqueueIf(AppHelper.Settings.WriteDelimiters, $"<!-- collox.bop:{Guid.NewGuid()} -->");
+            q.EnqueueIf(Settings.WriteDelimiters, $"<!-- collox.bop:{Guid.NewGuid()} -->");
             q.Enqueue(timestamp?.ToMdTimestamp());
             q.EnqueueIf(context != "Default", $"_{context}_");
             q.Enqueue(Environment.NewLine);
             q.Enqueue(text.AsMdBq());
-            q.EnqueueIf(AppHelper.Settings.WriteDelimiters, "<!-- collox.eop -->");
-            if (!AppHelper.Settings.DeferredWrite || DateTime.Now - lastSave >= TimeSpan.FromSeconds(30))
+            q.EnqueueIf(Settings.WriteDelimiters, "<!-- collox.eop -->");
+            if (!Settings.DeferredWrite || DateTime.Now - lastSave >= TimeSpan.FromSeconds(30))
             {
                 Save();
             }
@@ -49,36 +41,6 @@ internal class StoreService : IStoreService
 
     public string GetFilename()
     {
-        return currentFilename;
-    }
-
-    private void Save()
-    {
-        var fn = CheckFilename();
-        Directory.CreateDirectory(Path.GetDirectoryName(fn)!);
-        File.AppendAllLines(fn, q);
-        lastSave = DateTime.Now;
-        q.Clear();
-    }
-
-    private string CheckFilename()
-    {
-        if (AppHelper.Settings.CustomRotation)
-        {
-            var now = DateTime.Now;
-            if (newday || DateOnly.FromDateTime(now) > DateOnly.FromDateTime(lastROD))
-            {
-                newday = true; // save some comparisons
-                if (TimeOnly.FromDateTime(now) >= AppHelper.Settings.RollOverTime)
-                {
-                    var oldfn = currentFilename;
-                    currentFilename = GenerateCurrentFilename(now);
-                    lastROD = now;
-                    WeakReferenceMessenger.Default.Send(new PropertyChangedMessage<string>(this, "Filename", oldfn, currentFilename));
-                    newday = false;
-                }
-            }
-        }
         return currentFilename;
     }
 
@@ -91,7 +53,7 @@ internal class StoreService : IStoreService
     {
         return Task.Run<IDictionary<string, ICollection<MarkdownRecording>>>(async () =>
         {
-            var di = new DirectoryInfo(AppHelper.Settings.BaseFolder);
+            var di = new DirectoryInfo(Settings.BaseFolder);
             var dict = new Dictionary<string, ICollection<MarkdownRecording>>();
             foreach (var d in di.EnumerateDirectories(@"????-??_*"))
             {
@@ -105,9 +67,10 @@ internal class StoreService : IStoreService
                     {
                         lines = await sr.ReadToEndAsync();
                     }
+
                     var date = DateOnly.Parse(f.Name.Substring(0, 10));
 
-                    var rec = new MarkdownRecording()
+                    var rec = new MarkdownRecording
                     {
                         Date = date,
                         Preview = lines
@@ -115,11 +78,52 @@ internal class StoreService : IStoreService
 
                     list.Add(rec);
                 }
+
                 var dtm = DateTime.ParseExact(d.Name, "yyyy-MM_MMMM", CultureInfo.CurrentCulture);
                 dict.Add(dtm.ToString("MMMM yyyy"), list);
             }
+
             return dict;
         });
+    }
+
+    private string GenerateCurrentFilename(DateTime now)
+    {
+        var cfn = $"{now:yyyy-MM-dd}.md";
+        var fn = $"{now:yyyy-MM_MMMM}";
+        return Path.Combine(Settings.BaseFolder, fn, cfn);
+    }
+
+    private void Save()
+    {
+        var fn = CheckFilename();
+        Directory.CreateDirectory(Path.GetDirectoryName(fn)!);
+        File.AppendAllLines(fn, q);
+        lastSave = DateTime.Now;
+        q.Clear();
+    }
+
+    private string CheckFilename()
+    {
+        if (Settings.CustomRotation)
+        {
+            var now = DateTime.Now;
+            if (newday || DateOnly.FromDateTime(now) > DateOnly.FromDateTime(lastROD))
+            {
+                newday = true; // save some comparisons
+                if (TimeOnly.FromDateTime(now) >= Settings.RollOverTime)
+                {
+                    var oldfn = currentFilename;
+                    currentFilename = GenerateCurrentFilename(now);
+                    lastROD = now;
+                    WeakReferenceMessenger.Default.Send(
+                        new PropertyChangedMessage<string>(this, "Filename", oldfn, currentFilename));
+                    newday = false;
+                }
+            }
+        }
+
+        return currentFilename;
     }
 }
 
@@ -127,14 +131,14 @@ public static class Extensions
 {
     public static string AsMdBq(this string text)
     {
-        using StringWriter writer = new StringWriter();
-        using StringReader reader = new StringReader(text);
+        using var writer = new StringWriter();
+        using var reader = new StringReader(text);
         while (reader.ReadLine() is { } line)
         {
             writer.Write("> ");
             writer.WriteLine(line);
-
         }
+
         return writer.ToString();
     }
 

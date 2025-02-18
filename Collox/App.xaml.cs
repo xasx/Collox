@@ -1,18 +1,28 @@
 ﻿using System.Diagnostics;
-using Collox.Services;
-using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
-using Microsoft.Windows.AppLifecycle;
-using Microsoft.Windows.AppNotifications;
 using Windows.Win32;
 using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
+using Collox.Services;
+using Microsoft.UI.Dispatching;
+using Microsoft.Windows.AppLifecycle;
+using Microsoft.Windows.AppNotifications;
+using WinRT.Interop;
 using WinUIEx;
+using UnhandledExceptionEventArgs = Microsoft.UI.Xaml.UnhandledExceptionEventArgs;
 
 namespace Collox;
 
 public partial class App : Application
 {
     public static Window MainWindow;
+
+    public App()
+    {
+        Services = ConfigureServices();
+        UnhandledException += Application_UnhandledException;
+        InitializeComponent();
+    }
+
     public IServiceProvider Services { get; }
     public new static App Current => (App)Application.Current;
     public IJsonNavigationService GetNavService => GetService<IJsonNavigationService>();
@@ -20,19 +30,12 @@ public partial class App : Application
 
     public static T GetService<T>() where T : class
     {
-        if ((App.Current as App)!.Services.GetService(typeof(T)) is not T service)
+        if (Current!.Services.GetService(typeof(T)) is not T service)
         {
             throw new ArgumentException($"{typeof(T)} needs to be registered in ConfigureServices within App.xaml.cs.");
         }
 
         return service;
-    }
-
-    public App()
-    {
-        Services = ConfigureServices();
-        UnhandledException += Application_UnhandledException;
-        InitializeComponent();
     }
 
     private static ServiceProvider ConfigureServices()
@@ -79,7 +82,8 @@ public partial class App : Application
         }
     }
 
-    private void NotificationManager_NotificationInvoked(AppNotificationManager sender, AppNotificationActivatedEventArgs args)
+    private void NotificationManager_NotificationInvoked(AppNotificationManager sender,
+        AppNotificationActivatedEventArgs args)
     {
         HandleNotification(args);
     }
@@ -122,16 +126,16 @@ public partial class App : Application
 
     private async void MainWindow_Closed(object sender, WindowEventArgs args)
     {
-       await GetService<IStoreService>().SaveNow();
+        await GetService<IStoreService>().SaveNow();
     }
 
-    private void Application_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+    private void Application_UnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
         Debug.WriteLine($"An error {e.Exception.Message}{Environment.NewLine}{e.Exception}");
         //MessageBox.Show(WinRT.Interop.WindowNative.GetWindowHandle(MainWindow),
         //$"{e.Exception.Message}{Environment.NewLine}{e}", "Error", MessageBoxStyle.ApplicationModal | MessageBoxStyle.IconError | MessageBoxStyle.Ok);
 
-        ErrorWindow errorWindow = new ErrorWindow
+        var errorWindow = new ErrorWindow
         {
             ReportedException = e.Exception
         };
@@ -141,14 +145,13 @@ public partial class App : Application
 
 internal static class WindowHelper
 {
-
     public static void ShowWindow(Window window)
     {
         // Bring the window to the foreground... first get the window handle...
-        var hwnd = new HWND(WinRT.Interop.WindowNative.GetWindowHandle(window));
+        var hwnd = new HWND(WindowNative.GetWindowHandle(window));
 
         // Restore window if minimized... requires DLL import above
-        PInvoke.ShowWindow(hwnd, Windows.Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_RESTORE);
+        PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_RESTORE);
 
         // And call SetForegroundWindow... requires DLL import above
         PInvoke.SetForegroundWindow(hwnd);

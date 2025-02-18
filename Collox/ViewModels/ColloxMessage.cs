@@ -1,5 +1,6 @@
 ﻿using System.Timers;
 using Windows.System;
+using Timer = System.Timers.Timer;
 
 namespace Collox.ViewModels;
 
@@ -7,7 +8,7 @@ public partial class ColloxMessage : ObservableObject
 {
     private static readonly DispatcherQueue DispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
-    private static readonly System.Timers.Timer Timer = new()
+    private static readonly Timer Timer = new()
     {
         Interval = 3333,
         Enabled = true
@@ -17,9 +18,9 @@ public partial class ColloxMessage : ObservableObject
     {
         var wel = new WeakEventListener<ColloxMessage, object, ElapsedEventArgs>(this)
         {
-            OnEventAction = (instance, sender, args) => ColloxMessage.DispatcherQueue
+            OnEventAction = (instance, sender, args) => DispatcherQueue
                 .TryEnqueue(() => instance.RelativeTimestamp = DateTime.Now - instance.Timestamp),
-            OnDetachAction = (listener) => Timer.Elapsed -= listener.OnEvent
+            OnDetachAction = listener => Timer.Elapsed -= listener.OnEvent
         };
 
         Timer.Elapsed += wel.OnEvent;
@@ -43,7 +44,7 @@ public partial class TextColloxMessage : ColloxMessage
     [RelayCommand]
     public void Read()
     {
-        WriteViewModel.ReadText(Text, AppHelper.Settings.Voice);
+        WriteViewModel.ReadText(Text, Settings.Voice);
     }
 }
 

@@ -6,7 +6,8 @@ namespace Collox.Services;
 public class TemplateService : ITemplateService
 {
     private readonly string templatesDir = Path.Combine(
-        AppHelper.Settings.BaseFolder, "Templates");
+        Settings.BaseFolder, "Templates");
+
     private IDictionary<string, MarkdownTemplate> cache;
 
     public async Task DeleteTemplate(string name)
@@ -20,12 +21,6 @@ public class TemplateService : ITemplateService
             }
         });
         cache.Remove(name);
-
-    }
-
-    private string DetermineFilename(string name)
-    {
-        return Path.Combine(templatesDir, name + ".md");
     }
 
     public async Task SaveTemplate(string name, string content)
@@ -38,7 +33,7 @@ public class TemplateService : ITemplateService
         }
 
         await File.WriteAllTextAsync(filename!, content);
-        cache.Add(name, new MarkdownTemplate()
+        cache.Add(name, new MarkdownTemplate
         {
             Name = name, FileName = filename, Content = content
         });
@@ -46,17 +41,17 @@ public class TemplateService : ITemplateService
 
     public async Task<IDictionary<string, MarkdownTemplate>> LoadTemplates()
     {
-
         var filenames = Directory.GetFiles(templatesDir);
         IDictionary<string, MarkdownTemplate> templates = new Dictionary<string, MarkdownTemplate>();
         foreach (var filename in filenames)
         {
             var name = Path.GetFileNameWithoutExtension(filename);
             var content = await File.ReadAllTextAsync(filename);
-            var t = new MarkdownTemplate() { Name = name, Content = content, FileName = filename };
+            var t = new MarkdownTemplate { Name = name, Content = content, FileName = filename };
             templates.Add(name, t);
         }
-        this.cache = templates;
+
+        cache = templates;
         return templates;
     }
 
@@ -88,5 +83,10 @@ public class TemplateService : ITemplateService
 
             cache.Add(newName, templ);
         }
+    }
+
+    private string DetermineFilename(string name)
+    {
+        return Path.Combine(templatesDir, name + ".md");
     }
 }
