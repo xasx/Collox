@@ -61,10 +61,10 @@ public class UserNotificationService
 
     private async Task UpdateUserNotifications(UserNotificationListener sender)
     {
-        var notifs = await sender.GetNotificationsAsync(NotificationKinds.Toast);
-        if (notifs != null)
+        var notifications = await sender.GetNotificationsAsync(NotificationKinds.Toast);
+        if (notifications != null)
         {
-            _userNotificationsViewChanged?.Invoke(notifs);
+            _userNotificationsViewChanged?.Invoke(notifications);
         }
     }
 

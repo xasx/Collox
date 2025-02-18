@@ -12,17 +12,19 @@ public sealed partial class TemplatesPage : Page
 {
     public TemplatesPage()
     {
-        InitializeComponent();
         DataContext = App.GetService<TemplatesViewModel>();
+        InitializeComponent();
     }
 
-    private TemplatesViewModel ViewModel => (TemplatesViewModel)DataContext;
+    private TemplatesViewModel ViewModel => DataContext as TemplatesViewModel;
 
     private void GridView_ItemClick(object sender, ItemClickEventArgs e)
     {
-        var options = new FlyoutShowOptions();
-        options.Placement = FlyoutPlacementMode.Right;
-        options.ShowMode = FlyoutShowMode.Standard;
+        var options = new FlyoutShowOptions
+        {
+            Placement = FlyoutPlacementMode.Right,
+            ShowMode = FlyoutShowMode.Standard
+        };
         var gv = e.OriginalSource as GridView;
         var cc = gv.ContainerFromItem(e.ClickedItem);
         ComBarFly.ShowAt(cc, options);

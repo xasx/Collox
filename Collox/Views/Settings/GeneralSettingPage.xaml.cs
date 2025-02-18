@@ -8,5 +8,5 @@ public sealed partial class GeneralSettingPage : Page
         InitializeComponent();
     }
 
-    public GeneralSettingViewModel ViewModel => (GeneralSettingViewModel)DataContext;
+    public GeneralSettingViewModel ViewModel => DataContext as GeneralSettingViewModel;
 }

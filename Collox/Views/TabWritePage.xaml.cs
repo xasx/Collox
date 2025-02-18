@@ -11,8 +11,8 @@ public sealed partial class TabWritePage : Page
 {
     public TabWritePage()
     {
-        InitializeComponent();
         DataContext = App.GetService<TabWriteViewModel>();
+        InitializeComponent();
 
         WeakReferenceMessenger.Default.Register<FocusTabMessage>(this, (__, e) =>
         {

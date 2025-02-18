@@ -7,7 +7,7 @@ namespace Collox.Common;
 
 public static class AppHelper
 {
-    public static AppConfig Settings = JsonSettings.Configure<AppConfig>()
+    public static readonly AppConfig Settings = JsonSettings.Configure<AppConfig>()
         .WithRecovery(RecoveryAction.RenameAndLoadDefault)
         .WithVersioning(VersioningResultAction.RenameAndLoadDefault)
         .LoadNow();

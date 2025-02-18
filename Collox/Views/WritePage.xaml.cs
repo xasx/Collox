@@ -20,14 +20,16 @@ public sealed partial class WritePage : Page
 
     public WritePage()
     {
-        InitializeComponent();
         DataContext = App.GetService<WriteViewModel>();
+        InitializeComponent();
+
         WeakReferenceMessenger.Default.Register<TextSubmittedMessage>(this, (s, e) =>
         {
             TbInput.Focus(FocusState.Programmatic);
             Scroller.ScrollTo(0.0, Scroller.ViewportHeight,
                 new ScrollingScrollOptions(ScrollingAnimationMode.Disabled));
         });
+
         WeakReferenceMessenger.Default.Register<ParagraphSelectedMessage>(this, (s, e) =>
         {
             var item = irChat.TryGetElement(e.Value) as FrameworkElement;
@@ -44,8 +46,7 @@ public sealed partial class WritePage : Page
         });
     }
 
-    public WriteViewModel ViewModel => (WriteViewModel)DataContext;
-
+    public WriteViewModel ViewModel => DataContext as WriteViewModel;
 
     public TabData ConversationContext
     {

@@ -2,7 +2,7 @@
 
 namespace Collox.Common.Converters;
 
-internal class TimeSpanToFriendlyConverter : IValueConverter
+public partial class TimeSpanToFriendlyConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {

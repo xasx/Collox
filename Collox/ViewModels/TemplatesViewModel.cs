@@ -22,8 +22,7 @@ public partial class TemplatesViewModel : ObservableObject
     [RelayCommand]
     public async Task SaveTemplate()
     {
-        // todo
-        if (Name.IsWhiteSpace() || Name == string.Empty)
+        if (Name.IsWhiteSpace() || Name?.Length == 0)
         {
             return;
         }
@@ -78,7 +77,6 @@ public partial class TemplatesViewModel : ObservableObject
             Name = SelectedTemplate.Name + " - Duplicate",
             Content = SelectedTemplate.Content
         };
-
 
         await templateService.SaveTemplate(dt.Name, dt.Content);
 

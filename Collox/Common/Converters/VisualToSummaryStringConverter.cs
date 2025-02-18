@@ -3,12 +3,11 @@ using Microsoft.UI.Xaml.Data;
 
 namespace Collox.Common.Converters;
 
-internal class VisualToSummaryStringConverter : IValueConverter
+public partial class VisualToSummaryStringConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
         var v = value as NotificationVisual;
-
 
         // Get the toast binding, if present
         var toastBinding = v.GetBinding(KnownNotificationBindings.ToastGeneric);
@@ -19,7 +18,7 @@ internal class VisualToSummaryStringConverter : IValueConverter
             var textElements = toastBinding.GetTextElements();
 
             // Treat the first text element as the title text
-            var titleText = textElements.FirstOrDefault()?.Text;
+            var titleText = textElements.Count > 0 ? textElements[0].Text : null;
 
             // We'll treat all subsequent text elements as body text,
             // joining them together via newlines.

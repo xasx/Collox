@@ -4,9 +4,9 @@ public sealed partial class AppUpdateSettingPage : Page
 {
     public AppUpdateSettingPage()
     {
-        ViewModel = App.GetService<AppUpdateSettingViewModel>();
+        DataContext = App.GetService<AppUpdateSettingViewModel>();
         InitializeComponent();
     }
 
-    public AppUpdateSettingViewModel ViewModel { get; }
+    public AppUpdateSettingViewModel ViewModel => DataContext as AppUpdateSettingViewModel;
 }

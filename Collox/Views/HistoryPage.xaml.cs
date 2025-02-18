@@ -21,5 +21,5 @@ public sealed partial class HistoryPage : Page
         }
     }
 
-    public HistoryViewModel ViewModel => (HistoryViewModel)DataContext;
+    public HistoryViewModel ViewModel => DataContext as HistoryViewModel;
 }

@@ -8,13 +8,12 @@ public sealed partial class MainPage : Page
 {
     public MainPage()
     {
-        ViewModel = App.GetService<MainViewModel>();
+        DataContext = App.GetService<MainViewModel>();
         InitializeComponent();
         App.MainWindow.ExtendsContentIntoTitleBar = true;
         App.MainWindow.SetTitleBar(AppTitleBar);
 
-        var navService = App.GetService<IJsonNavigationService>() as JsonNavigationService;
-        if (navService != null)
+        if (App.GetService<IJsonNavigationService>() is JsonNavigationService navService)
         {
             navService.Initialize(NavView, NavFrame, NavigationPageMappings.PageDictionary)
                 .ConfigureJsonFile("Assets/NavViewMenu/AppData.json")
@@ -25,7 +24,7 @@ public sealed partial class MainPage : Page
         }
     }
 
-    public MainViewModel ViewModel { get; }
+    public MainViewModel ViewModel => DataContext as MainViewModel;
 
     private void ThemeButton_Click(object sender, RoutedEventArgs e)
     {

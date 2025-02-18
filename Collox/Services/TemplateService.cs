@@ -8,7 +8,7 @@ public class TemplateService : ITemplateService
     private readonly string templatesDir = Path.Combine(
         Settings.BaseFolder, "Templates");
 
-    private IDictionary<string, MarkdownTemplate> cache;
+    private Dictionary<string, MarkdownTemplate> cache;
 
     public async Task DeleteTemplate(string name)
     {
@@ -42,7 +42,7 @@ public class TemplateService : ITemplateService
     public async Task<IDictionary<string, MarkdownTemplate>> LoadTemplates()
     {
         var filenames = Directory.GetFiles(templatesDir);
-        IDictionary<string, MarkdownTemplate> templates = new Dictionary<string, MarkdownTemplate>();
+        Dictionary<string, MarkdownTemplate> templates = [];
         foreach (var filename in filenames)
         {
             var name = Path.GetFileNameWithoutExtension(filename);
@@ -57,8 +57,8 @@ public class TemplateService : ITemplateService
 
     public async Task EditTemplate(string originalName, string newName, string newContent)
     {
-        var templ = cache[originalName];
-        var fn = templ.FileName;
+        var templateEntry = cache[originalName];
+        var fn = templateEntry.FileName;
 
         if (originalName == newName)
         {
@@ -72,16 +72,15 @@ public class TemplateService : ITemplateService
             var newFn = DetermineFilename(newName);
             File.Move(fn, newFn);
 
-
             await File.WriteAllTextAsync(newFn, newContent);
 
             cache.Remove(originalName);
 
-            templ.Name = newName;
-            templ.FileName = newFn;
-            templ.Content = newContent;
+            templateEntry.Name = newName;
+            templateEntry.FileName = newFn;
+            templateEntry.Content = newContent;
 
-            cache.Add(newName, templ);
+            cache.Add(newName, templateEntry);
         }
     }
 

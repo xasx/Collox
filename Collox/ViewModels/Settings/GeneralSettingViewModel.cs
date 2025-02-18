@@ -25,7 +25,6 @@ public partial class GeneralSettingViewModel : ObservableObject
         }
     }
 
-
     partial void OnBaseFolderChanged(string value)
     {
         Settings.BaseFolder = value;

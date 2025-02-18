@@ -48,7 +48,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     {
         AutoSuggestBoxHelper.LoadSuggestions(sender, args, [
             .. Paragraphs
-                .Where(p => p is TextColloxMessage).Cast<TextColloxMessage>()
+                .OfType<TextColloxMessage>()
                 .Where(p => p.Text.Contains(sender.Text)).Select(p => p.Text)
         ]);
     }
@@ -56,7 +56,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
         var paragraph = Paragraphs
-            .Where(p => p is TextColloxMessage).Cast<TextColloxMessage>()
+            .OfType<TextColloxMessage>()
             .FirstOrDefault(p => p.Text == args.QueryText);
         if (paragraph != null)
         {
@@ -102,8 +102,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     {
         if (Paragraphs.Count > 0)
         {
-            ReadText(StripMd(Paragraphs.Where(p => p is TextColloxMessage)
-                .Cast<TextColloxMessage>().Last().Text), SelectedVoice?.Name);
+            ReadText(StripMd(Paragraphs.OfType<TextColloxMessage>().Last().Text), SelectedVoice?.Name);
         }
     }
 

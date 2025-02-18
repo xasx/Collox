@@ -4,9 +4,9 @@ public sealed partial class AboutUsSettingPage : Page
 {
     public AboutUsSettingPage()
     {
-        ViewModel = App.GetService<AboutUsSettingViewModel>();
+        DataContext = App.GetService<AboutUsSettingViewModel>();
         InitializeComponent();
     }
 
-    public AboutUsSettingViewModel ViewModel { get; }
+    public AboutUsSettingViewModel ViewModel => DataContext as AboutUsSettingViewModel;
 }
