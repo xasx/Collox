@@ -16,7 +16,6 @@ internal class StoreService : IStoreService
 
     private bool newday;
 
-
     public StoreService()
     {
         currentFilename = GenerateCurrentFilename(DateTime.Now);
@@ -55,25 +54,31 @@ internal class StoreService : IStoreService
         {
             var di = new DirectoryInfo(Settings.BaseFolder);
             var dict = new Dictionary<string, ICollection<MarkdownRecording>>();
-            foreach (var d in di.EnumerateDirectories(@"????-??_*"))
+            foreach (var d in di.EnumerateDirectories("????-??_*"))
             {
                 //if (d.Name.Equals("Templates")) continue;
                 var files = d.EnumerateFiles("*.md");
                 var list = new List<MarkdownRecording>();
                 foreach (var f in files)
                 {
-                    string lines;
+                    string lines = string.Empty;
                     using (var sr = f.OpenText())
                     {
-                        lines = await sr.ReadToEndAsync();
+                        // read three lines
+                        for (var i = 0; i < 5; i++)
+                        {
+                            lines += await sr.ReadLineAsync();
+                            lines += Environment.NewLine;
+                        }
                     }
 
-                    var date = DateOnly.Parse(f.Name.Substring(0, 10));
+                    var date = DateOnly.Parse(f.Name[..10]);
 
                     var rec = new MarkdownRecording
                     {
                         Date = date,
-                        Preview = lines
+                        Preview = lines,
+                        Content = () => File.ReadAllText(f.FullName)
                     };
 
                     list.Add(rec);

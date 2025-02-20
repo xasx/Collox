@@ -5,15 +5,10 @@ using CommunityToolkit.Mvvm.Messaging;
 using Cottle;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml.Input;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using EmojiToolkit;
 
 namespace Collox.Views;
 
-/// <summary>
-///     An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
 public sealed partial class WritePage : Page
 {
     private const string predefined = "predefined";
@@ -109,17 +104,22 @@ public sealed partial class WritePage : Page
                     Text = templateItem.Name,
                     Icon = new SymbolIcon(Symbol.Document),
                     Tag = templateItem.Content,
-                    Command = new RelayCommand(() =>
-                    {
-                        var doc = Document.CreateDefault(templateItem.Content).DocumentOrThrow;
-                        var tti = doc.Render(Context.CreateBuiltin(new Dictionary<Value, Value>
-                        {
-                            ["now"] = Value.FromLazy(() => Value.FromString(DateTime.Now.ToString("F")))
-                        }));
-                        ViewModel.LastParagraph += tti;
-                    })
+                    Command = new RelayCommand(() => ApplyTemplate(templateItem))
                 });
         }
+    }
+
+    private void ApplyTemplate(Template templateItem)
+    {
+        var doc = Document.CreateDefault(templateItem.Content).DocumentOrThrow;
+        var tti = doc.Render(Context.CreateBuiltin(new Dictionary<Value, Value>
+        {
+            ["now"] = Value.FromLazy(() => Value.FromString(DateTime.Now.ToString("F"))),
+            ["random_emoji_nature"] = Value.FromLazy(() => Value.FromString(
+                Emoji.All.Where(e => e.Category == "nature")
+                .OrderBy(e => Random.Shared.Next()).First().Raw))
+        }));
+        ViewModel.LastParagraph += tti;
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)

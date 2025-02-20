@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 
 <Page x:Class="Collox.Views.TemplatesPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -15,22 +15,6 @@
             <interactivity:InvokeCommandAction Command="{x:Bind ViewModel.LoadTemplatesCommand}" />
         </interactivity:EventTriggerBehavior>
     </interactivity:Interaction.Behaviors>
-
-    <Page.Resources>
-        <CommandBarFlyout x:Name="ComBarFly"
-                          AlwaysExpanded="True">
-            <AppBarButton Command="{x:Bind ViewModel.DeleteTemplateCommand}"
-                          Icon="Delete"
-                          Label="Delete" />
-            <AppBarButton Command="{x:Bind ViewModel.EditTemplateCommand}"
-                          Icon="Edit"
-                          Label="Edit" />
-            <AppBarButton Command="{x:Bind ViewModel.DuplicateTemplateCommand}"
-                          Icon="Copy"
-                          Label="Duplicate" />
-        </CommandBarFlyout>
-    </Page.Resources>
-
 
     <Grid ColumnSpacing="16"
           RowSpacing="16">
@@ -51,10 +35,6 @@
                  IsOpen="False"
                  Message="A template with the same name already exists. Please choose a different name."
                  Severity="Warning">
-            <InfoBar.ActionButton>
-                <Button Click="AppBarButton_Click"
-                        Content="Edit name" />
-            </InfoBar.ActionButton>
         </InfoBar>
 
         <Grid Grid.Row="1"
@@ -101,7 +81,7 @@
 
         <GridView Grid.Row="2"
                   Grid.ColumnSpan="2"
-                  ContextFlyout="{StaticResource ComBarFly}"
+                  Height="320"
                   IsItemClickEnabled="True"
                   ItemsSource="{x:Bind ViewModel.Templates}"
                   SelectedItem="{x:Bind ViewModel.SelectedTemplate, Mode=TwoWay}">
@@ -114,9 +94,10 @@
             <GridView.ItemTemplate>
                 <DataTemplate xmlns:vm="using:Collox.ViewModels"
                               x:DataType="vm:Template">
-                    <StackPanel Width="200"
-                                Height="240"
-                                Margin="4">
+                    <StackPanel Width="216"
+                                Height="296"
+                                Margin="4"
+                                Spacing="4">
 
                         <uictrls:MarkdownTextBlock Height="200"
                                                    BorderThickness="1"
@@ -125,6 +106,19 @@
                         <TextBlock Height="24"
                                    Margin="4"
                                    Text="{x:Bind Name, Mode=OneWay}" />
+                        <CommandBar DefaultLabelPosition="Collapsed"
+                                    IsOpen="False"
+                                    OverflowButtonVisibility="Collapsed">
+                            <AppBarButton Command="{x:Bind DeleteTemplateCommand}"
+                                          Icon="Delete"
+                                          Label="Delete" />
+                            <AppBarButton Command="{x:Bind EditTemplateCommand}"
+                                          Icon="Edit"
+                                          Label="Edit" />
+                            <AppBarButton Command="{x:Bind DuplicateTemplateCommand}"
+                                          Icon="Copy"
+                                          Label="Duplicate" />
+                        </CommandBar>
                     </StackPanel>
 
 

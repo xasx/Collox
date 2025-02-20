@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Controls.Primitives;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.UI.Xaml.Controls.Primitives;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -14,6 +15,12 @@ public sealed partial class TemplatesPage : Page
     {
         DataContext = App.GetService<TemplatesViewModel>();
         InitializeComponent();
+
+        WeakReferenceMessenger.Default.Register<TemplateEditedMessage>(this, (r, m) =>
+        {
+            tbName.SelectAll();
+            tbName.Focus(FocusState.Programmatic);
+        });
     }
 
     private TemplatesViewModel ViewModel => DataContext as TemplatesViewModel;
@@ -27,12 +34,6 @@ public sealed partial class TemplatesPage : Page
         };
         var gv = e.OriginalSource as GridView;
         var cc = gv.ContainerFromItem(e.ClickedItem);
-        ComBarFly.ShowAt(cc, options);
-    }
-
-    private void AppBarButton_Click(object sender, RoutedEventArgs e)
-    {
-        tbName.SelectAll();
-        tbName.Focus(FocusState.Programmatic);
+        //ComBarFly.ShowAt(cc, options);
     }
 }

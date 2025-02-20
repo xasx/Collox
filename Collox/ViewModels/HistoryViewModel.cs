@@ -23,7 +23,8 @@ public partial class HistoryViewModel : ObservableObject
                 Histories.AddItem(month, new HistoryEntry
                 {
                     Day = historyItem.Date,
-                    Preview = historyItem.Preview
+                    Preview = historyItem.Preview,
+                    Content = new Lazy<string>(historyItem.Content)
                 });
             }
         }
@@ -33,5 +34,8 @@ public partial class HistoryViewModel : ObservableObject
 public class HistoryEntry
 {
     public DateOnly Day { get; init; }
+
     public string Preview { get; init; }
+
+    public Lazy<string> Content { get; init; }
 }
