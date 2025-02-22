@@ -1,4 +1,5 @@
-﻿using System.Timers;
+﻿using System.Diagnostics;
+using System.Timers;
 using Windows.System;
 using Timer = System.Timers.Timer;
 

@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 using Markdig;
 using Microsoft.Extensions.AI;
 using OllamaSharp;
+using System.Diagnostics;
 
 namespace Collox.ViewModels;
 
@@ -217,14 +218,12 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         LastParagraph = string.Empty;
 
         CharacterCount = Math.Min(KeyStrokesCount, CharacterCount + paragraph.Text.Length);
-        await storeService.AppendParagraph(paragraph.Text, ConversationContext.Context, paragraph.Timestamp);
+        if (AppHelper.Settings.PersistMessages) await storeService.AppendParagraph(paragraph.Text, ConversationContext.Context, paragraph.Timestamp);
         WeakReferenceMessenger.Default.Send(new TextSubmittedMessage(paragraph.Text));
 
         if (IsBeeping)
         {
-            var installedPath = Package.Current.InstalledLocation.Path;
-            var sp = new SoundPlayer(Path.Combine(installedPath, "Assets", "noti.wav"));
-            sp.Play();
+            PlayBeepSound();
         }
 
         if (IsSpeaking)
@@ -233,6 +232,13 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         }
 
         await AddComment(paragraph);
+    }
+
+    private static void PlayBeepSound()
+    {
+        var installedPath = Package.Current.InstalledLocation.Path;
+        var sp = new SoundPlayer(Path.Combine(installedPath, "Assets", "noti.wav"));
+        sp.Play();
     }
 
     private async Task AddComment(TextColloxMessage textColloxMessage)
@@ -245,11 +251,10 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
         try
         {
-            var client = new OllamaApiClient(
-                new Uri("http://localhost:11434/"), "phi");
+            var client = new OllamaChatClient(new Uri("http://localhost:11434/"), "phi4");
 
             var prompt = $"""
-                          Please give me a couple of alternatives to the following text between BEGIN and END?
+                          Please give me a couple of alternatives to the following text between BEGIN and END
                           Stick to the language of the sentence. Only output the alternatives.
 
                           BEGIN
@@ -257,14 +262,15 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                           END
                           """;
 
-            await foreach (var update in client.CompleteStreamingAsync(prompt))
+            await foreach (var update in client.GetStreamingResponseAsync(prompt))
             {
+                Debug.WriteLine(update.Text);
                 textColloxMessage.Comment += update.Text;
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            textColloxMessage.Comment = "Error";
+            textColloxMessage.Comment = $"Error: {ex.Message}";
         }
 
         textColloxMessage.IsLoading = false;

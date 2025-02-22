@@ -14,6 +14,8 @@ public partial class GeneralSettingViewModel : ObservableObject
 
     [ObservableProperty] public partial bool DeferredWrite { get; set; } = Settings.DeferredWrite;
 
+    [ObservableProperty] public partial bool PersistMessages { get; set; } = Settings.PersistMessages;
+
     [RelayCommand]
     public async Task SelectBaseFolder()
     {
@@ -28,6 +30,11 @@ public partial class GeneralSettingViewModel : ObservableObject
     partial void OnBaseFolderChanged(string value)
     {
         Settings.BaseFolder = value;
+    }
+
+    partial void OnPersistMessagesChanged(bool value)
+    {
+        AppHelper.Settings.PersistMessages = value;
     }
 
     partial void OnRollOverTimeChanged(TimeOnly value)

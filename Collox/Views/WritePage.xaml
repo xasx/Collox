@@ -5,6 +5,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:cc="using:Collox.Common"
       xmlns:conv="using:Collox.Common.Converters"
+      xmlns:converters="using:CommunityToolkit.WinUI.Converters"
       xmlns:ctrls="using:CommunityToolkit.WinUI.Controls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:dev="using:DevWinUI"
@@ -13,6 +14,7 @@
       xmlns:uictrls="using:CommunityToolkit.WinUI.UI.Controls"
       xmlns:vm="using:Collox.ViewModels"
       xmlns:winUi="using:CommunityToolkit.WinUI"
+      d:DataContext="{d:DesignInstance Type=vm:WriteViewModel}"
       gaze:GazeInput.Interaction="Disabled"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
       Loaded="InputBox_Loaded"
@@ -22,6 +24,9 @@
 
         <Flyout x:Name="TaskFly" />
         <conv:TimeSpanToFriendlyConverter x:Key="TSConv" />
+
+        <converters:StringVisibilityConverter x:Key="StringVisibilityConverter" />
+
 
         <Flyout x:Name="Setfly"
                 ShowMode="TransientWithDismissOnPointerMoveAway">
@@ -143,6 +148,8 @@
                                 CornerRadius="4">
                             <TextBlock Foreground="{ThemeResource TextOnAccentAAFillColorPrimary}">
                                 <Run Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource TSConv}}" />
+                                <Run FontFamily="Segoe Fluent Icons"
+                                     Text="&#xE917;" />
                                 <Run Text="{x:Bind Timestamp}" />
                             </TextBlock>
                         </Border>
@@ -163,7 +170,8 @@
                            Foreground="{ThemeResource AccentTextFillColorSecondaryBrush}"
                            RelativePanel.Below="hcc"
                            Text="{x:Bind Comment, Mode=OneWay}"
-                           TextWrapping="WrapWholeWords" />
+                           TextWrapping="WrapWholeWords"
+                           Visibility="{x:Bind Comment, Mode=OneWay, Converter={StaticResource StringVisibilityConverter}, ConverterParameter=False}" />
                 <dev:LoadingIndicator IsActive="{x:Bind IsLoading, Mode=OneWay}"
                                       Mode="ArcsRing"
                                       RelativePanel.AlignRightWithPanel="True"

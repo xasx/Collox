@@ -51,4 +51,14 @@ public sealed partial class MainPage : Page
     {
         FlyoutBase.ShowAttachedFlyout(sender as Shield);
     }
+
+    private void PowerOffButton_Click(object sender, RoutedEventArgs e)
+    {
+        PInvoke.InitiateSystemShutdown(null, null, 60, true, false);
+    }
+
+    private void RebootButton_Click(object sender, RoutedEventArgs e)
+    {
+        PInvoke.InitiateSystemShutdown(null, null, 60, true, true);
+    }
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 
 <Page x:Class="Collox.Views.GeneralSettingPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -26,6 +26,12 @@
                            Text="{x:Bind ViewModel.BaseFolder}" />
             </controls:SettingsCard>
 
+            <controls:SettingsCard Description="Store messages in files."
+                       Header="Message persistence"
+                       HeaderIcon="{ui:FontIcon Glyph=&#xEDA2;}">
+                <ToggleSwitch IsOn="{x:Bind ViewModel.PersistMessages}" />
+            </controls:SettingsCard>
+            
             <controls:SettingsExpander x:Name="scrot"
                                        Description="Control the behavior when a new file is created."
                                        Header="File rotation"
@@ -38,16 +44,19 @@
                     </controls:SettingsCard>
                 </controls:SettingsExpander.Items>
             </controls:SettingsExpander>
+            
             <controls:SettingsCard Description="Insert comments as delimiters surrounding a message."
                                    Header="Write delimiters"
                                    HeaderIcon="{ui:FontIcon Glyph=&#xE943;}">
                 <ToggleSwitch IsOn="{x:Bind ViewModel.WriteDelimiters}" />
             </controls:SettingsCard>
+            
             <controls:SettingsCard Description="Only write after at least 30 seconds."
                                    Header="Deferred write"
                                    HeaderIcon="{ui:FontIcon Glyph=&#xE917;}">
                 <ToggleSwitch IsOn="{x:Bind ViewModel.DeferredWrite}" />
             </controls:SettingsCard>
+            
         </StackPanel>
     </ScrollView>
 </Page>

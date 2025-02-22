@@ -1,4 +1,4 @@
-﻿name: GitHub Release Publisher
+name: GitHub Release Publisher
 
 on:
   workflow_dispatch:

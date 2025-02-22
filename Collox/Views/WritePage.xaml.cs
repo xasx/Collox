@@ -112,13 +112,19 @@ public sealed partial class WritePage : Page
     private void ApplyTemplate(Template templateItem)
     {
         var doc = Document.CreateDefault(templateItem.Content).DocumentOrThrow;
-        var tti = doc.Render(Context.CreateBuiltin(new Dictionary<Value, Value>
+
+        var cc = Context.CreateCustom((value) =>
         {
-            ["now"] = Value.FromLazy(() => Value.FromString(DateTime.Now.ToString("F"))),
-            ["random_emoji_nature"] = Value.FromLazy(() => Value.FromString(
-                Emoji.All.Where(e => e.Category == "nature")
-                .OrderBy(e => Random.Shared.Next()).First().Raw))
-        }));
+            return value.AsString switch
+            {
+                "now" => Value.FromString(DateTime.Now.ToString("F")),
+                "random_emoji_nature" => Value.FromString(
+                    Emoji.All.Where(e => e.Category == "nature")
+                    .OrderBy(e => Random.Shared.Next()).First().Raw),
+                _ => Value.Undefined
+            };
+        });
+        var tti = doc.Render(Context.CreateBuiltin(cc));
         ViewModel.LastParagraph += tti;
     }
 

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 
 <Page x:Class="Collox.Views.MainPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -70,6 +70,17 @@
                 </ItemsView.ItemTemplate>
             </ItemsView>
         </Flyout>
+
+        <CommandBarFlyout x:Name="ShutownFlyout">
+            <AppBarButton x:Name="PowerOffButton"
+                          Click="PowerOffButton_Click"
+                          Icon="{dev:FontIcon GlyphCode=E7E8}"
+                          Label="Shutdown" />
+            <AppBarButton x:Name="RebootButton"
+                          Click="RebootButton_Click"
+                          Icon="{dev:FontIcon GlyphCode=E777}"
+                          Label="Reboot" />
+        </CommandBarFlyout>
     </Page.Resources>
     <Grid RowDefinitions="Auto, *">
         <TitleBar x:Name="AppTitleBar"

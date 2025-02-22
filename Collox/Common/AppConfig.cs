@@ -1,4 +1,5 @@
-﻿using Nucs.JsonSettings.Examples;
+﻿using System.Speech.Recognition;
+using Nucs.JsonSettings.Examples;
 using Nucs.JsonSettings.Modulation;
 
 namespace Collox.Common;
@@ -28,6 +29,8 @@ public partial class AppConfig : NotifiyingJsonSettings, IVersionable
     private bool deferredWrite { get; set; } = true;
 
     private bool enableAI { get; set; } = true;
+
+    private bool persistMessages { get; set; } = true;
 
     [EnforcedVersion("1.0.0.0")] public Version Version { get; set; } = new(1, 0, 0, 0);
 
