@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 
 namespace Collox.ViewModels;
 
-public partial class TabWriteViewModel : ObservableObject
+public partial class TabWriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware
 {
     private static readonly TabData initialTab = new()
     {
@@ -82,6 +82,19 @@ public partial class TabWriteViewModel : ObservableObject
         tabContext.IsCloseable = tabData.IsCloseable;
         tabContextService.NotifyTabUpdate(tabContext);
     }
+
+    public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        // find tabframe in the tab.
+        var frame = WeakReferenceMessenger.Default.Send< GetFrameRequestMessage>();
+        AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxTextChangedEvent(sender, args, frame);
+    }
+
+    public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+    {
+        var frame = WeakReferenceMessenger.Default.Send<GetFrameRequestMessage>();
+        AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxQuerySubmittedEvent(sender, args, frame);
+    }
 }
 
 public partial class TabData : ObservableObject
@@ -94,3 +107,7 @@ public partial class TabData : ObservableObject
 }
 
 public class FocusTabMessage(TabData tabData) : ValueChangedMessage<TabData>(tabData);
+
+public class  GetFrameRequestMessage : RequestMessage<Frame>
+{
+}

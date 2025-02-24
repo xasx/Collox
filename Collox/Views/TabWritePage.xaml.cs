@@ -26,6 +26,11 @@ public sealed partial class TabWritePage : Page
             };
             tim.Start();
         });
+
+        WeakReferenceMessenger.Default.Register<TabWritePage, GetFrameRequestMessage>(this, (s, e) =>
+        {
+            e.Reply(FindTabFrame(MainTabView));
+        });
     }
 
     private TabWriteViewModel ViewModel => DataContext as TabWriteViewModel;
@@ -60,6 +65,32 @@ public sealed partial class TabWritePage : Page
                 SetFocusOnTab(tab, child);
             }
         }
+    }
+    private Frame FindTabFrame(DependencyObject root)
+    {
+        var c = VisualTreeHelper.GetChildrenCount(root);
+
+        for (var i = 0; i < c; i++)
+        {
+            var child = VisualTreeHelper.GetChild(root, i);
+            if (child is Frame frame)
+            {
+                return frame;
+            }
+            else
+            {
+                if (child is WritePage)
+                {
+                    continue;
+                }
+
+                var childFrame = FindTabFrame(child);
+                if (childFrame is not null ) {
+                    return childFrame;
+                }
+            }
+        }
+        return null;
     }
 
     private void TabViewItem_CloseRequested(TabViewItem sender, TabViewTabCloseRequestedEventArgs args)

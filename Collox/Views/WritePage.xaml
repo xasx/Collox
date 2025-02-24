@@ -178,7 +178,7 @@
                                       RelativePanel.Below="BtnRead" />
                 <Border Height="{x:Bind AdditionalSpacing, Mode=OneWay}"
                         Background="DarkGoldenrod"
-                        RelativePanel.Below="TbComment" />
+                        RelativePanel.AlignBottomWithPanel="True"/>
             </RelativePanel>
         </DataTemplate>
 
