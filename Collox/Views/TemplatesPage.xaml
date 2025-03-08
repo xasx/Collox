@@ -41,14 +41,14 @@
               Grid.Column="0"
               RowSpacing="8">
             <Grid.RowDefinitions>
-                <RowDefinition Height="48" />
+                <RowDefinition Height="60" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="48" />
             </Grid.RowDefinitions>
 
             <TextBox x:Name="tbName"
                      Grid.Row="0"
-                     Description="Name"
+                     Header="Name"
                      PlaceholderText="Name of this template"
                      Text="{x:Bind ViewModel.Name, Mode=TwoWay}" />
 
@@ -58,7 +58,7 @@
                      MinWidth="144"
                      MinHeight="96"
                      AcceptsReturn="True"
-                     Description="Content"
+                     Header="Content"
                      PlaceholderText="The content of the template"
                      Text="{x:Bind ViewModel.Content, Mode=TwoWay}" />
 
