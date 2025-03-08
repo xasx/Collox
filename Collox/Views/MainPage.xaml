@@ -26,18 +26,20 @@
             <StackPanel>
 
                 <controls:SettingsCard Description="Use AI in-app"
-                                       Header="AI">
+                                       Header="AI"
+                                       HeaderIcon="{dev:FontIcon Glyph=&#xEEA1;}">
                     <ToggleSwitch IsOn="{x:Bind ViewModel.IsAIEnabled, Mode=TwoWay}" />
                 </controls:SettingsCard>
             </StackPanel>
         </Flyout>
 
         <Flyout x:Name="Infofly">
-            <StackPanel Width="256">
-                <controls:HeaderedContentControl FontWeight="SemiBold"
+            <StackPanel Width="320">
+                <controls:HeaderedContentControl FontWeight="Light"
                                                  Header="Current document">
                     <marquee:MarqueeText Behavior="Bouncing"
                                          Direction="Left"
+                                         FontWeight="SemiBold"
                                          RepeatBehavior="Forever"
                                          Speed="32"
                                          Text="{x:Bind ViewModel.DocumentFilename, Mode=OneWay}" />
@@ -72,7 +74,9 @@
         </Flyout>
 
         <CommandBarFlyout x:Name="ShutdownFlyout"
-                          AlwaysExpanded="True">
+                          AlwaysExpanded="True"
+                          Placement="Bottom"
+                          ShowMode="Transient">
             <AppBarButton x:Name="PowerOffButton"
                           Click="PowerOffButton_Click"
                           Icon="{dev:FontIcon GlyphCode=E7E8}"
@@ -97,8 +101,10 @@
             <TitleBar.LeftContent>
                 <StackPanel Orientation="Horizontal"
                             Spacing="4">
-                    <Button Flyout="{StaticResource Infofly}">
-                        <FontIcon Glyph="&#xE946;" />
+                    <Button Flyout="{StaticResource Infofly}"
+                            Style="{ThemeResource SubtleButtonStyle}">
+                        <FontIcon FontSize="20"
+                                  Glyph="&#xE946;" />
                     </Button>
                 </StackPanel>
             </TitleBar.LeftContent>
@@ -115,31 +121,32 @@
             </TitleBar.CenterContent>
 
             <TitleBar.RightContent>
-                <StackPanel Orientation="Horizontal">
+                <StackPanel HorizontalAlignment="Right"
+                            Orientation="Horizontal">
                     <Button x:Name="ThemeButton"
-                            Height="32"
+                            Height="36"
                             Margin="0,0,4,0"
                             Click="ThemeButton_Click"
                             Content="{dev:FontIcon GlyphCode=E793,
-                                                   FontSize=16}"
+                                                   FontSize=20}"
                             Style="{ThemeResource SubtleButtonStyle}"
                             ToolTipService.ToolTip="Toggle Theme" />
                     <Button x:Name="ShutdownButton"
-                            Height="32"
+                            Height="36"
                             Margin="0,0,4,0"
                             Content="{dev:FontIcon GlyphCode=E7E8,
-                                                   FontSize=16}"
+                                                   FontSize=20}"
                             Flyout="{StaticResource ShutdownFlyout}"
                             Style="{ThemeResource SubtleButtonStyle}"
                             ToolTipService.ToolTip="Shutdown" />
-                    <Button x:Name="WhatButton"
-                            Height="32"
+                    <Button x:Name="AIButton"
+                            Height="36"
                             Margin="0,0,4,0"
-                            Content="{dev:FontIcon GlyphCode=E77B,
-                                                   FontSize=16}"
+                            Content="{dev:FontIcon GlyphCode=E99A,
+                                                   FontSize=20}"
                             Flyout="{StaticResource wfly}"
                             Style="{ThemeResource SubtleButtonStyle}"
-                            ToolTipService.ToolTip="What" />
+                            ToolTipService.ToolTip="AI" />
                 </StackPanel>
             </TitleBar.RightContent>
         </TitleBar>

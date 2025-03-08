@@ -1,20 +1,24 @@
 ﻿using System.Diagnostics;
+using Collox.Services;
+using Microsoft.UI.Dispatching;
+using Microsoft.UI.Windowing;
+using Microsoft.Windows.AppLifecycle;
+using Microsoft.Windows.AppNotifications;
+using Windows.Graphics.Display;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
-using Collox.Services;
-using Microsoft.UI.Dispatching;
-using Microsoft.Windows.AppLifecycle;
-using Microsoft.Windows.AppNotifications;
 using WinRT.Interop;
 using WinUIEx;
 using UnhandledExceptionEventArgs = Microsoft.UI.Xaml.UnhandledExceptionEventArgs;
+
 
 namespace Collox;
 
 public partial class App : Application
 {
     public static Window MainWindow;
+    public static Window MirrorWindow;
 
     public App()
     {
@@ -27,6 +31,8 @@ public partial class App : Application
     public new static App Current => (App)Application.Current;
     public IJsonNavigationService GetNavService => GetService<IJsonNavigationService>();
     public IThemeService GetThemeService => GetService<IThemeService>();
+
+    private bool isClosing = false;
 
     public static T GetService<T>() where T : class
     {
@@ -53,6 +59,7 @@ public partial class App : Application
         services.AddTransient<TemplatesViewModel>();
         services.AddTransient<HistoryViewModel>();
         services.AddTransient<TabWriteViewModel>();
+        services.AddTransient<MirrorViewModel>();
 
         services.AddSingleton<IStoreService, StoreService>();
         services.AddSingleton<ITemplateService, TemplateService>();
@@ -75,11 +82,55 @@ public partial class App : Application
         if (activationKind != ExtendedActivationKind.AppNotification)
         {
             SetupMainWindow();
+            SetupMirrorWindow();
         }
         else
         {
             HandleNotification((AppNotificationActivatedEventArgs)activatedArgs.Data);
         }
+    }
+
+    // ...
+
+    private void SetupMirrorWindow()
+    {
+        if (MirrorWindow == null)
+        {
+            MirrorWindow = new Window();
+        }
+        if (MirrorWindow.Content is not Frame rootFrame)
+        {
+            MirrorWindow.Content = rootFrame = new Frame();
+        }
+        GetThemeService?.AutoInitialize(MirrorWindow);
+        rootFrame.Navigate(typeof(MirrorPage));
+        MirrorWindow.SystemBackdrop = new DevWinUI.AcrylicSystemBackdrop();
+        MirrorWindow.Title = MirrorWindow.AppWindow.Title = $"{ProcessInfoHelper.ProductName} - Mirror";
+        MirrorWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
+        MirrorWindow.SetExtendedWindowStyle(ExtendedWindowStyle.Transparent | ExtendedWindowStyle.TopMost | ExtendedWindowStyle.NoInheritLayout);
+        //MirrorWindow.MoveAndResize(0, 0, 640, 480);
+        var posX = DisplayArea.Primary.WorkArea.Width - 640*2;
+        MirrorWindow.MoveAndResize((int)posX, 0, 640, 400);
+        MirrorWindow.Closed += (sender, args) =>
+        {
+            if (isClosing) return;
+            MirrorWindow.Hide();
+            args.Handled = true;
+        };
+        MirrorWindow.SetIsAlwaysOnTop(true);
+        MirrorWindow.SetIsMaximizable(false);
+        MirrorWindow.SetIsMinimizable(false);
+        MirrorWindow.SetIsResizable(false);
+        MirrorWindow.SetIsShownInSwitchers(false);
+        MirrorWindow.SetForegroundWindow();
+        MirrorWindow.Show();
+    }
+
+    private DisplayArea GetDisplayArea()
+    {
+        var windowId = Win32Interop.GetWindowIdFromWindow(WinRT.Interop.WindowNative.GetWindowHandle(App.MirrorWindow));
+        var appWindow = AppWindow.GetFromWindowId(windowId);
+        return DisplayArea.GetFromWindowId(windowId, DisplayAreaFallback.Nearest);
     }
 
     private void NotificationManager_NotificationInvoked(AppNotificationManager sender,
@@ -127,19 +178,20 @@ public partial class App : Application
     private async void MainWindow_Closed(object sender, WindowEventArgs args)
     {
         await GetService<IStoreService>().SaveNow();
+        Interlocked.Exchange(ref isClosing, true);
+        MirrorWindow.Close();
     }
 
     private void Application_UnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
         Debug.WriteLine($"An error {e.Exception.Message}{Environment.NewLine}{e.Exception}");
-        //MessageBox.Show(WinRT.Interop.WindowNative.GetWindowHandle(MainWindow),
-        //$"{e.Exception.Message}{Environment.NewLine}{e}", "Error", MessageBoxStyle.ApplicationModal | MessageBoxStyle.IconError | MessageBoxStyle.Ok);
 
         var errorWindow = new ErrorWindow
         {
             ReportedException = e.Exception
         };
         errorWindow.Show();
+        e.Handled = true;
     }
 }
 
@@ -147,13 +199,10 @@ internal static class WindowHelper
 {
     public static void ShowWindow(Window window)
     {
-        // Bring the window to the foreground... first get the window handle...
         var hwnd = new HWND(WindowNative.GetWindowHandle(window));
 
-        // Restore window if minimized... requires DLL import above
         PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_RESTORE);
 
-        // And call SetForegroundWindow... requires DLL import above
         PInvoke.SetForegroundWindow(hwnd);
     }
 }

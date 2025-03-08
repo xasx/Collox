@@ -25,7 +25,7 @@ public sealed partial class WritePage : Page
                 new ScrollingScrollOptions(ScrollingAnimationMode.Disabled));
         });
 
-        WeakReferenceMessenger.Default.Register<ParagraphSelectedMessage>(this, (s, e) =>
+        WeakReferenceMessenger.Default.Register<MessageSelectedMessage>(this, (s, e) =>
         {
             var item = irChat.TryGetElement(e.Value) as FrameworkElement;
             if (item != null)
@@ -125,13 +125,13 @@ public sealed partial class WritePage : Page
             };
         });
         var tti = doc.Render(Context.CreateBuiltin(cc));
-        ViewModel.LastParagraph += tti;
+        ViewModel.InputMessage += tti;
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
         var b = sender as Button;
-        ViewModel.LastParagraph += b.Tag;
+        ViewModel.InputMessage += b.Tag;
         ViewModel.KeyStrokesCount++;
         TbInput.Focus(FocusState.Programmatic);
         TbInput.Select(TbInput.Text.Length, 0);

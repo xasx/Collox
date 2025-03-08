@@ -1,14 +1,14 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Media;
 using System.Speech.Synthesis;
-using Windows.ApplicationModel;
+using Collox.Models;
 using Collox.Services;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Markdig;
 using Microsoft.Extensions.AI;
-using OllamaSharp;
-using System.Diagnostics;
+using Windows.ApplicationModel;
 
 namespace Collox.ViewModels;
 
@@ -31,9 +31,9 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     [ObservableProperty] public partial int KeyStrokesCount { get; set; }
 
-    [ObservableProperty] public partial string LastParagraph { get; set; } = string.Empty;
+    [ObservableProperty] public partial string InputMessage { get; set; } = string.Empty;
 
-    [ObservableProperty] public partial ObservableCollection<ColloxMessage> Paragraphs { get; set; } = [];
+    [ObservableProperty] public partial ObservableCollection<ColloxMessage> Messages { get; set; } = [];
 
     [ObservableProperty]
     public partial VoiceInfo SelectedVoice { get; set; }
@@ -48,7 +48,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
         AutoSuggestBoxHelper.LoadSuggestions(sender, args, [
-            .. Paragraphs
+            .. Messages
                 .OfType<TextColloxMessage>()
                 .Where(p => p.Text.Contains(sender.Text)).Select(p => p.Text)
         ]);
@@ -56,13 +56,13 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
-        var paragraph = Paragraphs
+        var message = Messages
             .OfType<TextColloxMessage>()
             .FirstOrDefault(p => p.Text == args.QueryText);
-        if (paragraph != null)
+        if (message != null)
         {
-            var index = Paragraphs.IndexOf(paragraph);
-            WeakReferenceMessenger.Default.Send(new ParagraphSelectedMessage(index));
+            var index = Messages.IndexOf(message);
+            WeakReferenceMessenger.Default.Send(new MessageSelectedMessage(index));
         }
     }
 
@@ -94,16 +94,16 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     [RelayCommand]
     public async Task Clear()
     {
-        Paragraphs.Clear();
+        Messages.Clear();
         await storeService.SaveNow();
     }
 
     [RelayCommand]
     public void SpeakLast()
     {
-        if (Paragraphs.Count > 0)
+        if (Messages.Count > 0)
         {
-            ReadText(StripMd(Paragraphs.OfType<TextColloxMessage>().Last().Text), SelectedVoice?.Name);
+            ReadText(StripMd(Messages.OfType<TextColloxMessage>().Last().Text), SelectedVoice?.Name);
         }
     }
 
@@ -149,7 +149,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     [RelayCommand]
     private async Task Submit()
     {
-        if (string.IsNullOrWhiteSpace(LastParagraph))
+        if (string.IsNullOrWhiteSpace(InputMessage))
         {
             return;
         }
@@ -159,7 +159,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         switch (SubmitModeIcon)
         {
             case Symbol.Send:
-                await AddParagraph();
+                await AddTextMessage();
                 break;
             case Symbol.Play:
                 await ProcessCommand();
@@ -170,9 +170,9 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     private async Task ProcessCommand()
     {
-        LastParagraph = string.Empty;
+        InputMessage = string.Empty;
 
-        switch (LastParagraph)
+        switch (InputMessage)
         {
             case "clear":
                 await Clear();
@@ -187,16 +187,16 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 return;
 
             case "..":
-                Paragraphs.Last().AdditionalSpacing += 42;
+                Messages.Last().AdditionalSpacing += 42;
                 return;
 
             case "time":
-                var timeParagraph = new TimeColloxMessage
+                var timestampMessage = new TimeColloxMessage
                 {
                     Time = DateTime.Now.TimeOfDay
                 };
 
-                Paragraphs.Add(timeParagraph);
+                Messages.Add(timestampMessage);
                 return;
 
             case "pin":
@@ -205,21 +205,29 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         }
     }
 
-    private async Task AddParagraph()
+    private async Task AddTextMessage()
     {
-        var paragraph = new TextColloxMessage
+        var textMessage = new TextColloxMessage
         {
-            Text = LastParagraph,
+            Text = InputMessage,
             Timestamp = DateTime.Now,
-            IsLoading = true
+            IsLoading = true,
+            Context = ConversationContext.Context
         };
-        Paragraphs.Add(paragraph);
 
-        LastParagraph = string.Empty;
+        Messages.Add(textMessage);
 
-        CharacterCount = Math.Min(KeyStrokesCount, CharacterCount + paragraph.Text.Length);
-        if (AppHelper.Settings.PersistMessages) await storeService.AppendParagraph(paragraph.Text, ConversationContext.Context, paragraph.Timestamp);
-        WeakReferenceMessenger.Default.Send(new TextSubmittedMessage(paragraph.Text));
+        InputMessage = string.Empty;
+
+        CharacterCount = Math.Min(KeyStrokesCount, CharacterCount + textMessage.Text.Length);
+
+        if (AppHelper.Settings.PersistMessages)
+        {
+            var singleMessage = new SingleMessage(textMessage.Text, textMessage.Context, textMessage.Timestamp);
+            await storeService.Append(singleMessage);
+        }
+
+        WeakReferenceMessenger.Default.Send(new TextSubmittedMessage(textMessage));
 
         if (IsBeeping)
         {
@@ -228,10 +236,10 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
         if (IsSpeaking)
         {
-            ReadText(paragraph.Text, SelectedVoice?.Name);
+            ReadText(textMessage.Text, SelectedVoice?.Name);
         }
 
-        await AddComment(paragraph);
+        await AddComment(textMessage);
     }
 
     private static void PlayBeepSound()
@@ -274,7 +282,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         }
 
         textColloxMessage.IsLoading = false;
-        WeakReferenceMessenger.Default.Send(new TextSubmittedMessage(textColloxMessage.Text));
+        WeakReferenceMessenger.Default.Send(new TextSubmittedMessage(textColloxMessage));
     }
 
     private static string StripMd(string mdText)
@@ -286,6 +294,6 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     }
 }
 
-public class ParagraphSelectedMessage(int index) : ValueChangedMessage<int>(index);
+public class MessageSelectedMessage(int index) : ValueChangedMessage<int>(index);
 
-public class TextSubmittedMessage(string value) : ValueChangedMessage<string>(value);
+public class TextSubmittedMessage(TextColloxMessage value) : ValueChangedMessage<TextColloxMessage>(value);

@@ -16,20 +16,21 @@ internal class StoreService : IStoreService
 
     private bool newday;
 
+
     public StoreService()
     {
         currentFilename = GenerateCurrentFilename(DateTime.Now);
     }
 
-    public Task AppendParagraph(string text, string context, DateTime? timestamp)
+    public async Task Append(SingleMessage singleMessage)
     {
-        return Task.Run(() =>
+        await Task.Run( () =>
         {
             q.EnqueueIf(Settings.WriteDelimiters, $"<!-- collox.bop:{Guid.NewGuid()} -->");
-            q.Enqueue(timestamp?.ToMdTimestamp());
-            q.EnqueueIf(context != "Default", $"_{context}_");
+            q.Enqueue(singleMessage.Timestamp?.ToMdTimestamp());
+            q.EnqueueIf(singleMessage.Context != "Default", $"_{singleMessage.Context}_");
             q.Enqueue(Environment.NewLine);
-            q.Enqueue(text.AsMdBq());
+            q.Enqueue(singleMessage.Text.AsMdBq());
             q.EnqueueIf(Settings.WriteDelimiters, "<!-- collox.eop -->");
             if (!Settings.DeferredWrite || DateTime.Now - lastSave >= TimeSpan.FromSeconds(30))
             {

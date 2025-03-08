@@ -97,7 +97,7 @@ public sealed partial class TabWritePage : Page
     {
         if (args.Item is TabData item)
         {
-            ViewModel.RemoveContext(item);
+            ViewModel.RemoveTab(item);
         }
     }
 
@@ -134,14 +134,14 @@ public sealed partial class TabWritePage : Page
                 break;
             case VirtualKey.Number9:
                 // Select the last tab
-                tabToSelect = ViewModel.Contexts.Count - 1;
+                tabToSelect = ViewModel.Tabs.Count - 1;
                 break;
         }
 
         // Only select the tab if it is in the list
-        if (tabToSelect < ViewModel.Contexts.Count)
+        if (tabToSelect < ViewModel.Tabs.Count)
         {
-            ViewModel.SelectedTab = ViewModel.Contexts[tabToSelect];
+            ViewModel.SelectedTab = ViewModel.Tabs[tabToSelect];
         }
 
         args.Handled = true;
@@ -150,13 +150,13 @@ public sealed partial class TabWritePage : Page
     private void CloseCurrentTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender,
         KeyboardAcceleratorInvokedEventArgs args)
     {
-        ViewModel.RemoveContextCommand.Execute(null);
+        ViewModel.CloseSelectedTabCommand.Execute(null);
         args.Handled = true;
     }
 
     private void NewTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
-        ViewModel.AddContextCommand.Execute(null);
+        ViewModel.AddNewTabCommand.Execute(null);
         args.Handled = true;
     }
 
@@ -177,11 +177,12 @@ public sealed partial class TabWritePage : Page
 
     private void MainTabView_AddTabButtonClick(TabView sender, object args)
     {
-        ViewModel.AddContextCommand.Execute(null);
+        ViewModel.AddNewTabCommand.Execute(null);
     }
 
     private void SettingsCard_Click(object sender, RoutedEventArgs e)
     {
-        SetFocusOnTab(ViewModel.SelectedTab, MainTabView);
+        // SetFocusOnTab(ViewModel.SelectedTab, MainTabView);
+        App.MirrorWindow.Activate();
     }
 }

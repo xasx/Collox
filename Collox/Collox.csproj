@@ -48,6 +48,9 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>BreadcrumbPageMappings.cs</LastGenOutput>
     </None>
+    <Page Update="Views\MirrorPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\TabWritePage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -82,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Views\HistoryPage.xaml" />
+    <None Remove="Views\MirrorPage.xaml" />
     <None Remove="Views\TabWritePage.xaml" />
     <None Remove="Views\TemplatesPage.xaml" />
     <None Remove="Views\WritePage.xaml" />

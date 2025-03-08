@@ -178,7 +178,7 @@
                                       RelativePanel.Below="BtnRead" />
                 <Border Height="{x:Bind AdditionalSpacing, Mode=OneWay}"
                         Background="DarkGoldenrod"
-                        RelativePanel.AlignBottomWithPanel="True"/>
+                        RelativePanel.AlignBottomWithPanel="True" />
             </RelativePanel>
         </DataTemplate>
 
@@ -316,7 +316,7 @@
                            Background="{ThemeResource SystemControlBackgroundListMediumBrush}"
                            CacheMode="BitmapCache"
                            ItemTemplate="{StaticResource ParagraphsTemplate}"
-                           ItemsSource="{x:Bind ViewModel.Paragraphs}" />
+                           ItemsSource="{x:Bind ViewModel.Messages}" />
         </ScrollView>
 
         <InfoBar Title="Current Context"
@@ -352,7 +352,7 @@
                      Loaded="InputBox_Loaded"
                      PlaceholderText="Your message"
                      PreviewKeyDown="InputBox_PreviewKeyDown"
-                     Text="{x:Bind Path=ViewModel.LastParagraph, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                     Text="{x:Bind Path=ViewModel.InputMessage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             <SplitButton x:Name="BtnSubmit"
                          Grid.Column="2"
                          HorizontalAlignment="Center"

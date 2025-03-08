@@ -41,6 +41,7 @@ public partial class TextColloxMessage : ColloxMessage
     [ObservableProperty] public partial string Comment { get; set; }
 
     [ObservableProperty] public partial bool IsLoading { get; set; }
+    public string Context { get; internal set; }
 
     [RelayCommand]
     public void Read()

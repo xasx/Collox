@@ -14,62 +14,60 @@ public partial class TabWriteViewModel : ObservableObject, ITitleBarAutoSuggestB
         IsEditing = false
     };
 
-    private readonly Dictionary<TabData, TabContext> tabContexts = [];
+    private readonly Dictionary<TabData, TabContext> tabContexts = new() {
+        [initialTab] = new TabContext { Name = initialTab.Context, IsCloseable = initialTab.IsCloseable }
+    };
 
     private readonly ITabContextService tabContextService = App.GetService<ITabContextService>();
 
-    [ObservableProperty] public partial ObservableCollection<TabData> Contexts { get; set; } = [initialTab];
+    [ObservableProperty] public partial ObservableCollection<TabData> Tabs { get; set; } = [initialTab];
 
     [ObservableProperty] public partial TabData SelectedTab { get; set; } = initialTab;
 
     [RelayCommand]
     public void LoadTabs()
     {
-        foreach (var tab in tabContextService.GetTabs())
+        foreach (var tabContext in tabContextService.GetTabs())
         {
-            var tabDataItem = new TabData
+            var tabData = new TabData
             {
-                Context = tab.Name,
-                IsCloseable = tab.IsCloseable,
+                Context = tabContext.Name,
+                IsCloseable = tabContext.IsCloseable,
                 IsEditing = false
             };
-            Contexts.Add(tabDataItem);
-            tabContexts[tabDataItem] = tab;
+            Tabs.Add(tabData);
+            tabContexts[tabData] = tabContext;
         }
     }
 
     [RelayCommand]
-    public void AddContext()
+    public void AddNewTab()
     {
-        var context = $"Context {Contexts.Count + 1}";
+        var context = $"Context {Tabs.Count + 1}";
 
         var newTabContext = new TabContext { Name = context, IsCloseable = true };
-        var newTab = new TabData
-        {
-            Context = context,
-            IsCloseable = true,
-            IsEditing = true
-        };
-        Contexts.Add(newTab);
-        SelectedTab = newTab;
-        WeakReferenceMessenger.Default.Send(new FocusTabMessage(newTab));
+        var newTabData = new TabData { Context = context, IsCloseable = true, IsEditing = true };
+
+        Tabs.Add(newTabData);
+        SelectedTab = newTabData;
+        WeakReferenceMessenger.Default.Send(new FocusTabMessage(newTabData));
 
         tabContextService.SaveNewTab(newTabContext);
-        tabContexts[newTab] = newTabContext;
+        tabContexts[newTabData] = newTabContext;
     }
 
     [RelayCommand]
-    public void RemoveContext()
+    public void CloseSelectedTab()
     {
-        if (Contexts.Count > 1)
+        if (Tabs.Count > 1)
         {
-            RemoveContext(SelectedTab);
+            RemoveTab(SelectedTab);
         }
     }
 
-    public void RemoveContext(TabData tabData)
+    public void RemoveTab(TabData tabData)
     {
-        Contexts.Remove(tabData);
+        Tabs.Remove(tabData);
         var tabContext = tabContexts[tabData];
         tabContexts.Remove(tabData);
         tabContextService.RemoveTab(tabContext);

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 
 <Page x:Class="Collox.Views.TabWritePage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -26,7 +26,7 @@
              VerticalAlignment="Stretch"
              AddTabButtonClick="MainTabView_AddTabButtonClick"
              SelectedItem="{x:Bind ViewModel.SelectedTab, Mode=TwoWay}"
-             TabItemsSource="{x:Bind ViewModel.Contexts, Mode=OneWay}"
+             TabItemsSource="{x:Bind ViewModel.Tabs, Mode=OneWay}"
              TabWidthMode="SizeToContent">
 
         <TabView.KeyboardAccelerators>
@@ -73,7 +73,7 @@
                     <Button.Flyout>
                         <Flyout>
                             <StackPanel>
-                                <ui:SettingsCard Command="{x:Bind ViewModel.AddContextCommand}"
+                                <ui:SettingsCard Command="{x:Bind ViewModel.AddNewTabCommand}"
                                                  Description="add a new tab"
                                                  Header="Add Tab"
                                                  HeaderIcon="{dev:FontIcon GlyphCode=E710}"

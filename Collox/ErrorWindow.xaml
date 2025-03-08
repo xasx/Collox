@@ -9,7 +9,8 @@
         mc:Ignorable="d">
 
     <Grid>
-        <TextBlock Text="{x:Bind ReportedException}"
+        <TitleBar Title="Collox: Error" />
+        <TextBlock Text="{x:Bind ReportedException, Mode=OneTime}"
                    TextWrapping="WrapWholeWords" />
     </Grid>
 </Window>

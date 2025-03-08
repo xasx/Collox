@@ -4,7 +4,7 @@ namespace Collox.Services;
 
 public interface IStoreService
 {
-    Task AppendParagraph(string text, string Context, DateTime? timestamp);
+    Task Append(SingleMessage message);
 
     Task SaveNow();
 
