@@ -35,6 +35,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     [ObservableProperty] public partial ObservableCollection<ColloxMessage> Messages { get; set; } = [];
 
+    [ObservableProperty] public partial ColloxMessage SelectedMessage { get; set; }
+
     [ObservableProperty]
     public partial VoiceInfo SelectedVoice { get; set; }
         = voiceInfos.FirstOrDefault(vi => vi.Name == Settings.Voice);
@@ -61,9 +63,14 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             .FirstOrDefault(p => p.Text == args.QueryText);
         if (message != null)
         {
-            var index = Messages.IndexOf(message);
-            WeakReferenceMessenger.Default.Send(new MessageSelectedMessage(index));
+            SelectedMessage = message;
         }
+    }
+
+    partial void OnSelectedMessageChanged(ColloxMessage value)
+    {
+        // always scroll to the selected message
+        WeakReferenceMessenger.Default.Send(new MessageSelectedMessage(value));
     }
 
     [RelayCommand]
@@ -245,7 +252,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     private static void PlayBeepSound()
     {
         var installedPath = Package.Current.InstalledLocation.Path;
-        var sp = new SoundPlayer(Path.Combine(installedPath, "Assets", "noti.wav"));
+        var sp = new SoundPlayer(Path.Combine(installedPath, "Assets", "notify.wav"));
         sp.Play();
     }
 
@@ -282,7 +289,6 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         }
 
         textColloxMessage.IsLoading = false;
-        WeakReferenceMessenger.Default.Send(new TextSubmittedMessage(textColloxMessage));
     }
 
     private static string StripMd(string mdText)
@@ -294,6 +300,6 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     }
 }
 
-public class MessageSelectedMessage(int index) : ValueChangedMessage<int>(index);
+public class MessageSelectedMessage(ColloxMessage value) : ValueChangedMessage<ColloxMessage>(value);
 
 public class TextSubmittedMessage(TextColloxMessage value) : ValueChangedMessage<TextColloxMessage>(value);

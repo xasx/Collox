@@ -20,24 +20,14 @@ public sealed partial class WritePage : Page
 
         WeakReferenceMessenger.Default.Register<TextSubmittedMessage>(this, (s, e) =>
         {
-            TbInput.Focus(FocusState.Programmatic);
-            Scroller.ScrollTo(0.0, Scroller.ViewportHeight,
-                new ScrollingScrollOptions(ScrollingAnimationMode.Disabled));
+            InputTextBox.Focus(FocusState.Programmatic);
         });
 
         WeakReferenceMessenger.Default.Register<MessageSelectedMessage>(this, (s, e) =>
         {
-            var item = irChat.TryGetElement(e.Value) as FrameworkElement;
-            if (item != null)
-            {
-                // Translate the item’s position into the scroller’s coordinate space
-                var transform = item.TransformToVisual(Scroller);
-                var offset = transform.TransformPoint(new Point(0, 0));
-
-                // Scroll to that position
-                Scroller.ScrollTo(offset.X, offset.Y,
-                    new ScrollingScrollOptions(ScrollingAnimationMode.Enabled));
-            }
+           var message = e.Value;
+            // Scroll to selected item
+            MessageListView.ScrollIntoView(message);
         });
     }
 
@@ -81,7 +71,7 @@ public sealed partial class WritePage : Page
 
     private void InputBox_Loaded(object sender, RoutedEventArgs e)
     {
-        TbInput.Focus(FocusState.Programmatic);
+        InputTextBox.Focus(FocusState.Programmatic);
     }
 
     private async void TemplatesFlyout_Opening(object sender, object e)
@@ -133,8 +123,8 @@ public sealed partial class WritePage : Page
         var b = sender as Button;
         ViewModel.InputMessage += b.Tag;
         ViewModel.KeyStrokesCount++;
-        TbInput.Focus(FocusState.Programmatic);
-        TbInput.Select(TbInput.Text.Length, 0);
+        InputTextBox.Focus(FocusState.Programmatic);
+        InputTextBox.Select(InputTextBox.Text.Length, 0);
     }
 
     private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
@@ -146,7 +136,7 @@ public sealed partial class WritePage : Page
 
     private void GridView_ItemClick(object sender, ItemClickEventArgs e)
     {
-        Setfly.Hide();
+        VoiceSettingsFlyout.Hide();
     }
 
     private void ChangeModeKeyboardAccelerator_Invoked(KeyboardAccelerator sender,

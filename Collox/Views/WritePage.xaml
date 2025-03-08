@@ -22,13 +22,13 @@
 
     <Page.Resources>
 
-        <Flyout x:Name="TaskFly" />
-        <conv:TimeSpanToFriendlyConverter x:Key="TSConv" />
+        <Flyout x:Name="TaskFlyout" />
+        <conv:TimeSpanToFriendlyConverter x:Key="TimeSpanToFriendlyConverter" />
 
         <converters:StringVisibilityConverter x:Key="StringVisibilityConverter" />
 
 
-        <Flyout x:Name="Setfly"
+        <Flyout x:Name="VoiceSettingsFlyout"
                 ShowMode="TransientWithDismissOnPointerMoveAway">
             <Flyout.FlyoutPresenterStyle>
                 <Style TargetType="FlyoutPresenter">
@@ -79,10 +79,10 @@
                 </GridView>
             </StackPanel>
         </Flyout>
-        <Flyout x:Name="Emofly">
+        <Flyout x:Name="EmojiFlyout">
             <StackPanel Width="400"
                         Height="400">
-                <ctrls:Segmented x:Name="EmoSegment">
+                <ctrls:Segmented x:Name="EmojiSegment">
                     <ctrls:SegmentedItem Icon="{winUi:FontIcon Glyph=&#xED54;}" />
                     <ctrls:SegmentedItem Icon="{winUi:FontIcon Glyph=&#xED53;}" />
                     <ctrls:SegmentedItem Icon="{winUi:FontIcon Glyph=&#xED55;}" />
@@ -126,11 +126,11 @@
                       x:DataType="vm:ColloxMessage">
 
             <StackPanel>
-                <TextBlock Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource TSConv}}" />
+                <TextBlock Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource TimeSpanToFriendlyConverter}}" />
                 <TextBlock Text="{x:Bind Timestamp}" />
             </StackPanel>
         </DataTemplate>
-        <DataTemplate x:Name="TextParagraphTemplate"
+        <DataTemplate x:Name="TextTemplate"
                       x:DataType="vm:TextColloxMessage">
             <RelativePanel Margin="8,0,8,8"
                            Background="{ThemeResource SystemControlBackgroundListLowBrush}"
@@ -138,7 +138,7 @@
                            BorderThickness="1"
                            CornerRadius="8">
 
-                <ctrls:HeaderedContentControl x:Name="hcc"
+                <ctrls:HeaderedContentControl x:Name="TimeHeader"
                                               Margin="8">
 
                     <ctrls:HeaderedContentControl.Header>
@@ -147,35 +147,37 @@
                                 Background="{ThemeResource AccentAAFillColorDefaultBrush}"
                                 CornerRadius="4">
                             <TextBlock Foreground="{ThemeResource TextOnAccentAAFillColorPrimary}">
-                                <Run Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource TSConv}}" />
+                                <Run Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource TimeSpanToFriendlyConverter}}" />
                                 <Run FontFamily="Segoe Fluent Icons"
+                                     FontSize="12"
+                                     FontWeight="Bold"
                                      Text="&#xE917;" />
                                 <Run Text="{x:Bind Timestamp}" />
                             </TextBlock>
                         </Border>
                     </ctrls:HeaderedContentControl.Header>
-                    <uictrls:MarkdownTextBlock x:Name="MessageMdTBlock"
+                    <uictrls:MarkdownTextBlock x:Name="MessageMarkdownTextBlock"
                                                Background="Transparent"
                                                FontSize="32"
                                                Text="{x:Bind Text}"
                                                TextWrapping="WrapWholeWords" />
                 </ctrls:HeaderedContentControl>
-                <Button x:Name="BtnRead"
+                <Button x:Name="ReadButton"
                         Command="{x:Bind ReadCommand}"
                         RelativePanel.AlignRightWithPanel="True">
                     <SymbolIcon Symbol="Volume" />
                 </Button>
-                <TextBlock x:Name="TbComment"
+                <TextBlock x:Name="CommentBox"
                            Margin="8"
                            Foreground="{ThemeResource AccentTextFillColorSecondaryBrush}"
-                           RelativePanel.Below="hcc"
+                           RelativePanel.Below="TimeHeader"
                            Text="{x:Bind Comment, Mode=OneWay}"
                            TextWrapping="WrapWholeWords"
                            Visibility="{x:Bind Comment, Mode=OneWay, Converter={StaticResource StringVisibilityConverter}, ConverterParameter=False}" />
                 <dev:LoadingIndicator IsActive="{x:Bind IsLoading, Mode=OneWay}"
                                       Mode="ArcsRing"
                                       RelativePanel.AlignRightWithPanel="True"
-                                      RelativePanel.Below="BtnRead" />
+                                      RelativePanel.Below="ReadButton" />
                 <Border Height="{x:Bind AdditionalSpacing, Mode=OneWay}"
                         Background="DarkGoldenrod"
                         RelativePanel.AlignBottomWithPanel="True" />
@@ -195,10 +197,10 @@
             </StackPanel>
         </DataTemplate>
 
-        <cc:ParagraphTemplateSelector x:Name="ParagraphsTemplate"
-                                      DefaultTemplate="{StaticResource DefaultTemplate}"
-                                      TextTemplate="{StaticResource TextParagraphTemplate}"
-                                      TimeTemplate="{StaticResource TimeTemplate}" />
+        <cc:MessageTemplateSelector x:Name="MessagesTemplate"
+                                    DefaultTemplate="{StaticResource DefaultTemplate}"
+                                    TextTemplate="{StaticResource TextTemplate}"
+                                    TimeTemplate="{StaticResource TimeTemplate}" />
     </Page.Resources>
 
     <Grid>
@@ -296,7 +298,7 @@
                 </AppBarToggleButton.KeyboardAccelerators>
             </AppBarToggleButton>
 
-            <AppBarButton Flyout="{StaticResource Setfly}"
+            <AppBarButton Flyout="{StaticResource VoiceSettingsFlyout}"
                           Icon="Setting"
                           Label="Settings">
                 <AppBarButton.KeyboardAccelerators>
@@ -307,17 +309,26 @@
 
         </CommandBar>
 
-        <ScrollView x:Name="Scroller"
-                    Grid.Row="1"
-                    HorizontalScrollBarVisibility="Hidden"
-                    HorizontalScrollMode="Disabled"
-                    VerticalScrollBarVisibility="Auto">
-            <ItemsRepeater x:Name="irChat"
-                           Background="{ThemeResource SystemControlBackgroundListMediumBrush}"
-                           CacheMode="BitmapCache"
-                           ItemTemplate="{StaticResource ParagraphsTemplate}"
-                           ItemsSource="{x:Bind ViewModel.Messages}" />
-        </ScrollView>
+        <ListView x:Name="MessageListView"
+                  Grid.Row="1"
+                  Background="Transparent"
+                  CacheMode="BitmapCache"
+                  ItemTemplateSelector="{StaticResource MessagesTemplate}"
+                  ItemsSource="{x:Bind ViewModel.Messages, Mode=OneWay}"
+                  ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                  ScrollViewer.HorizontalScrollMode="Disabled"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  SelectedValue="{x:Bind ViewModel.SelectedMessage, Mode=TwoWay}"
+                  SelectionMode="Extended">
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsStackPanel VerticalAlignment="Bottom"
+                                     ItemsUpdatingScrollMode="KeepLastItemInView" />
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+
+        </ListView>
+
 
         <InfoBar Title="Current Context"
                  Grid.Row="1"
@@ -331,7 +342,7 @@
 
         <uictrls:MarkdownTextBlock Grid.Row="2"
                                    FontSize="22"
-                                   Text="{x:Bind TbInput.Text, Mode=OneWay}"
+                                   Text="{x:Bind InputTextBox.Text, Mode=OneWay}"
                                    TextWrapping="WrapWholeWords" />
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
@@ -341,10 +352,10 @@
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0"
                     VerticalAlignment="Center"
-                    Flyout="{StaticResource Emofly}">
+                    Flyout="{StaticResource EmojiFlyout}">
                 <SymbolIcon Symbol="Emoji2" />
             </Button>
-            <TextBox x:Name="TbInput"
+            <TextBox x:Name="InputTextBox"
                      Grid.Column="1"
                      AcceptsReturn="True"
                      FontSize="22"

@@ -1,6 +1,6 @@
 ﻿namespace Collox.Common;
 
-public partial class ParagraphTemplateSelector : DataTemplateSelector
+public partial class MessageTemplateSelector : DataTemplateSelector
 {
     public DataTemplate DefaultTemplate { get; set; }
     public DataTemplate TextTemplate { get; set; }
