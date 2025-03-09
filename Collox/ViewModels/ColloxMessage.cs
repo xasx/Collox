@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Timers;
+﻿using System.Timers;
 using Windows.System;
 using Timer = System.Timers.Timer;
 
@@ -41,7 +40,7 @@ public partial class TextColloxMessage : ColloxMessage
     [ObservableProperty] public partial string Comment { get; set; }
 
     [ObservableProperty] public partial bool IsLoading { get; set; }
-    public string Context { get; internal set; }
+    public string Context { get; internal init; }
 
     [RelayCommand]
     public void Read()

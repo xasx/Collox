@@ -172,14 +172,14 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 await ProcessCommand();
                 break;
         }
-        // Any code here will run after processing the command or adding the paragraph
     }
 
     private async Task ProcessCommand()
     {
+        var msg = InputMessage;
         InputMessage = string.Empty;
 
-        switch (InputMessage)
+        switch (msg)
         {
             case "clear":
                 await Clear();
