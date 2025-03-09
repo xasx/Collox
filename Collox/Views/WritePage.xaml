@@ -276,7 +276,7 @@
                           Label="Read last">
                 <AppBarButton.KeyboardAccelerators>
                     <KeyboardAccelerator Key="R"
-                                         Modifiers="Control,Shift" />
+                                         Modifiers="Control" />
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
 
@@ -285,7 +285,7 @@
                                 Label="Read aloud">
                 <AppBarToggleButton.KeyboardAccelerators>
                     <KeyboardAccelerator Key="R"
-                                         Modifiers="Control" />
+                                         Modifiers="Control,Shift" />
                 </AppBarToggleButton.KeyboardAccelerators>
             </AppBarToggleButton>
 
@@ -294,7 +294,7 @@
                                 Label="Beep">
                 <AppBarToggleButton.KeyboardAccelerators>
                     <KeyboardAccelerator Key="B"
-                                         Modifiers="Control" />
+                                         Modifiers="Control,Shift" />
                 </AppBarToggleButton.KeyboardAccelerators>
             </AppBarToggleButton>
 
