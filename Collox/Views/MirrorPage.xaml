@@ -13,29 +13,49 @@
       mc:Ignorable="d">
 
     <Page.Resources>
-        <conv:TimeSpanToFriendlyConverter x:Key="tsConv" />
+        <conv:TimeSpanToFriendlyConverter x:Key="TimeSpanToFriendlyConverter" />
     </Page.Resources>
     <Grid RowDefinitions="Auto,*">
         <!--<TitleBar x:Name="TitleBar"
                   Title="{x:Bind dev:ProcessInfoHelper.ProductName}"
                   IconSource="{dev:FontIconSource GlyphCode=E8F2}"
                   Subtitle="Mirror" />-->
+        <CommandBar Grid.Row="0"
+                    HorizontalAlignment="Left"
+                    DefaultLabelPosition="Right">
+            <AppBarElementContainer>
+                <ComboBox ItemsSource="{x:Bind ViewModel.Contexts, Mode=OneWay}"
+                          SelectedValue="{x:Bind ViewModel.SelectedContext, Mode=TwoWay}" />
+            </AppBarElementContainer>
+        </CommandBar>
         <ListView x:Name="MirrorListView"
                   Grid.Row="1"
-                  ItemsSource="{x:Bind ViewModel.Messages, Mode=OneWay}"
+                  Margin="0,8"
+                  ItemsSource="{x:Bind ViewModel.FilteredMessages, Mode=OneWay}"
                   SelectionMode="None">
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsStackPanel VerticalAlignment="Bottom"
+                                     ItemsUpdatingScrollMode="KeepLastItemInView" />
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="vm:TextColloxMessage">
                     <StackPanel VerticalAlignment="Bottom"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                CornerRadius="8"
                                 Orientation="Horizontal">
                         <TextBlock Margin="10,0,0,0"
                                    VerticalAlignment="Bottom"
-                                   Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource tsConv}}" />
+                                   Foreground="{ThemeResource AccentTextFillColorTertiaryBrush}"
+                                   Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource TimeSpanToFriendlyConverter}}" />
                         <TextBlock Margin="10,0,0,0"
+                                   VerticalAlignment="Bottom"
                                    FontSize="28"
                                    Text="{x:Bind Text}" />
                         <TextBlock Margin="10,0,0,0"
                                    VerticalAlignment="Bottom"
+                                   Foreground="{ThemeResource TextFillColorTertiaryBrush}"
                                    Text="{x:Bind Context}" />
                     </StackPanel>
                 </DataTemplate>
