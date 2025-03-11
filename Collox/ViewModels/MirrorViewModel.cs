@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.Messaging;
 using NLog.Filters;
 
@@ -25,6 +26,12 @@ public partial class MirrorViewModel : ObservableRecipient, IRecipient<TextSubmi
     public void Receive(TextSubmittedMessage message)
     {
         Messages.Add(message.Value);
+        // Limit messages to 20
+        if (Messages.Count > 20)
+        {
+            Messages.RemoveAt(0);
+        }
+
         if (!Contexts.Contains(message.Value.Context))
         {
             Contexts.Add(message.Value.Context);
@@ -32,6 +39,10 @@ public partial class MirrorViewModel : ObservableRecipient, IRecipient<TextSubmi
         if (SelectedContext == All || SelectedContext == message.Value.Context)
         {
             FilteredMessages.Add(message.Value);
+            if (FilteredMessages.Count > 20)
+            {
+                FilteredMessages.RemoveAt(0);
+            }
         }
     }
 

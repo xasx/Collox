@@ -73,12 +73,10 @@
                     <Button.Flyout>
                         <Flyout>
                             <StackPanel>
-                                <ui:SettingsCard Command="{x:Bind ViewModel.AddNewTabCommand}"
-                                                 Description="add a new tab"
-                                                 Header="Add Tab"
-                                                 HeaderIcon="{dev:FontIcon GlyphCode=E710}"
-                                                 IsClickEnabled="True" />
                                 <ui:SettingsCard Click="SettingsCard_Click"
+                                                 Description="Open a top-most window for mirroring all messages."
+                                                 Header="Open Mirror Window"
+                                                 HeaderIcon="{dev:FontIcon GlyphCode=EE49}"
                                                  IsClickEnabled="True" />
                             </StackPanel>
                         </Flyout>

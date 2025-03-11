@@ -109,7 +109,7 @@ public partial class App : Application
         MirrorWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
         MirrorWindow.SetExtendedWindowStyle(ExtendedWindowStyle.Transparent | ExtendedWindowStyle.TopMost | ExtendedWindowStyle.NoInheritLayout);
         //MirrorWindow.MoveAndResize(0, 0, 640, 480);
-        var posX = DisplayArea.Primary.WorkArea.Width - 640*2;
+        var posX = DisplayArea.Primary.WorkArea.Width - 640 * 2;
         MirrorWindow.MoveAndResize((int)posX, 0, 640, 400);
         MirrorWindow.Closed += (sender, args) =>
         {
@@ -173,6 +173,15 @@ public partial class App : Application
         WindowHelper.ShowWindow(MainWindow);
 
         MainWindow.Closed += MainWindow_Closed;
+        MainWindow.VisibilityChanged += MainWindow_VisibilityChanged;
+    }
+
+    private void MainWindow_VisibilityChanged(object sender, WindowVisibilityChangedEventArgs args)
+    {
+        if (!args.Visible)
+        {
+            MirrorWindow.Show();
+        }
     }
 
     private async void MainWindow_Closed(object sender, WindowEventArgs args)
