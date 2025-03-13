@@ -132,10 +132,8 @@
         </DataTemplate>
         <DataTemplate x:Name="TextTemplate"
                       x:DataType="vm:TextColloxMessage">
-            <RelativePanel Margin="8,0,8,8"
-                           Background="{ThemeResource SystemControlBackgroundListLowBrush}"
-                           BorderBrush="{ThemeResource SystemControlForegroundAccentBrush}"
-                           BorderThickness="1"
+            <RelativePanel Margin="0"
+                           Background="{ThemeResource CardBackgroundFillColorDefault}"
                            CornerRadius="8">
 
                 <ctrls:HeaderedContentControl x:Name="TimeHeader"
