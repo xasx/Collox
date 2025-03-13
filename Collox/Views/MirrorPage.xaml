@@ -9,17 +9,13 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:vm="using:Collox.ViewModels"
       Background="Transparent"
-      Loaded="Page_Loaded"
       mc:Ignorable="d">
 
     <Page.Resources>
         <conv:TimeSpanToFriendlyConverter x:Key="TimeSpanToFriendlyConverter" />
     </Page.Resources>
     <Grid RowDefinitions="Auto,*">
-        <!--<TitleBar x:Name="TitleBar"
-                  Title="{x:Bind dev:ProcessInfoHelper.ProductName}"
-                  IconSource="{dev:FontIconSource GlyphCode=E8F2}"
-                  Subtitle="Mirror" />-->
+
         <CommandBar Grid.Row="0"
                     HorizontalAlignment="Left"
                     DefaultLabelPosition="Right">
