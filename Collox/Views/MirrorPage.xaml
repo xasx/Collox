@@ -9,6 +9,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:vm="using:Collox.ViewModels"
       Background="Transparent"
+      Loaded="Page_Loaded"
       mc:Ignorable="d">
 
     <Page.Resources>
@@ -19,10 +20,23 @@
         <CommandBar Grid.Row="0"
                     HorizontalAlignment="Left"
                     DefaultLabelPosition="Right">
-            <AppBarElementContainer>
-                <ComboBox ItemsSource="{x:Bind ViewModel.Contexts, Mode=OneWay}"
-                          SelectedValue="{x:Bind ViewModel.SelectedContext, Mode=TwoWay}" />
+            <AppBarElementContainer VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon Margin="8,0"
+                              VerticalAlignment="Center"
+                              Glyph="&#xE71C;" />
+                    <ComboBox VerticalAlignment="Center"
+                              ItemsSource="{x:Bind ViewModel.Contexts, Mode=OneWay}"
+                              SelectedValue="{x:Bind ViewModel.SelectedContext, Mode=TwoWay}" />
+                </StackPanel>
             </AppBarElementContainer>
+
+
+            <AppBarSeparator />
+            <AppBarButton Click="AppBarButton_Click"
+                          Icon="{dev:FontIcon GlyphCode=E793}"
+                          Label="Toggle Theme"
+                          LabelPosition="Collapsed" />
         </CommandBar>
         <ListView x:Name="MirrorListView"
                   Grid.Row="1"

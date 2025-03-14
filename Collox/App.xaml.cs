@@ -108,9 +108,8 @@ public partial class App : Application
         MirrorWindow.Title = MirrorWindow.AppWindow.Title = $"{ProcessInfoHelper.ProductName} - Mirror";
         MirrorWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
         MirrorWindow.SetExtendedWindowStyle(ExtendedWindowStyle.Transparent | ExtendedWindowStyle.TopMost | ExtendedWindowStyle.NoInheritLayout);
-        //MirrorWindow.MoveAndResize(0, 0, 640, 480);
-        var posX = DisplayArea.Primary.WorkArea.Width - 640 * 2;
-        MirrorWindow.MoveAndResize((int)posX, 0, 640, 400);
+        
+        MirrorWindow.MoveAndResize(0, 0, 640, 400);
         MirrorWindow.Closed += (sender, args) =>
         {
             if (isClosing) return;
@@ -122,15 +121,6 @@ public partial class App : Application
         MirrorWindow.SetIsMinimizable(false);
         MirrorWindow.SetIsResizable(false);
         MirrorWindow.SetIsShownInSwitchers(false);
-        MirrorWindow.SetForegroundWindow();
-        MirrorWindow.Show();
-    }
-
-    private DisplayArea GetDisplayArea()
-    {
-        var windowId = Win32Interop.GetWindowIdFromWindow(WinRT.Interop.WindowNative.GetWindowHandle(App.MirrorWindow));
-        var appWindow = AppWindow.GetFromWindowId(windowId);
-        return DisplayArea.GetFromWindowId(windowId, DisplayAreaFallback.Nearest);
     }
 
     private void NotificationManager_NotificationInvoked(AppNotificationManager sender,
@@ -170,7 +160,8 @@ public partial class App : Application
         MainWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
 
         MainWindow.Activate();
-        WindowHelper.ShowWindow(MainWindow);
+        MainWindow.SetForegroundWindow();
+        MainWindow.Show();
 
         MainWindow.Closed += MainWindow_Closed;
         MainWindow.VisibilityChanged += MainWindow_VisibilityChanged;
