@@ -9,7 +9,7 @@ public sealed partial class MirrorPage : Page
 
     public MirrorPage()
     {
-        this.InitializeComponent();
+        InitializeComponent();
         DataContext = App.GetService<MirrorViewModel>();
 
         App.MirrorWindow.ExtendsContentIntoTitleBar = true;
@@ -22,10 +22,17 @@ public sealed partial class MirrorPage : Page
         App.MirrorWindow.MoveAndResize((int)posX, 0, 640, 400);
         App.MirrorWindow.SetForegroundWindow();
         App.MirrorWindow.Show();
+
+        App.MirrorWindow.SetDragMove(this);
     }
 
-    private void AppBarButton_Click(object sender, RoutedEventArgs e)
+    private void ThemeButton_Click(object sender, RoutedEventArgs e)
     {
         ThemeService.ChangeThemeWithoutSave(App.MirrorWindow);
+    }
+
+    private void HideButton_Click(object sender, RoutedEventArgs e)
+    {
+        App.MirrorWindow.Hide();
     }
 }

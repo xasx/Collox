@@ -11,7 +11,7 @@ using Windows.Win32.UI.WindowsAndMessaging;
 using WinRT.Interop;
 using WinUIEx;
 using UnhandledExceptionEventArgs = Microsoft.UI.Xaml.UnhandledExceptionEventArgs;
-
+using Microsoft.UI.Composition.SystemBackdrops;
 
 namespace Collox;
 
@@ -96,19 +96,29 @@ public partial class App : Application
     {
         if (MirrorWindow == null)
         {
-            MirrorWindow = new Window();
+            MirrorWindow = new ModernWindow()
+            {
+                BackdropType = BackdropType.AcrylicThin,
+                HasTitleBar = false,
+                UseModernSystemMenu = true,
+                SystemBackdrop = new DevWinUI.AcrylicSystemBackdrop(DesktopAcrylicKind.Thin)
+            };
         }
+
         if (MirrorWindow.Content is not Frame rootFrame)
         {
             MirrorWindow.Content = rootFrame = new Frame();
         }
+
         GetThemeService?.AutoInitialize(MirrorWindow);
         rootFrame.Navigate(typeof(MirrorPage));
-        MirrorWindow.SystemBackdrop = new DevWinUI.AcrylicSystemBackdrop();
+
+        MirrorWindow.SystemBackdrop = new DevWinUI.AcrylicSystemBackdrop(DesktopAcrylicKind.Thin);
         MirrorWindow.Title = MirrorWindow.AppWindow.Title = $"{ProcessInfoHelper.ProductName} - Mirror";
         MirrorWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
-        MirrorWindow.SetExtendedWindowStyle(ExtendedWindowStyle.Transparent | ExtendedWindowStyle.TopMost | ExtendedWindowStyle.NoInheritLayout);
-        
+        MirrorWindow.SetExtendedWindowStyle(ExtendedWindowStyle.Transparent | ExtendedWindowStyle.TopMost |
+                                            ExtendedWindowStyle.NoInheritLayout);
+
         MirrorWindow.MoveAndResize(0, 0, 640, 400);
         MirrorWindow.Closed += (sender, args) =>
         {
@@ -158,6 +168,8 @@ public partial class App : Application
 
         MainWindow.Title = MainWindow.AppWindow.Title = ProcessInfoHelper.ProductNameAndVersion;
         MainWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
+        var msm = new ModernSystemMenu(MainWindow);
+        
 
         MainWindow.Activate();
         MainWindow.SetForegroundWindow();
