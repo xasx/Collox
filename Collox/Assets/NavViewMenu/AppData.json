@@ -18,6 +18,8 @@
         },
         {
           "UniqueId": "Collox.Views.TabWritePage",
+          "UsexUid": true,
+          "LocalizeId": "TabWritePage",
           "Title": "Write",
           "Subtitle": "Write here",
           "IconGlyph": "EDC6",
@@ -25,6 +27,8 @@
         },
         {
           "UniqueId": "Collox.Views.TemplatesPage",
+          "UsexUid": true,
+          "LocalizeId": "TemplatesPage",
           "Title": "Templates",
           "Subtitle": "Define quick text blocks",
           "IconGlyph": "F000",
@@ -32,6 +36,8 @@
         },
         {
           "UniqueId": "Collox.Views.HistoryPage",
+          "UsexUid": true,
+          "LocalizeId": "HistoryPage",
           "Title": "History",
           "Subtitle": "View old documents",
           "IconGlyph": "E81C",

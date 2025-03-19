@@ -231,7 +231,8 @@
                 </StackPanel>
             </AppBarElementContainer>
 
-            <AppBarButton Command="{x:Bind ViewModel.SaveNowCommand}"
+            <AppBarButton x:Uid="SaveButton"
+                          Command="{x:Bind ViewModel.SaveNowCommand}"
                           Icon="Save"
                           Label="Save">
                 <AppBarButton.KeyboardAccelerators>
@@ -240,12 +241,14 @@
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
 
-            <AppBarToggleButton Icon="SaveLocal"
+            <AppBarToggleButton x:Uid="SaveToggleButton"
+                                Icon="SaveLocal"
                                 IsChecked="True"
                                 IsEnabled="False"
                                 Label="Auto save" />
 
-            <AppBarButton Command="{x:Bind ViewModel.ClearCommand}"
+            <AppBarButton x:Uid="ClearButton"
+                          Command="{x:Bind ViewModel.ClearCommand}"
                           Icon="Clear"
                           Label="Clear">
                 <AppBarButton.KeyboardAccelerators>
@@ -254,12 +257,14 @@
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
 
-            <AppBarButton Icon="Page"
+            <AppBarButton x:Uid="InsertTemplateButton"
+                          Icon="Page"
                           Label="Insert template">
                 <AppBarButton.Flyout>
                     <MenuFlyout x:Name="TemplatesFlyout"
                                 Opening="TemplatesFlyout_Opening">
-                        <MenuFlyoutItem Click="MenuFlyoutItem_Click"
+                        <MenuFlyoutItem x:Uid="ManageTemplatesMenuItem"
+                                        Click="MenuFlyoutItem_Click"
                                         Icon="Edit"
                                         Tag="predefined"
                                         Text="Manage" />
@@ -269,7 +274,8 @@
                 </AppBarButton.Flyout>
             </AppBarButton>
 
-            <AppBarButton Command="{x:Bind ViewModel.SpeakLastCommand}"
+            <AppBarButton x:Uid="SpeakLastButton"
+                          Command="{x:Bind ViewModel.SpeakLastCommand}"
                           Icon="{winUi:FontIcon Glyph=&#xEFA9;}"
                           Label="Read last">
                 <AppBarButton.KeyboardAccelerators>
@@ -278,7 +284,8 @@
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
 
-            <AppBarToggleButton Icon="{winUi:FontIcon Glyph=&#xEFA9;}"
+            <AppBarToggleButton x:Uid="SpeakToggleButton"
+                                Icon="{winUi:FontIcon Glyph=&#xEFA9;}"
                                 IsChecked="{x:Bind ViewModel.IsSpeaking, Mode=TwoWay}"
                                 Label="Read aloud">
                 <AppBarToggleButton.KeyboardAccelerators>
@@ -287,7 +294,8 @@
                 </AppBarToggleButton.KeyboardAccelerators>
             </AppBarToggleButton>
 
-            <AppBarToggleButton Icon="{winUi:FontIcon Glyph=&#xEBC5;}"
+            <AppBarToggleButton x:Uid="BeepToggleButton"
+                                Icon="{winUi:FontIcon Glyph=&#xEBC5;}"
                                 IsChecked="{x:Bind ViewModel.IsBeeping, Mode=TwoWay}"
                                 Label="Beep">
                 <AppBarToggleButton.KeyboardAccelerators>
@@ -296,7 +304,8 @@
                 </AppBarToggleButton.KeyboardAccelerators>
             </AppBarToggleButton>
 
-            <AppBarButton Flyout="{StaticResource VoiceSettingsFlyout}"
+            <AppBarButton x:Uid="SettingsButton"
+                          Flyout="{StaticResource VoiceSettingsFlyout}"
                           Icon="Setting"
                           Label="Settings">
                 <AppBarButton.KeyboardAccelerators>
@@ -328,7 +337,8 @@
         </ListView>
 
 
-        <InfoBar Title="Current Context"
+        <InfoBar x:Uid="CurrentContext"
+                 Title="Current Context"
                  Grid.Row="1"
                  IsOpen="True"
                  Message="{x:Bind ViewModel.ConversationContext.Context, Mode=OneWay}"
@@ -354,6 +364,7 @@
                 <SymbolIcon Symbol="Emoji2" />
             </Button>
             <TextBox x:Name="InputTextBox"
+                     x:Uid="InputTextBox"
                      Grid.Column="1"
                      AcceptsReturn="True"
                      FontSize="22"
@@ -376,10 +387,12 @@
 
                 <SplitButton.Flyout>
                     <MenuFlyout>
-                        <MenuFlyoutItem Command="{x:Bind ViewModel.ChangeModeToWriteCommand}"
+                        <MenuFlyoutItem x:Uid="WriteTextItem"
+                                        Command="{x:Bind ViewModel.ChangeModeToWriteCommand}"
                                         Icon="Send"
                                         Text="Write text" />
-                        <MenuFlyoutItem Command="{x:Bind ViewModel.ChangeModeToCmdCommand}"
+                        <MenuFlyoutItem x:Uid="EnterCommandsItem"
+                                        Command="{x:Bind ViewModel.ChangeModeToCmdCommand}"
                                         Icon="Play"
                                         Text="Enter commands" />
 

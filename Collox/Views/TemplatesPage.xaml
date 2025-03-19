@@ -47,6 +47,7 @@
             </Grid.RowDefinitions>
 
             <TextBox x:Name="tbName"
+                     x:Uid="TemplateNameTextBox"
                      Grid.Row="0"
                      Header="Name"
                      PlaceholderText="Name of this template"
@@ -54,6 +55,7 @@
 
 
             <TextBox x:Name="tbContent"
+                     x:Uid="TemplateContentTextBox"
                      Grid.Row="1"
                      MinWidth="144"
                      MinHeight="96"
@@ -68,7 +70,8 @@
                     <StackPanel Orientation="Horizontal"
                                 Spacing="8">
                         <SymbolIcon Symbol="Save" />
-                        <TextBlock Text="Save" />
+                        <TextBlock x:Uid="SaveText"
+                                   Text="Save" />
                     </StackPanel>
                 </Button>
             </StackPanel>
@@ -109,13 +112,16 @@
                         <CommandBar DefaultLabelPosition="Collapsed"
                                     IsOpen="False"
                                     OverflowButtonVisibility="Collapsed">
-                            <AppBarButton Command="{x:Bind DeleteTemplateCommand}"
+                            <AppBarButton x:Uid="DeleteButton"
+                                          Command="{x:Bind DeleteTemplateCommand}"
                                           Icon="Delete"
                                           Label="Delete" />
-                            <AppBarButton Command="{x:Bind EditTemplateCommand}"
+                            <AppBarButton x:Uid="EditButton"
+                                          Command="{x:Bind EditTemplateCommand}"
                                           Icon="Edit"
                                           Label="Edit" />
-                            <AppBarButton Command="{x:Bind DuplicateTemplateCommand}"
+                            <AppBarButton x:Uid="DuplicateButton"
+                                          Command="{x:Bind DuplicateTemplateCommand}"
                                           Icon="Copy"
                                           Label="Duplicate" />
                         </CommandBar>

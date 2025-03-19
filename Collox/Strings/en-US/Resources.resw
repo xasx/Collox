@@ -117,7 +117,184 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Templates" xml:space="preserve">
+  <data name="AboutUsCard.Description" xml:space="preserve">
+    <value>About Collox and developer.</value>
+  </data>
+  <data name="AboutUsCard.Header" xml:space="preserve">
+    <value>About us</value>
+  </data>
+  <data name="AboutUsExpander.Description" xml:space="preserve">
+    <value>Converse through your computer when you cannot do so otherwise.</value>
+  </data>
+  <data name="AboutUsExpander.Header" xml:space="preserve">
+    <value>Collox</value>
+  </data>
+  <data name="AccentColorCard.Description" xml:space="preserve">
+    <value>Sync your app’s color with your Windows accent color. You can open the Windows accent color setting by clicking this card.</value>
+  </data>
+  <data name="AccentColorCard.Header" xml:space="preserve">
+    <value>Accent color</value>
+  </data>
+  <data name="BaseFolderCard.Description" xml:space="preserve">
+    <value>The folder where all data is stored, i.e. History and Templates.</value>
+  </data>
+  <data name="BaseFolderCard.Header" xml:space="preserve">
+    <value>Base folder</value>
+  </data>
+  <data name="BeepToggleButton.Label" xml:space="preserve">
+    <value>Beep</value>
+  </data>
+  <data name="ClearButton.Label" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="CurrentContext.Title" xml:space="preserve">
+    <value>Current Context</value>
+  </data>
+  <data name="CurrentDocumentHeader.Header" xml:space="preserve">
+    <value>Current document</value>
+  </data>
+  <data name="DeferredWriteCard.Description" xml:space="preserve">
+    <value>Only write after at least 30 seconds.</value>
+  </data>
+  <data name="DeferredWriteCard.Header" xml:space="preserve">
+    <value>Deferred write</value>
+  </data>
+  <data name="DeleteButton.Label" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DelimitersCard.Description" xml:space="preserve">
+    <value>Write Markdown comments that separate the messages.</value>
+  </data>
+  <data name="DelimitersCard.Header" xml:space="preserve">
+    <value>Write delimiters</value>
+  </data>
+  <data name="DownloadUpdateButton.Content" xml:space="preserve">
+    <value>Download Update</value>
+  </data>
+  <data name="DuplicateButton.Label" xml:space="preserve">
+    <value>Duplicate</value>
+  </data>
+  <data name="EditButton.Label" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="EnterCommandsItem.Text" xml:space="preserve">
+    <value>Enter commands</value>
+  </data>
+  <data name="GeneralSettingsCard.Description" xml:space="preserve">
+    <value>Change your app Settings</value>
+  </data>
+  <data name="GeneralSettingsCard.Header" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="HideButton.Label" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="HistoryPage.Title" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="InputTextBox.PlaceholderText" xml:space="preserve">
+    <value>Type your message</value>
+  </data>
+  <data name="InsertTemplateButton.Label" xml:space="preserve">
+    <value>Insert template</value>
+  </data>
+  <data name="LastUpdateCheck.Text" xml:space="preserve">
+    <value>Last Update Check</value>
+  </data>
+  <data name="ManageTemplatesMenuItem.Text" xml:space="preserve">
+    <value>Manage</value>
+  </data>
+  <data name="PersistenceCard.Description" xml:space="preserve">
+    <value>Store messages in files.</value>
+  </data>
+  <data name="PersistenceCard.Header" xml:space="preserve">
+    <value>Message persistence</value>
+  </data>
+  <data name="RelatedLinks.Text" xml:space="preserve">
+    <value>Related Links</value>
+  </data>
+  <data name="ReleaseNotesLink.Content" xml:space="preserve">
+    <value>Release Notes</value>
+  </data>
+  <data name="RolloverTimeCard.Description" xml:space="preserve">
+    <value>Select the rollover time</value>
+  </data>
+  <data name="RotationCard.Description" xml:space="preserve">
+    <value>Control the behavior when a new file is created.</value>
+  </data>
+  <data name="RotationCard.Header" xml:space="preserve">
+    <value>File rotation</value>
+  </data>
+  <data name="SaveButton.Label" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SaveText.Text" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SaveToggleButton.Label" xml:space="preserve">
+    <value>Auto save</value>
+  </data>
+  <data name="SettingsButton.Label" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="SourceCodeLink.Content" xml:space="preserve">
+    <value>Source Code</value>
+  </data>
+  <data name="SpeakLastButton.Label" xml:space="preserve">
+    <value>Read last</value>
+  </data>
+  <data name="SpeakToggleButton.Label" xml:space="preserve">
+    <value>Read aloud</value>
+  </data>
+  <data name="TabWritePage.Title" xml:space="preserve">
+    <value>Write</value>
+  </data>
+  <data name="TemplateContentTextBox.Header" xml:space="preserve">
+    <value>Content</value>
+  </data>
+  <data name="TemplateContentTextBox.PlaceholderText" xml:space="preserve">
+    <value>The content of the template</value>
+  </data>
+  <data name="TemplateNameTextBox.Header" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="TemplateNameTextBox.PlaceholderText" xml:space="preserve">
+    <value>Type the name of the template</value>
+  </data>
+  <data name="TemplatesPage.Title" xml:space="preserve">
     <value>Templates</value>
+  </data>
+  <data name="ThemeButton.Label" xml:space="preserve">
+    <value>Toggle Theme</value>
+  </data>
+  <data name="ThemeSelectionSettingsCard.Description" xml:space="preserve">
+    <value>Select the theme that suits your mood and preference. You can choose from dark, light, or system themes.</value>
+  </data>
+  <data name="ThemeSelectionSettingsCard.Header" xml:space="preserve">
+    <value>App theme</value>
+  </data>
+  <data name="ThemeSettingsCard.Description" xml:space="preserve">
+    <value>Explore the different ways to customize the appearance and behavior of your app. You can change the material, theme, accent, and more options to sdevt your style and preference</value>
+  </data>
+  <data name="ThemeSettingsCard.Header" xml:space="preserve">
+    <value>Appearance &amp; behavior</value>
+  </data>
+  <data name="TintColorSettingsExpander.Description" xml:space="preserve">
+    <value>Add tint to your window to make your experience more personalized.</value>
+  </data>
+  <data name="TintColorSettingsExpander.Header" xml:space="preserve">
+    <value>Tint Color</value>
+  </data>
+  <data name="UpdateCheckButton.Content" xml:space="preserve">
+    <value>Check for new version</value>
+  </data>
+  <data name="UpdateSettingsCard.Description" xml:space="preserve">
+    <value>Check for updates</value>
+  </data>
+  <data name="UpdateSettingsCard.Header" xml:space="preserve">
+    <value>Update App</value>
+  </data>
+  <data name="WriteTextItem.Text" xml:space="preserve">
+    <value>Write text</value>
   </data>
 </root>

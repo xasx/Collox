@@ -17,12 +17,13 @@
     </Page.Resources>
     <Grid RowDefinitions="Auto,*">
 
-        <CommandBar Grid.Row="0" x:Name="CoBar"
+        <CommandBar x:Name="CoBar"
+                    Grid.Row="0"
                     HorizontalAlignment="Left"
                     DefaultLabelPosition="Right">
             <AppBarElementContainer VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal">
-                    <FontIcon Margin="8,0" 
+                    <FontIcon Margin="8,0"
                               VerticalAlignment="Center"
                               Glyph="&#xE71C;" />
                     <ComboBox VerticalAlignment="Center"
@@ -34,12 +35,14 @@
 
             <AppBarSeparator />
             <AppBarButton x:Name="ThemeButton"
+                          x:Uid="ThemeButton"
                           Click="ThemeButton_Click"
                           Icon="{dev:FontIcon GlyphCode=E793}"
                           Label="Toggle Theme"
                           LabelPosition="Collapsed" />
 
             <AppBarButton x:Name="HideButton"
+                          x:Uid="HideButton"
                           Click="HideButton_Click"
                           Icon="{dev:FontIcon GlyphCode=ED1A}"
                           Label="Hide"

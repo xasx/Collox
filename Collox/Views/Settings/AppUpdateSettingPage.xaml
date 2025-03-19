@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 
 <Page x:Class="Collox.Views.AppUpdateSettingPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -18,7 +18,8 @@
                 <dev:SettingsCard.Description>
                     <StackPanel Orientation="Horizontal"
                                 Spacing="5">
-                        <TextBlock Style="{StaticResource SecondaryTextStyle}"
+                        <TextBlock x:Uid="LastUpdateCheck"
+                                   Style="{StaticResource SecondaryTextStyle}"
                                    Text="Last Update Check" />
                         <TextBlock FlowDirection="LeftToRight"
                                    Style="{StaticResource SecondaryTextStyle}"
@@ -28,7 +29,8 @@
                 <StackPanel Orientation="Horizontal"
                             Spacing="10">
                     <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
-                    <Button MinWidth="{StaticResource SettingActionControlMinWidth}"
+                    <Button x:Uid="UpdateCheckButton"
+                            MinWidth="{StaticResource SettingActionControlMinWidth}"
                             Command="{x:Bind ViewModel.CheckForUpdateCommand}"
                             Content="Check for New Version"
                             IsEnabled="{x:Bind ViewModel.IsCheckButtonEnabled, Mode=OneWay}"
@@ -39,15 +41,17 @@
             <dev:SettingsCard Header="{x:Bind ViewModel.LoadingStatus, Mode=OneWay}"
                               HeaderIcon="{dev:BitmapIcon Source=Assets/Fluent/Info.png}">
                 <dev:SettingsCard.Description>
-                    <HyperlinkButton Padding="5,0"
+                    <HyperlinkButton x:Uid="ReleaseNotesLink"
+                                     Padding="5,0"
                                      Command="{x:Bind ViewModel.GetReleaseNotesCommand}"
-                                     Content="Release Note"
+                                     Content="Release Notes"
                                      Visibility="{x:Bind ViewModel.IsUpdateAvailable, Mode=OneWay}" />
                 </dev:SettingsCard.Description>
                 <StackPanel VerticalAlignment="Center"
                             Orientation="Horizontal"
                             Spacing="10">
-                    <Button MinWidth="{StaticResource SettingActionControlMinWidth}"
+                    <Button x:Uid="DownloadUpdateButton"
+                            MinWidth="{StaticResource SettingActionControlMinWidth}"
                             Command="{x:Bind ViewModel.GoToUpdateCommand}"
                             Content="Download Update"
                             Visibility="{x:Bind ViewModel.IsUpdateAvailable, Mode=OneWay}" />

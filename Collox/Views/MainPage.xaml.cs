@@ -60,18 +60,21 @@ public sealed partial class MainPage : Page
     {
         EnableShutdownPrivilege();
         PInvoke.InitiateSystemShutdown(null, null, 60, true, false);
+        DisableShutdownPrivilege();
     }
 
     private void RebootButton_Click(object sender, RoutedEventArgs e)
     {
         EnableShutdownPrivilege();
         PInvoke.InitiateSystemShutdown(null, null, 60, true, true);
+        DisableShutdownPrivilege();
     }
 
     private void AbortButton_Click(object sender, RoutedEventArgs e)
     {
         EnableShutdownPrivilege();
         PInvoke.AbortSystemShutdown(null);
+        DisableShutdownPrivilege();
     }
 
     private unsafe void EnableShutdownPrivilege()
@@ -104,6 +107,34 @@ public sealed partial class MainPage : Page
             throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
         }
 
+        PInvoke.CloseHandle(tokenHandle);
+    }
+
+    private unsafe void DisableShutdownPrivilege()
+    {
+        HANDLE tokenHandle = default;
+        LUID luid;
+        if (!PInvoke.OpenProcessToken(PInvoke.GetCurrentProcess(),
+            TOKEN_ACCESS_MASK.TOKEN_ADJUST_PRIVILEGES | TOKEN_ACCESS_MASK.TOKEN_QUERY, &tokenHandle))
+        {
+            throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+        }
+        if (!PInvoke.LookupPrivilegeValue(null, PInvoke.SE_SHUTDOWN_NAME, out luid))
+        {
+            throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+        }
+        TOKEN_PRIVILEGES tp = new TOKEN_PRIVILEGES
+        {
+            PrivilegeCount = 1,
+            Privileges = new VariableLengthInlineArray<LUID_AND_ATTRIBUTES>()
+        };
+        tp.Privileges[0].Luid = luid;
+        tp.Privileges[0].Attributes = TOKEN_PRIVILEGES_ATTRIBUTES.SE_PRIVILEGE_REMOVED;
+        uint rl = 0;
+        if (!PInvoke.AdjustTokenPrivileges(tokenHandle, false, &tp, 0, null, &rl))
+        {
+            throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+        }
         PInvoke.CloseHandle(tokenHandle);
     }
 }

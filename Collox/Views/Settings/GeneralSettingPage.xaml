@@ -16,47 +16,53 @@
                     dev:PanelAttach.ChildrenTransitions="Default"
                     Spacing="5">
 
-            <controls:SettingsCard x:Name="scbf"
-                                   Command="{x:Bind ViewModel.SelectBaseFolderCommand}"
-                                   Description="The folder where all data is stored, i.e. History and Templates."
-                                   Header="Base folder"
-                                   HeaderIcon="{ui:FontIcon Glyph=&#xE838;}"
-                                   IsClickEnabled="True">
+            <dev:SettingsCard x:Name="scbf"
+                              x:Uid="BaseFolderCard"
+                              Command="{x:Bind ViewModel.SelectBaseFolderCommand}"
+                              Description="The folder where all data is stored, i.e. History and Templates."
+                              Header="Base folder"
+                              HeaderIcon="{ui:FontIcon Glyph=&#xE838;}"
+                              IsClickEnabled="True">
                 <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                            Text="{x:Bind ViewModel.BaseFolder}" />
-            </controls:SettingsCard>
+            </dev:SettingsCard>
 
-            <controls:SettingsCard Description="Store messages in files."
-                       Header="Message persistence"
-                       HeaderIcon="{ui:FontIcon Glyph=&#xEDA2;}">
+            <dev:SettingsCard x:Uid="PersistenceCard"
+                              Description="Store messages in files."
+                              Header="Message persistence"
+                              HeaderIcon="{ui:FontIcon Glyph=&#xEDA2;}">
                 <ToggleSwitch IsOn="{x:Bind ViewModel.PersistMessages}" />
-            </controls:SettingsCard>
-            
-            <controls:SettingsExpander x:Name="scrot"
-                                       Description="Control the behavior when a new file is created."
-                                       Header="File rotation"
-                                       HeaderIcon="{ui:FontIcon Glyph=&#xE9F3;}">
+            </dev:SettingsCard>
+
+            <dev:SettingsExpander x:Name="scrot"
+                                  x:Uid="RotationCard"
+                                  Description="Control the behavior when a new file is created."
+                                  Header="File rotation"
+                                  HeaderIcon="{ui:FontIcon Glyph=&#xE9F3;}">
                 <ToggleSwitch x:Name="tsrot" />
-                <controls:SettingsExpander.Items>
-                    <controls:SettingsCard Description="Select the roll over time"
-                                           IsEnabled="{x:Bind tsrot.IsOn, Mode=OneWay}">
+                <dev:SettingsExpander.Items>
+                    <dev:SettingsCard x:Uid="RolloverTimeCard"
+                                      Description="Select the roll over time"
+                                      IsEnabled="{x:Bind tsrot.IsOn, Mode=OneWay}">
                         <TimePicker ClockIdentifier="24HourClock" />
-                    </controls:SettingsCard>
-                </controls:SettingsExpander.Items>
-            </controls:SettingsExpander>
-            
-            <controls:SettingsCard Description="Insert comments as delimiters surrounding a message."
-                                   Header="Write delimiters"
-                                   HeaderIcon="{ui:FontIcon Glyph=&#xE943;}">
+                    </dev:SettingsCard>
+                </dev:SettingsExpander.Items>
+            </dev:SettingsExpander>
+
+            <dev:SettingsCard x:Uid="DelimitersCard"
+                              Description="Insert comments as delimiters surrounding a message."
+                              Header="Write delimiters"
+                              HeaderIcon="{ui:FontIcon Glyph=&#xE943;}">
                 <ToggleSwitch IsOn="{x:Bind ViewModel.WriteDelimiters}" />
-            </controls:SettingsCard>
-            
-            <controls:SettingsCard Description="Only write after at least 30 seconds."
-                                   Header="Deferred write"
-                                   HeaderIcon="{ui:FontIcon Glyph=&#xE917;}">
+            </dev:SettingsCard>
+
+            <dev:SettingsCard x:Uid="DeferredWriteCard"
+                              Description="Only write after at least 30 seconds."
+                              Header="Deferred write"
+                              HeaderIcon="{ui:FontIcon Glyph=&#xE917;}">
                 <ToggleSwitch IsOn="{x:Bind ViewModel.DeferredWrite}" />
-            </controls:SettingsCard>
-            
+            </dev:SettingsCard>
+
         </StackPanel>
     </ScrollView>
 </Page>

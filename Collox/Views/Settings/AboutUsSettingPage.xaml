@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 
 <Page x:Class="Collox.Views.AboutUsSettingPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -14,7 +14,8 @@
         <StackPanel Margin="10"
                     dev:PanelAttach.ChildrenTransitions="Default"
                     Spacing="5">
-            <ui:SettingsExpander Description="Converse through your computer when you cannot do so otherwise."
+            <ui:SettingsExpander x:Uid="AboutUsExpander"
+                                 Description="Converse through your computer when you cannot do so otherwise."
                                  Header="Collox"
                                  HeaderIcon="{dev:BitmapIcon Source=Assets/Store/StoreLogo.scale-400.png}"
                                  IsExpanded="True">
@@ -27,10 +28,13 @@
                                      ContentAlignment="Left">
                         <StackPanel Orientation="Vertical"
                                     Spacing="5">
-                            <TextBlock Text="Related Links" />
-                            <HyperlinkButton Content="Source Code"
+                            <TextBlock x:Uid="RelatedLinks"
+                                       Text="Related Links" />
+                            <HyperlinkButton x:Uid="SourceCodeLink"
+                                             Content="Source Code"
                                              NavigateUri="https://github.com/xasx/Collox" />
-                            <HyperlinkButton Content="Release Notes"
+                            <HyperlinkButton x:Uid="ReleaseNotesLink"
+                                             Content="Release Notes"
                                              NavigateUri="https://github.com/xasx/Collox/releases" />
                         </StackPanel>
                     </ui:SettingsCard>
