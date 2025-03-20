@@ -34,6 +34,12 @@
     <PackageCertificateKeyFile>Collox_TemporaryKey.pfx</PackageCertificateKeyFile>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
   </PropertyGroup>
+  <PropertyGroup Label="MultilingualAppToolkit">
+    <MultilingualAppToolkitVersion>4.0</MultilingualAppToolkitVersion>
+    <MultilingualFallbackLanguage>en-US</MultilingualFallbackLanguage>
+    <TranslationReport Condition="'$(Configuration)' == 'Release'">true</TranslationReport>
+    <SuppressPseudoWarning Condition="'$(Configuration)' == 'Debug'">true</SuppressPseudoWarning>
+  </PropertyGroup>
   <ItemGroup>
     <None Update="T4Templates\NavigationPageMappings.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
@@ -84,6 +90,7 @@
     <Content Remove="Assets\Store\BadgeLogo.scale-400.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="MultilingualResources\Collox.de-DE.xlf" />
     <None Remove="Views\HistoryPage.xaml" />
     <None Remove="Views\MirrorPage.xaml" />
     <None Remove="Views\TabWritePage.xaml" />
@@ -145,6 +152,9 @@
     <PackageReference Include="System.Windows.Extensions" Version="10.0.0-preview.1.25080.5" />
     <PackageReference Include="WinUIEx" Version="2.5.1" />
   </ItemGroup>
+  <ItemGroup>
+    <XliffResource Include="MultilingualResources\Collox.de-DE.xlf" />
+  </ItemGroup>
   <!-- 
 	Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution 
 	Explorer "Package and Publish" context menu entry to be enabled for this project even if 
@@ -153,6 +163,10 @@
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
   </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\Multilingual App Toolkit\Microsoft.Multilingual.PriResources.targets" Label="MultilingualAppToolkit" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\Multilingual App Toolkit\v$(MultilingualAppToolkitVersion)\Microsoft.Multilingual.PriResources.targets')" />
+  <Target Name="MATPrerequisite" BeforeTargets="PrepareForBuild" Condition="!Exists('$(MSBuildExtensionsPath)\Microsoft\Multilingual App Toolkit\Microsoft.Multilingual.PriResources.targets')" Label="MultilingualAppToolkit">
+    <Warning Text="$(MSBuildProjectFile) is Multilingual build enabled, but the Multilingual App Toolkit is unavailable during the build. If building with Visual Studio, please check to ensure that toolkit is properly installed." />
+  </Target>
   <Target Name="TransformAllT4Templates" BeforeTargets="BeforeBuild">
     <ItemGroup>
       <!-- This picks up all T4 templates in the project -->
@@ -161,4 +175,16 @@
     <!-- Check if TextTransform.exe exists before running -->
     <Exec Command="if exist &quot;$(DevEnvDir)TextTransform.exe&quot; &quot;$(DevEnvDir)TextTransform.exe&quot; &quot;%(T4Template.FullPath)&quot;" Condition="Exists('$(DevEnvDir)TextTransform.exe')" />
   </Target>
+  <ItemGroup>
+    <PRIResource Remove="Strings\de-DE\Resources.resw" />
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Remove="Strings\de-DE\Resources.resw" />
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Remove="Strings\de-DE\Resources.resw" />
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Remove="Strings\de-DE\Resources.resw" />
+  </ItemGroup>
 </Project>

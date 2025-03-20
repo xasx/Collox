@@ -1,0 +1,252 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="de-DE" original="COLLOX/STRINGS/EN-US/RESOURCES.RESW" tool-id="MultilingualAppToolkit" product-name="n/a" product-version="n/a" build-num="n/a">
+    <header>
+      <tool tool-id="MultilingualAppToolkit" tool-name="Multilingual App Toolkit" tool-version="1.0.0.0" tool-company="Microsoft" />
+    </header>
+    <body>
+      <group id="COLLOX/STRINGS/EN-US/RESOURCES.RESW" datatype="resx">
+        <trans-unit id="AboutUsCard.Description" translate="yes" xml:space="preserve">
+          <source>About Collox and developer.</source>
+          <target state="translated">Über Collox und seine Entwickler</target>
+        </trans-unit>
+        <trans-unit id="AboutUsCard.Header" translate="yes" xml:space="preserve">
+          <source>About us</source>
+          <target state="translated">Über</target>
+        </trans-unit>
+        <trans-unit id="AboutUsExpander.Description" translate="yes" xml:space="preserve">
+          <source>Converse through your computer when you cannot do so otherwise.</source>
+          <target state="translated">Unterhalte dich mithilfe eines PCs, wenn es gerade nicht anders geht.</target>
+        </trans-unit>
+        <trans-unit id="AboutUsExpander.Header" translate="yes" xml:space="preserve">
+          <source>Collox</source>
+          <target state="translated">Collox</target>
+        </trans-unit>
+        <trans-unit id="AccentColorCard.Description" translate="yes" xml:space="preserve">
+          <source>Sync your app’s color with your Windows accent color. You can open the Windows accent color setting by clicking this card.</source>
+          <target state="translated">Hier klicken, um die Windows-Akzenteinstellungen zu öffnen.</target>
+        </trans-unit>
+        <trans-unit id="AccentColorCard.Header" translate="yes" xml:space="preserve">
+          <source>Accent color</source>
+          <target state="translated">Akzentfarbe</target>
+        </trans-unit>
+        <trans-unit id="BaseFolderCard.Description" translate="yes" xml:space="preserve">
+          <source>The folder where all data is stored, i.e. History and Templates.</source>
+          <target state="translated">Der Ordner, in dem alles gespeichert wird, d.h. die Historie und Vorlagen.</target>
+        </trans-unit>
+        <trans-unit id="BaseFolderCard.Header" translate="yes" xml:space="preserve">
+          <source>Base folder</source>
+          <target state="translated">Speicherort</target>
+        </trans-unit>
+        <trans-unit id="BeepToggleButton.Label" translate="yes" xml:space="preserve">
+          <source>Beep</source>
+          <target state="translated">Hinweiston</target>
+        </trans-unit>
+        <trans-unit id="ClearButton.Label" translate="yes" xml:space="preserve">
+          <source>Clear</source>
+          <target state="translated">Klarschiff</target>
+        </trans-unit>
+        <trans-unit id="CurrentContext.Title" translate="yes" xml:space="preserve">
+          <source>Current Context</source>
+          <target state="translated">Aktueller Kontext</target>
+        </trans-unit>
+        <trans-unit id="CurrentDocumentHeader.Header" translate="yes" xml:space="preserve">
+          <source>Current document</source>
+          <target state="translated">Aktuelles Dokument</target>
+        </trans-unit>
+        <trans-unit id="DeferredWriteCard.Description" translate="yes" xml:space="preserve">
+          <source>Only write after at least 30 seconds.</source>
+          <target state="translated">Erst nach mindestens 30 Sekunden schreiben. Das Schreiben erfolgt nicht zeitgesteuert, sondern wird entweder durch eine neue Nachricht oder manuelles Aufrufen gesteuert.</target>
+        </trans-unit>
+        <trans-unit id="DeferredWriteCard.Header" translate="yes" xml:space="preserve">
+          <source>Deferred write</source>
+          <target state="translated">Verzögertes Speichern</target>
+        </trans-unit>
+        <trans-unit id="DeleteButton.Label" translate="yes" xml:space="preserve">
+          <source>Delete</source>
+          <target state="translated">Löschen</target>
+        </trans-unit>
+        <trans-unit id="DelimitersCard.Description" translate="yes" xml:space="preserve">
+          <source>Write Markdown comments that separate the messages.</source>
+          <target state="translated">Markdown-Kommentare werden zwischen die einzelnen Nachrichten als Trennzeichen eingefügt.</target>
+        </trans-unit>
+        <trans-unit id="DelimitersCard.Header" translate="yes" xml:space="preserve">
+          <source>Write delimiters</source>
+          <target state="translated">Trennzeichen schreibendelimiters</target>
+        </trans-unit>
+        <trans-unit id="DownloadUpdateButton.Content" translate="yes" xml:space="preserve">
+          <source>Download Update</source>
+          <target state="translated">Update herunterladen</target>
+        </trans-unit>
+        <trans-unit id="DuplicateButton.Label" translate="yes" xml:space="preserve">
+          <source>Duplicate</source>
+          <target state="translated">Duplizieren</target>
+        </trans-unit>
+        <trans-unit id="EditButton.Label" translate="yes" xml:space="preserve">
+          <source>Edit</source>
+          <target state="translated">Bearbeiten</target>
+        </trans-unit>
+        <trans-unit id="EnterCommandsItem.Text" translate="yes" xml:space="preserve">
+          <source>Enter commands</source>
+          <target state="translated">Befehlseingabe</target>
+        </trans-unit>
+        <trans-unit id="GeneralSettingsCard.Description" translate="yes" xml:space="preserve">
+          <source>Change your app Settings</source>
+          <target state="translated">Die App-Einstellungen anpassen</target>
+        </trans-unit>
+        <trans-unit id="GeneralSettingsCard.Header" translate="yes" xml:space="preserve">
+          <source>General</source>
+          <target state="translated">Allgemein</target>
+        </trans-unit>
+        <trans-unit id="HideButton.Label" translate="yes" xml:space="preserve">
+          <source>Hide</source>
+          <target state="translated">Ausblenden</target>
+        </trans-unit>
+        <trans-unit id="HistoryPage.Title" translate="yes" xml:space="preserve">
+          <source>History</source>
+          <target state="translated">Historie</target>
+        </trans-unit>
+        <trans-unit id="InputTextBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Type your message</source>
+          <target state="translated">Nachricht eingeben</target>
+        </trans-unit>
+        <trans-unit id="InsertTemplateButton.Label" translate="yes" xml:space="preserve">
+          <source>Insert template</source>
+          <target state="translated">Vorlagen</target>
+        </trans-unit>
+        <trans-unit id="LastUpdateCheck.Text" translate="yes" xml:space="preserve">
+          <source>Last Update Check</source>
+          <target state="translated">Letzte Updateprüfung</target>
+        </trans-unit>
+        <trans-unit id="ManageTemplatesMenuItem.Text" translate="yes" xml:space="preserve">
+          <source>Manage</source>
+          <target state="translated">Verwalten</target>
+        </trans-unit>
+        <trans-unit id="PersistenceCard.Description" translate="yes" xml:space="preserve">
+          <source>Store messages in files.</source>
+          <target state="translated">Nachrichten in Dateien speichern.</target>
+        </trans-unit>
+        <trans-unit id="PersistenceCard.Header" translate="yes" xml:space="preserve">
+          <source>Message persistence</source>
+          <target state="translated">Nachrichten speichernpersistence</target>
+        </trans-unit>
+        <trans-unit id="RelatedLinks.Text" translate="yes" xml:space="preserve">
+          <source>Related Links</source>
+          <target state="translated">Verwandte Links</target>
+        </trans-unit>
+        <trans-unit id="ReleaseNotesLink.Content" translate="yes" xml:space="preserve">
+          <source>Release Notes</source>
+          <target state="translated">Release Notes</target>
+        </trans-unit>
+        <trans-unit id="RolloverTimeCard.Description" translate="yes" xml:space="preserve">
+          <source>Select the rollover time</source>
+          <target state="translated">Zeit Zeit, wann eine neue Datei benutzt wird</target>
+        </trans-unit>
+        <trans-unit id="RotationCard.Description" translate="yes" xml:space="preserve">
+          <source>Control the behavior when a new file is created.</source>
+          <target state="translated">Verhalten beim Anlegen einer neuen Datei steuern.</target>
+        </trans-unit>
+        <trans-unit id="RotationCard.Header" translate="yes" xml:space="preserve">
+          <source>File rotation</source>
+          <target state="translated">Rotation der Nachrichtendatei</target>
+        </trans-unit>
+        <trans-unit id="SaveButton.Label" translate="yes" xml:space="preserve">
+          <source>Save</source>
+          <target state="translated">Speichern</target>
+        </trans-unit>
+        <trans-unit id="SaveText.Text" translate="yes" xml:space="preserve">
+          <source>Save</source>
+          <target state="translated">Speichern</target>
+        </trans-unit>
+        <trans-unit id="SaveToggleButton.Label" translate="yes" xml:space="preserve">
+          <source>Auto save</source>
+          <target state="translated">Auto-Speichern</target>
+        </trans-unit>
+        <trans-unit id="SettingsButton.Label" translate="yes" xml:space="preserve">
+          <source>Settings</source>
+          <target state="translated">Einstellungen</target>
+        </trans-unit>
+        <trans-unit id="SourceCodeLink.Content" translate="yes" xml:space="preserve">
+          <source>Source Code</source>
+          <target state="translated">Quelltext</target>
+        </trans-unit>
+        <trans-unit id="SpeakLastButton.Label" translate="yes" xml:space="preserve">
+          <source>Read last</source>
+          <target state="translated">letzte vorlesen</target>
+        </trans-unit>
+        <trans-unit id="SpeakToggleButton.Label" translate="yes" xml:space="preserve">
+          <source>Read aloud</source>
+          <target state="translated">Laut vorlesen</target>
+        </trans-unit>
+        <trans-unit id="TabWritePage.Title" translate="yes" xml:space="preserve">
+          <source>Write</source>
+          <target state="translated">Schreiben</target>
+        </trans-unit>
+        <trans-unit id="TemplateContentTextBox.Header" translate="yes" xml:space="preserve">
+          <source>Content</source>
+          <target state="translated">Inhalt</target>
+        </trans-unit>
+        <trans-unit id="TemplateContentTextBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>The content of the template</source>
+          <target state="translated">Der Inhalt der Vorlage</target>
+        </trans-unit>
+        <trans-unit id="TemplateNameTextBox.Header" translate="yes" xml:space="preserve">
+          <source>Name</source>
+          <target state="translated">Name</target>
+        </trans-unit>
+        <trans-unit id="TemplateNameTextBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Type the name of the template</source>
+          <target state="translated">Der Name der Vorlage</target>
+        </trans-unit>
+        <trans-unit id="TemplatesPage.Title" translate="yes" xml:space="preserve">
+          <source>Templates</source>
+          <target state="translated">Vorlagen</target>
+        </trans-unit>
+        <trans-unit id="ThemeButton.Label" translate="yes" xml:space="preserve">
+          <source>Toggle Theme</source>
+          <target state="translated">Thema umschalten</target>
+        </trans-unit>
+        <trans-unit id="ThemeSelectionSettingsCard.Description" translate="yes" xml:space="preserve">
+          <source>Select the theme that suits your mood and preference. You can choose from dark, light, or system themes.</source>
+          <target state="translated">Das Thema nach Laune und Präferenzen wählen, hell, dunkel oder wie das System.</target>
+        </trans-unit>
+        <trans-unit id="ThemeSelectionSettingsCard.Header" translate="yes" xml:space="preserve">
+          <source>App theme</source>
+          <target state="translated">Thema der Apptheme</target>
+        </trans-unit>
+        <trans-unit id="ThemeSettingsCard.Description" translate="yes" xml:space="preserve">
+          <source>Explore the different ways to customize the appearance and behavior of your app. You can change the material, theme, accent, and more options to sdevt your style and preference</source>
+          <target state="translated">Es gibt verschiedene Möglichkeiten, das Aussehen und Verhalten der App zu beeinflussen. Anpassungen an Material, Thema, Akzentfarbe und mehr sind möglich.</target>
+        </trans-unit>
+        <trans-unit id="ThemeSettingsCard.Header" translate="yes" xml:space="preserve">
+          <source>Appearance &amp; behavior</source>
+          <target state="translated">Aussehen &amp; Verhalten</target>
+        </trans-unit>
+        <trans-unit id="TintColorSettingsExpander.Description" translate="yes" xml:space="preserve">
+          <source>Add tint to your window to make your experience more personalized.</source>
+          <target state="translated">Fügen Sie Ihrem Fenster eine Tönung hinzu, um es individuell anzupassen.</target>
+        </trans-unit>
+        <trans-unit id="TintColorSettingsExpander.Header" translate="yes" xml:space="preserve">
+          <source>Tint Color</source>
+          <target state="translated">Tönung</target>
+        </trans-unit>
+        <trans-unit id="UpdateCheckButton.Content" translate="yes" xml:space="preserve">
+          <source>Check for new version</source>
+          <target state="translated">Auf neue Version prüfen</target>
+        </trans-unit>
+        <trans-unit id="UpdateSettingsCard.Description" translate="yes" xml:space="preserve">
+          <source>Check for updates</source>
+          <target state="translated">Update suchen</target>
+        </trans-unit>
+        <trans-unit id="UpdateSettingsCard.Header" translate="yes" xml:space="preserve">
+          <source>Update App</source>
+          <target state="translated">App aktualisieren</target>
+        </trans-unit>
+        <trans-unit id="WriteTextItem.Text" translate="yes" xml:space="preserve">
+          <source>Write text</source>
+          <target state="translated">Text schreiben</target>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>

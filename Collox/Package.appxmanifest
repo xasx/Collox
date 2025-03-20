@@ -30,6 +30,7 @@
 
   <Resources>
     <Resource Language="en-US"/>
+    <Resource Language="de-DE"/>
   </Resources>
 
   <Applications>
