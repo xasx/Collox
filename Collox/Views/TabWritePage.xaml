@@ -73,11 +73,11 @@
                     <Button.Flyout>
                         <Flyout>
                             <StackPanel>
-                                <ui:SettingsCard Click="SettingsCard_Click"
-                                                 Description="Open a top-most window for mirroring all messages."
-                                                 Header="Open Mirror Window"
-                                                 HeaderIcon="{dev:FontIcon GlyphCode=EE49}"
-                                                 IsClickEnabled="True" />
+                                <dev:SettingsCard Click="SettingsCard_Click"
+                                                  Description="Open a top-most window for mirroring all messages."
+                                                  Header="Open Mirror Window"
+                                                  HeaderIcon="{dev:FontIcon GlyphCode=EE49}"
+                                                  IsClickEnabled="True" />
                             </StackPanel>
                         </Flyout>
                     </Button.Flyout>

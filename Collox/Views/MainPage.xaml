@@ -25,11 +25,11 @@
         <Flyout x:Name="wfly">
             <StackPanel>
 
-                <controls:SettingsCard Description="Use AI in-app"
-                                       Header="AI"
-                                       HeaderIcon="{dev:FontIcon Glyph=&#xEEA1;}">
+                <dev:SettingsCard Description="Use AI in-app"
+                                  Header="AI"
+                                  HeaderIcon="{dev:FontIcon Glyph=&#xEEA1;}">
                     <ToggleSwitch IsOn="{x:Bind ViewModel.IsAIEnabled, Mode=TwoWay}" />
-                </controls:SettingsCard>
+                </dev:SettingsCard>
             </StackPanel>
         </Flyout>
 
