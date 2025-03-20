@@ -99,7 +99,7 @@
                   IsBackButtonVisible="True"
                   IsPaneToggleButtonVisible="True"
                   Subtitle="{x:Bind dev:ProcessInfoHelper.VersionWithPrefix}">
-            <TitleBar.LeftContent>
+            <TitleBar.LeftHeader>
                 <StackPanel Orientation="Horizontal"
                             Spacing="4">
                     <Button Flyout="{StaticResource Infofly}"
@@ -108,9 +108,9 @@
                                   Glyph="&#xE946;" />
                     </Button>
                 </StackPanel>
-            </TitleBar.LeftContent>
+            </TitleBar.LeftHeader>
 
-            <TitleBar.CenterContent>
+            <TitleBar.Content>
                 <StackPanel Orientation="Horizontal">
                     <AutoSuggestBox MinWidth="320"
                                     VerticalAlignment="Center"
@@ -119,9 +119,9 @@
                                     QuerySubmitted="OnQuerySubmitted"
                                     TextChanged="OnTextChanged" />
                 </StackPanel>
-            </TitleBar.CenterContent>
+            </TitleBar.Content>
 
-            <TitleBar.RightContent>
+            <TitleBar.RightHeader>
                 <StackPanel HorizontalAlignment="Right"
                             Orientation="Horizontal">
                     <Button x:Name="ThemeButton"
@@ -149,7 +149,7 @@
                             Style="{ThemeResource SubtleButtonStyle}"
                             ToolTipService.ToolTip="AI" />
                 </StackPanel>
-            </TitleBar.RightContent>
+            </TitleBar.RightHeader>
         </TitleBar>
         <NavigationView x:Name="NavView"
                         Grid.Row="1"
