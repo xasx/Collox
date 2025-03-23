@@ -281,4 +281,41 @@
       </group>
     </body>
   </file>
+  <file datatype="xml" source-language="en-US" target-language="de-DE" original="COLLOX/STRINGS/EN-US/HELPERS.RESW" tool-id="MultilingualAppToolkit" product-name="n/a" product-version="n/a" build-num="n/a">
+    <header>
+      <tool tool-id="MultilingualAppToolkit" tool-name="Multilingual App Toolkit" tool-version="1.0.0.0" tool-company="Microsoft" />
+    </header>
+    <body>
+      <group id="COLLOX/STRINGS/EN-US/HELPERS.RESW" datatype="resx">
+        <trans-unit id="FriendlyTime.SecondsAgo" translate="yes" xml:space="preserve">
+          <source>{0} seconds ago</source>
+          <target state="translated">vor {0} Sekunden</target>
+        </trans-unit>
+        <trans-unit id="FriendlyTime.MinutesAgo" translate="yes" xml:space="preserve">
+          <source>{0} minutes ago</source>
+          <target state="translated">vor {0} Minuten</target>
+        </trans-unit>
+        <trans-unit id="FriendlyTime.HoursAgo" translate="yes" xml:space="preserve">
+          <source>{0} hours ago</source>
+          <target state="translated">vor {0} Stunden</target>
+        </trans-unit>
+        <trans-unit id="FriendlyTime.DaysAgo" translate="yes" xml:space="preserve">
+          <source>{0} days ago</source>
+          <target state="translated">vor {0} Tagen</target>
+        </trans-unit>
+        <trans-unit id="FriendlyTime.WeeksAgo" translate="yes" xml:space="preserve">
+          <source>{0} weeks ago</source>
+          <target state="translated">vor {0} Wochen</target>
+        </trans-unit>
+        <trans-unit id="FriendlyTime.MonthsAgo" translate="yes" xml:space="preserve">
+          <source>{0} months ago</source>
+          <target state="translated">vor {0} Monaten</target>
+        </trans-unit>
+        <trans-unit id="FriendlyTime.YearsAgo" translate="yes" xml:space="preserve">
+          <source>{0} years ago</source>
+          <target state="translated">vor {0} Jahren</target>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
 </xliff>

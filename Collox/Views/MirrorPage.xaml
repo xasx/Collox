@@ -13,7 +13,8 @@
       mc:Ignorable="d">
 
     <Page.Resources>
-        <conv:TimeSpanToFriendlyConverter x:Key="TimeSpanToFriendlyConverter" />
+        <conv:TimeSpanToFriendlyConverter x:Key="TimeSpanToFriendlyConverter"
+                                          x:Uid="/Helpers/FriendlyTime" />
     </Page.Resources>
     <Grid RowDefinitions="Auto,*">
 

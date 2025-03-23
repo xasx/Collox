@@ -23,7 +23,8 @@
     <Page.Resources>
 
         <Flyout x:Name="TaskFlyout" />
-        <conv:TimeSpanToFriendlyConverter x:Key="TimeSpanToFriendlyConverter" />
+        <conv:TimeSpanToFriendlyConverter x:Key="TimeSpanToFriendlyConverter"
+                                          x:Uid="/Helpers/FriendlyTime" />
 
         <converters:StringVisibilityConverter x:Key="StringVisibilityConverter" />
 
