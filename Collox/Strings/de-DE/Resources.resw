@@ -192,4 +192,28 @@
   <data name="WriteTextItem.Text" xml:space="preserve">
     <value>Text schreiben</value>
   </data>
+  <data name="AISettingCard.Description" xml:space="preserve">
+    <value>KI in der App verwenden.</value>
+  </data>
+  <data name="AISettingCard.Header" xml:space="preserve">
+    <value>KI</value>
+  </data>
+  <data name="AIButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>KI</value>
+  </data>
+  <data name="ShutdownButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Herunterfahren</value>
+  </data>
+  <data name="ToggleThemeButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Thema umschalten</value>
+  </data>
+  <data name="AbortButton.Text" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="PowerOffButton.Text" xml:space="preserve">
+    <value>Herunterfahren</value>
+  </data>
+  <data name="RebootButton.Text" xml:space="preserve">
+    <value>Neu starten</value>
+  </data>
 </root>

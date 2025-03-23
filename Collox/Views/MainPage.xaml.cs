@@ -1,10 +1,9 @@
-﻿using Windows.Win32;
+﻿using System.Runtime.InteropServices;
 using Microsoft.UI.Xaml.Controls.Primitives;
-using AutoSuggestBoxHelper = DevWinUI.AutoSuggestBoxHelper;
-using System.Runtime.InteropServices;
+using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security;
-using Microsoft.Win32.SafeHandles;
+using AutoSuggestBoxHelper = DevWinUI.AutoSuggestBoxHelper;
 
 namespace Collox.Views;
 
@@ -112,6 +111,8 @@ public sealed partial class MainPage : Page
 
     private unsafe void DisableShutdownPrivilege()
     {
+        //todo fixme
+        return;
         HANDLE tokenHandle = default;
         LUID luid;
         if (!PInvoke.OpenProcessToken(PInvoke.GetCurrentProcess(),

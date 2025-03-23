@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AbortButton.Text" xml:space="preserve">
+    <value>Abort</value>
+  </data>
   <data name="AboutUsCard.Description" xml:space="preserve">
     <value>About Collox and developer.</value>
   </data>
@@ -134,6 +137,15 @@
   </data>
   <data name="AccentColorCard.Header" xml:space="preserve">
     <value>Accent color</value>
+  </data>
+  <data name="AIButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>AI</value>
+  </data>
+  <data name="AISettingCard.Description" xml:space="preserve">
+    <value>Use AI in-app.</value>
+  </data>
+  <data name="AISettingCard.Header" xml:space="preserve">
+    <value>AI</value>
   </data>
   <data name="BaseFolderCard.Description" xml:space="preserve">
     <value>The folder where all data is stored, i.e. History and Templates.</value>
@@ -210,6 +222,12 @@
   <data name="PersistenceCard.Header" xml:space="preserve">
     <value>Message persistence</value>
   </data>
+  <data name="PowerOffButton.Text" xml:space="preserve">
+    <value>Shutdown</value>
+  </data>
+  <data name="RebootButton.Text" xml:space="preserve">
+    <value>Reboot</value>
+  </data>
   <data name="RelatedLinks.Text" xml:space="preserve">
     <value>Related Links</value>
   </data>
@@ -236,6 +254,9 @@
   </data>
   <data name="SettingsButton.Label" xml:space="preserve">
     <value>Settings</value>
+  </data>
+  <data name="ShutdownButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Shutdown</value>
   </data>
   <data name="SourceCodeLink.Content" xml:space="preserve">
     <value>Source Code</value>
@@ -265,6 +286,9 @@
     <value>Templates</value>
   </data>
   <data name="ThemeButton.Label" xml:space="preserve">
+    <value>Toggle Theme</value>
+  </data>
+  <data name="ToggleThemeButton.ToolTipService.ToolTip" xml:space="preserve">
     <value>Toggle Theme</value>
   </data>
   <data name="ThemeSelectionSettingsCard.Description" xml:space="preserve">

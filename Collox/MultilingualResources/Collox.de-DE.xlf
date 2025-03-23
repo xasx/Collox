@@ -246,6 +246,38 @@
           <source>Write text</source>
           <target state="translated">Text schreiben</target>
         </trans-unit>
+        <trans-unit id="AISettingCard.Description" translate="yes" xml:space="preserve">
+          <source>Use AI in-app.</source>
+          <target state="translated">KI in der App verwenden.</target>
+        </trans-unit>
+        <trans-unit id="AISettingCard.Header" translate="yes" xml:space="preserve">
+          <source>AI</source>
+          <target state="translated">KI</target>
+        </trans-unit>
+        <trans-unit id="AIButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>AI</source>
+          <target state="translated">KI</target>
+        </trans-unit>
+        <trans-unit id="ShutdownButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Shutdown</source>
+          <target state="translated">Herunterfahren</target>
+        </trans-unit>
+        <trans-unit id="ToggleThemeButton.ToolTipService.ToolTip" translate="yes" xml:space="preserve">
+          <source>Toggle Theme</source>
+          <target state="translated">Thema umschalten</target>
+        </trans-unit>
+        <trans-unit id="AbortButton.Text" translate="yes" xml:space="preserve">
+          <source>Abort</source>
+          <target state="translated">Abbrechen</target>
+        </trans-unit>
+        <trans-unit id="PowerOffButton.Text" translate="yes" xml:space="preserve">
+          <source>Shutdown</source>
+          <target state="translated">Herunterfahren</target>
+        </trans-unit>
+        <trans-unit id="RebootButton.Text" translate="yes" xml:space="preserve">
+          <source>Reboot</source>
+          <target state="translated">Neu starten</target>
+        </trans-unit>
       </group>
     </body>
   </file>

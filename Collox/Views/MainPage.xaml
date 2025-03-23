@@ -21,11 +21,12 @@
 
     <Page.Resources>
 
-        <conv:VisualToSummaryStringConverter x:Key="vConv" />
-        <Flyout x:Name="wfly">
+        <conv:VisualToSummaryStringConverter x:Key="VisualToSummaryStringConverter" />
+        <Flyout x:Name="AIFlyout">
             <StackPanel>
-
-                <dev:SettingsCard Description="Use AI in-app"
+                <dev:SettingsCard x:Uid="AISettingCard"
+                                  ContentAlignment="Right"
+                                  Description="Use AI in-app"
                                   Header="AI"
                                   HeaderIcon="{dev:FontIcon Glyph=&#xEEA1;}">
                     <ToggleSwitch IsOn="{x:Bind ViewModel.IsAIEnabled, Mode=TwoWay}" />
@@ -33,7 +34,7 @@
             </StackPanel>
         </Flyout>
 
-        <Flyout x:Name="Infofly">
+        <Flyout x:Name="InfoFlyout">
             <StackPanel Width="320">
                 <controls:HeaderedContentControl x:Uid="CurrentDocumentHeader"
                                                  FontWeight="Light"
@@ -48,7 +49,7 @@
             </StackPanel>
         </Flyout>
 
-        <Flyout x:Name="notifly">
+        <Flyout x:Name="NotificationsFlyout">
             <ItemsView Width="336"
                        Height="512"
                        ItemsSource="{x:Bind ViewModel.UserNotifications, Mode=OneWay}">
@@ -64,7 +65,7 @@
                                     <TextBlock FontWeight="Bold"
                                                Text="{x:Bind AppInfo.DisplayInfo.DisplayName}" />
                                 </dev:Divider>
-                                <TextBlock Text="{x:Bind Notification.Visual, Converter={StaticResource vConv}}"
+                                <TextBlock Text="{x:Bind Notification.Visual, Converter={StaticResource VisualToSummaryStringConverter}}"
                                            TextWrapping="WrapWholeWords" />
                             </StackPanel>
 
@@ -74,23 +75,50 @@
             </ItemsView>
         </Flyout>
 
-        <CommandBarFlyout x:Name="ShutdownFlyout"
-                          AlwaysExpanded="True"
-                          Placement="Bottom"
-                          ShowMode="Transient">
-            <AppBarButton x:Name="PowerOffButton"
-                          Click="PowerOffButton_Click"
-                          Icon="{dev:FontIcon GlyphCode=E7E8}"
-                          Label="Shutdown" />
-            <AppBarButton x:Name="RebootButton"
-                          Click="RebootButton_Click"
-                          Icon="{dev:FontIcon GlyphCode=E777}"
-                          Label="Reboot" />
-            <AppBarButton x:Name="AbortButton"
-                          Click="AbortButton_Click"
-                          Icon="{dev:FontIcon GlyphCode=E711}"
-                          Label="Abort" />
-        </CommandBarFlyout>
+        <Flyout x:Name="ShutdownFlyout"
+                Placement="Bottom"
+                ShowMode="Transient">
+            <StackPanel Orientation="Horizontal"
+                        Spacing="8">
+
+                <Button x:Name="PowerOffButton"
+                        Height="120"
+                        MinWidth="120"
+                        Click="PowerOffButton_Click">
+                    <StackPanel Spacing="4">
+                        <FontIcon FontSize="32"
+                                  Glyph="&#xE7E8;" />
+                        <TextBlock x:Uid="PowerOffButton"
+                                   Text="Shutdown" />
+                    </StackPanel>
+                </Button>
+
+                <Button x:Name="RebootButton"
+                        Height="120"
+                        MinWidth="120"
+                        Click="RebootButton_Click">
+                    <StackPanel Spacing="4">
+                        <FontIcon FontSize="32"
+                                  Glyph="&#xE777;" />
+                        <TextBlock x:Uid="RebootButton"
+                                   Text="Reboot" />
+                    </StackPanel>
+                </Button>
+
+                <Button x:Name="AbortButton"
+                        Height="120"
+                        MinWidth="120"
+                        Click="AbortButton_Click">
+                    <StackPanel Spacing="4">
+                        <FontIcon FontSize="32"
+                                  Glyph="&#xE711;" />
+                        <TextBlock x:Uid="AbortButton"
+                                   Text="Abort" />
+                    </StackPanel>
+
+                </Button>
+            </StackPanel>
+        </Flyout>
     </Page.Resources>
     <Grid RowDefinitions="Auto, *">
         <TitleBar x:Name="AppTitleBar"
@@ -102,7 +130,7 @@
             <TitleBar.LeftHeader>
                 <StackPanel Orientation="Horizontal"
                             Spacing="4">
-                    <Button Flyout="{StaticResource Infofly}"
+                    <Button Flyout="{StaticResource InfoFlyout}"
                             Style="{ThemeResource SubtleButtonStyle}">
                         <FontIcon FontSize="20"
                                   Glyph="&#xE946;" />
@@ -125,6 +153,7 @@
                 <StackPanel HorizontalAlignment="Right"
                             Orientation="Horizontal">
                     <Button x:Name="ThemeButton"
+                            x:Uid="ToggleThemeButton"
                             Height="36"
                             Margin="0,0,4,0"
                             Click="ThemeButton_Click"
@@ -133,6 +162,7 @@
                             Style="{ThemeResource SubtleButtonStyle}"
                             ToolTipService.ToolTip="Toggle Theme" />
                     <Button x:Name="ShutdownButton"
+                            x:Uid="ShutdownButton"
                             Height="36"
                             Margin="0,0,4,0"
                             Content="{dev:FontIcon GlyphCode=E7E8,
@@ -140,14 +170,18 @@
                             Flyout="{StaticResource ShutdownFlyout}"
                             Style="{ThemeResource SubtleButtonStyle}"
                             ToolTipService.ToolTip="Shutdown" />
-                    <Button x:Name="AIButton"
-                            Height="36"
-                            Margin="0,0,4,0"
-                            Content="{dev:FontIcon GlyphCode=E99A,
-                                                   FontSize=20}"
-                            Flyout="{StaticResource wfly}"
-                            Style="{ThemeResource SubtleButtonStyle}"
-                            ToolTipService.ToolTip="AI" />
+                    <ToggleButton x:Name="AIButton"
+                                  x:Uid="AIButton"
+                                  Height="36"
+                                  Margin="0,0,4,0"
+                                  Content="{dev:FontIcon GlyphCode=E99A,
+                                                         FontSize=20}"
+                                  IsChecked="{x:Bind ViewModel.IsAIEnabled, Mode=TwoWay}"
+                                  Style="{ThemeResource DefaultToggleButtonStyle}"
+                                  ToolTipService.ToolTip="AI" />
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsAIEnabled, Mode=TwoWay}"
+                                  OffContent=" "
+                                  OnContent="AI enabled" />
                 </StackPanel>
             </TitleBar.RightHeader>
         </TitleBar>
@@ -171,7 +205,7 @@
                     </dev:Shield>
                     <dev:Shield Height="32"
                                 Click="Shield_Click"
-                                FlyoutBase.AttachedFlyout="{StaticResource notifly}"
+                                FlyoutBase.AttachedFlyout="{StaticResource NotificationsFlyout}"
                                 FontSize="20"
                                 Status="{x:Bind ViewModel.UserNotifications.Count, Mode=OneWay}">
                         <FontIcon Glyph="&#xE7E7;" />
