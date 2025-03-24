@@ -282,6 +282,10 @@
           <source>Select voice</source>
           <target state="translated">Stimme auswählen</target>
         </trans-unit>
+        <trans-unit id="OpenMirrorWindow.Text" translate="yes" xml:space="preserve">
+          <source>Open Mirror Window</source>
+          <target state="translated">Spiegelfenster öffnen</target>
+        </trans-unit>
       </group>
     </body>
   </file>

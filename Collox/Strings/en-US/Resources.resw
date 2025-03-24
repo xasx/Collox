@@ -324,4 +324,7 @@
   <data name="SelectVoice.Text" xml:space="preserve">
     <value>Select voice</value>
   </data>
+  <data name="OpenMirrorWindow.Text" xml:space="preserve">
+    <value>Open Mirror Window</value>
+  </data>
 </root>

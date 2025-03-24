@@ -219,4 +219,7 @@
   <data name="SelectVoice.Text" xml:space="preserve">
     <value>Stimme auswählen</value>
   </data>
+  <data name="OpenMirrorWindow.Text" xml:space="preserve">
+    <value>Spiegelfenster öffnen</value>
+  </data>
 </root>
