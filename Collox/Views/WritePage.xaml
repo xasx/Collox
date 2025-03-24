@@ -40,8 +40,9 @@
                 </Style>
             </Flyout.FlyoutPresenterStyle>
             <StackPanel Orientation="Vertical">
-                <TextBlock Text="Select voice" />
-                <GridView Height="480"
+                <TextBlock x:Uid="SelectVoice"
+                           Text="Select voice" />
+                <ListView Height="480"
                           Margin="4"
                           HorizontalAlignment="Left"
                           IsItemClickEnabled="True"
@@ -50,7 +51,7 @@
                           SelectedItem="{x:Bind ViewModel.SelectedVoice, Mode=TwoWay}">
 
 
-                    <GridView.ItemTemplate>
+                    <ListView.ItemTemplate>
                         <DataTemplate xmlns:sp="using:System.Speech.Synthesis"
                                       x:DataType="sp:VoiceInfo">
 
@@ -75,9 +76,9 @@
                                 </TextBlock>
                             </StackPanel>
                         </DataTemplate>
-                    </GridView.ItemTemplate>
+                    </ListView.ItemTemplate>
 
-                </GridView>
+                </ListView>
             </StackPanel>
         </Flyout>
         <Flyout x:Name="EmojiFlyout">

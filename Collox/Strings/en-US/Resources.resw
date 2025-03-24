@@ -321,4 +321,7 @@
   <data name="WriteTextItem.Text" xml:space="preserve">
     <value>Write text</value>
   </data>
+  <data name="SelectVoice.Text" xml:space="preserve">
+    <value>Select voice</value>
+  </data>
 </root>

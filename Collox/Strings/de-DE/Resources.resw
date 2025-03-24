@@ -216,4 +216,7 @@
   <data name="RebootButton.Text" xml:space="preserve">
     <value>Neu starten</value>
   </data>
+  <data name="SelectVoice.Text" xml:space="preserve">
+    <value>Stimme auswählen</value>
+  </data>
 </root>

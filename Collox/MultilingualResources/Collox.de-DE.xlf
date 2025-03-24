@@ -278,6 +278,10 @@
           <source>Reboot</source>
           <target state="translated">Neu starten</target>
         </trans-unit>
+        <trans-unit id="SelectVoice.Text" translate="yes" xml:space="preserve">
+          <source>Select voice</source>
+          <target state="translated">Stimme auswählen</target>
+        </trans-unit>
       </group>
     </body>
   </file>
