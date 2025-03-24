@@ -19,8 +19,11 @@ public partial class GeneralSettingViewModel : ObservableObject
     [RelayCommand]
     public async Task SelectBaseFolder()
     {
-        var folder = await FileAndFolderPickerHelper.PickSingleFolderAsync(App.MainWindow,
-            suggestedStartLocation: PickerLocationId.DocumentsLibrary);
+        var picker = new DevWinUI.FolderPicker(App.MainWindow)
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+        };
+        var folder = await picker.PickSingleFolderAsync();
         if (folder != null)
         {
             BaseFolder = folder.Path;
