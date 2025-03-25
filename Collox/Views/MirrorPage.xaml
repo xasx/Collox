@@ -5,6 +5,7 @@
       xmlns:conv="using:Collox.Common.Converters"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:dev="using:DevWinUI"
+      xmlns:labs="using:CommunityToolkit.WinUI.UI.Controls"
       xmlns:local="using:Collox.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:vm="using:Collox.ViewModels"
@@ -67,13 +68,16 @@
                                 CornerRadius="8"
                                 Orientation="Horizontal">
                         <TextBlock Margin="10,0,0,0"
-                                   VerticalAlignment="Bottom"
+                                   VerticalAlignment="Top"
                                    Foreground="{ThemeResource AccentTextFillColorTertiaryBrush}"
                                    Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource TimeSpanToFriendlyConverter}}" />
-                        <TextBlock Margin="10,0,0,0"
-                                   VerticalAlignment="Bottom"
-                                   FontSize="28"
-                                   Text="{x:Bind Text}" />
+                        <labs:MarkdownTextBlock MaxWidth="400"
+                                                Margin="10,0,0,0"
+                                                VerticalAlignment="Bottom"
+                                                Background="Transparent"
+                                                FontSize="28"
+                                                Text="{x:Bind Text}"
+                                                TextWrapping="WrapWholeWords" />
                         <TextBlock Margin="10,0,0,0"
                                    VerticalAlignment="Bottom"
                                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"

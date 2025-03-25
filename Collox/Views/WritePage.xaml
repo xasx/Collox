@@ -134,7 +134,7 @@
         </DataTemplate>
         <DataTemplate x:Name="TextTemplate"
                       x:DataType="vm:TextColloxMessage">
-            <RelativePanel Margin="0"
+            <RelativePanel Margin="0,4"
                            Background="{ThemeResource CardBackgroundFillColorDefault}"
                            CornerRadius="8">
 
