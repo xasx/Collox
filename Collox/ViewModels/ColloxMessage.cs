@@ -8,22 +8,21 @@ public partial class ColloxMessage : ObservableObject
 {
     private static readonly DispatcherQueue DispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
-    private static readonly Timer Timer = new()
-    {
-        Interval = 3333,
-        Enabled = true
-    };
+    private static readonly DispatcherQueueTimer Timer = DispatcherQueue.CreateTimer();
+
+    static ColloxMessage() {
+        Timer.Interval = TimeSpan.FromMilliseconds(3333);
+        Timer.IsRepeating = true;
+        Timer.Start();
+    }
 
     protected ColloxMessage()
     {
-        var wel = new WeakEventListener<ColloxMessage, object, ElapsedEventArgs>(this)
+        ColloxWeakEventListener colloxWeakEventListener = new(this)
         {
-            OnEventAction = (instance, sender, args) => DispatcherQueue
-                .TryEnqueue(() => instance.RelativeTimestamp = DateTime.Now - instance.Timestamp),
-            OnDetachAction = listener => Timer.Elapsed -= listener.OnEvent
+            Timer = ColloxMessage.Timer
         };
-
-        Timer.Elapsed += wel.OnEvent;
+        Timer.Tick += colloxWeakEventListener.OnTimerTick;
     }
 
     [ObservableProperty] public partial int AdditionalSpacing { get; set; } = 0;
@@ -40,6 +39,7 @@ public partial class TextColloxMessage : ColloxMessage
     [ObservableProperty] public partial string Comment { get; set; }
 
     [ObservableProperty] public partial bool IsLoading { get; set; }
+
     public string Context { get; internal init; }
 
     [RelayCommand]
@@ -53,3 +53,28 @@ public partial class TimeColloxMessage : ColloxMessage
 {
     public TimeSpan Time { get; init; }
 }
+
+internal class ColloxWeakEventListener
+{
+    private readonly WeakReference<ColloxMessage> _weakInstance;
+
+    public ColloxWeakEventListener(ColloxMessage colloxMessage)
+    {
+        _weakInstance = new WeakReference<ColloxMessage>(colloxMessage);
+    }
+
+    public DispatcherQueueTimer Timer { get; init; }
+
+    public void OnTimerTick(DispatcherQueueTimer sender, object args)
+    {
+        if (_weakInstance.TryGetTarget(out var target))
+        {
+            target.RelativeTimestamp = DateTime.Now - target.Timestamp;
+        }
+        else
+        {
+            Timer.Tick -= OnTimerTick;
+        }
+    }
+}
+
