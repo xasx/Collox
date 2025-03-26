@@ -23,6 +23,13 @@ public partial class MirrorViewModel : ObservableRecipient, IRecipient<TextSubmi
         WeakReferenceMessenger.Default.Register(this);
     }
 
+    [RelayCommand]
+    public void Clear()
+    {
+        // Messages.Clear();
+        FilteredMessages.Clear();
+    }
+
     public void Receive(TextSubmittedMessage message)
     {
         Messages.Add(message.Value);

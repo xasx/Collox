@@ -251,7 +251,7 @@
 
             <AppBarButton x:Uid="ClearButton"
                           Command="{x:Bind ViewModel.ClearCommand}"
-                          Icon="Clear"
+                          Icon="{dev:FontIcon GlyphCode=E75C}"
                           Label="Clear">
                 <AppBarButton.KeyboardAccelerators>
                     <KeyboardAccelerator Key="K"

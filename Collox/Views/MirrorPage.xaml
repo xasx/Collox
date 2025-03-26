@@ -49,6 +49,13 @@
                           Icon="{dev:FontIcon GlyphCode=ED1A}"
                           Label="Hide"
                           LabelPosition="Collapsed" />
+
+            <AppBarButton x:Name="ClearButton"
+                          x:Uid="ClearButton"
+                          Command="{x:Bind ViewModel.ClearCommand}"
+                          Icon="{dev:FontIcon GlyphCode=E75C}"
+                          Label="Clear"
+                          LabelPosition="Collapsed" />
         </CommandBar>
         <ListView x:Name="MirrorListView"
                   Grid.Row="1"
