@@ -1,17 +1,15 @@
 ﻿using System.Diagnostics;
 using Collox.Services;
+using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Dispatching;
-using Microsoft.UI.Windowing;
 using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.AppNotifications;
-using Windows.Graphics.Display;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 using WinRT.Interop;
 using WinUIEx;
 using UnhandledExceptionEventArgs = Microsoft.UI.Xaml.UnhandledExceptionEventArgs;
-using Microsoft.UI.Composition.SystemBackdrops;
 
 namespace Collox;
 
@@ -119,7 +117,6 @@ public partial class App : Application
         MirrorWindow.SetExtendedWindowStyle(ExtendedWindowStyle.Transparent | ExtendedWindowStyle.TopMost |
                                             ExtendedWindowStyle.NoInheritLayout);
 
-        MirrorWindow.MoveAndResize(0, 0, 640, 400);
         MirrorWindow.Closed += (sender, args) =>
         {
             if (isClosing) return;
