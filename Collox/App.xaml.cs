@@ -52,6 +52,7 @@ public partial class App : Application
         services.AddTransient<GeneralSettingViewModel>();
         services.AddTransient<AppUpdateSettingViewModel>();
         services.AddTransient<AboutUsSettingViewModel>();
+        services.AddTransient<AISettingsViewModel>();
 
         services.AddTransient<WriteViewModel>();
         services.AddTransient<TemplatesViewModel>();

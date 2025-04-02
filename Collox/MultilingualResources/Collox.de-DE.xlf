@@ -286,6 +286,74 @@
           <source>Open Mirror Window</source>
           <target state="translated">Spiegelfenster öffnen</target>
         </trans-unit>
+        <trans-unit id="OllamaSettingsCard.Description" translate="yes" xml:space="preserve">
+          <source>Configure the Ollama integration.</source>
+          <target state="translated">Die Anbindung an Ollama konfigurieren</target>
+        </trans-unit>
+        <trans-unit id="OllamaAddressCard.Header" translate="yes" xml:space="preserve">
+          <source>Address</source>
+          <target state="translated">Adresse</target>
+        </trans-unit>
+        <trans-unit id="OllamaAddressCard.Description" translate="yes" xml:space="preserve">
+          <source>The host address of the Ollama Server</source>
+          <target state="translated">Die Adresse vom Ollama Server</target>
+        </trans-unit>
+        <trans-unit id="OllamaAddressTextBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Ollama Server address</source>
+          <target state="translated">Ollama Server Adresse</target>
+        </trans-unit>
+        <trans-unit id="OllamaModelCard.Header" translate="yes" xml:space="preserve">
+          <source>AI Model</source>
+          <target state="translated">KI-Modell</target>
+        </trans-unit>
+        <trans-unit id="OllamaModelCard.Description" translate="yes" xml:space="preserve">
+          <source>Select the model to use</source>
+          <target state="translated">Das zu verwendende Modell</target>
+        </trans-unit>
+        <trans-unit id="OpenAISettingsCard.Description" translate="yes" xml:space="preserve">
+          <source>Configure the OpenAI integration</source>
+          <target state="translated">Die OpenAI-Integration konfigurieren</target>
+        </trans-unit>
+        <trans-unit id="OpenAIAddressCard.Header" translate="yes" xml:space="preserve">
+          <source>Address</source>
+          <target state="translated">Adresse</target>
+        </trans-unit>
+        <trans-unit id="OpenAIAddressCard.Description" translate="yes" xml:space="preserve">
+          <source>The Endpoint of an OpenAI API</source>
+          <target state="translated">OpenAI API Endpunkt-Adresse</target>
+        </trans-unit>
+        <trans-unit id="OpenAIAddressTextBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>Address of OpenAI API endpoint</source>
+          <target state="translated">OpenAI API Endpunkt</target>
+        </trans-unit>
+        <trans-unit id="OpenAIApiKeyCard.Header" translate="yes" xml:space="preserve">
+          <source>API Key</source>
+          <target state="translated">API Schlüssel</target>
+        </trans-unit>
+        <trans-unit id="OpenAIApiKeyCard.Description" translate="yes" xml:space="preserve">
+          <source>The API key for accessing OpenAI</source>
+          <target state="translated">Der Schlüssel zum Zugriff auf die OpenAI API</target>
+        </trans-unit>
+        <trans-unit id="OpenAIApiKeyTextBox.PlaceholderText" translate="yes" xml:space="preserve">
+          <source>OpenAI API key</source>
+          <target state="translated">OpenAI API Schlüssel</target>
+        </trans-unit>
+        <trans-unit id="OpenAIModelCard.Header" translate="yes" xml:space="preserve">
+          <source>AI Model</source>
+          <target state="translated">KI-Modell</target>
+        </trans-unit>
+        <trans-unit id="OpenAIModelCard.Description" translate="yes" xml:space="preserve">
+          <source>Select model to use</source>
+          <target state="translated">Zu verwendendes Modell auswählen</target>
+        </trans-unit>
+        <trans-unit id="AISettingsCard.Header" translate="yes" xml:space="preserve">
+          <source>AI</source>
+          <target state="translated">KI</target>
+        </trans-unit>
+        <trans-unit id="AISettingsCard.Description" translate="yes" xml:space="preserve">
+          <source>Change AI preferences</source>
+          <target state="translated">KI-Einstellungen ändern</target>
+        </trans-unit>
       </group>
     </body>
   </file>

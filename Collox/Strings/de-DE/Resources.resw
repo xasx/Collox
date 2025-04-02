@@ -222,4 +222,55 @@
   <data name="OpenMirrorWindow.Text" xml:space="preserve">
     <value>Spiegelfenster öffnen</value>
   </data>
+  <data name="OllamaSettingsCard.Description" xml:space="preserve">
+    <value>Die Anbindung an Ollama konfigurieren</value>
+  </data>
+  <data name="OllamaAddressCard.Header" xml:space="preserve">
+    <value>Adresse</value>
+  </data>
+  <data name="OllamaAddressCard.Description" xml:space="preserve">
+    <value>Die Adresse vom Ollama Server</value>
+  </data>
+  <data name="OllamaAddressTextBox.PlaceholderText" xml:space="preserve">
+    <value>Ollama Server Adresse</value>
+  </data>
+  <data name="OllamaModelCard.Header" xml:space="preserve">
+    <value>KI-Modell</value>
+  </data>
+  <data name="OllamaModelCard.Description" xml:space="preserve">
+    <value>Das zu verwendende Modell</value>
+  </data>
+  <data name="OpenAISettingsCard.Description" xml:space="preserve">
+    <value>Die OpenAI-Integration konfigurieren</value>
+  </data>
+  <data name="OpenAIAddressCard.Header" xml:space="preserve">
+    <value>Adresse</value>
+  </data>
+  <data name="OpenAIAddressCard.Description" xml:space="preserve">
+    <value>OpenAI API Endpunkt-Adresse</value>
+  </data>
+  <data name="OpenAIAddressTextBox.PlaceholderText" xml:space="preserve">
+    <value>OpenAI API Endpunkt</value>
+  </data>
+  <data name="OpenAIApiKeyCard.Header" xml:space="preserve">
+    <value>API Schlüssel</value>
+  </data>
+  <data name="OpenAIApiKeyCard.Description" xml:space="preserve">
+    <value>Der Schlüssel zum Zugriff auf die OpenAI API</value>
+  </data>
+  <data name="OpenAIApiKeyTextBox.PlaceholderText" xml:space="preserve">
+    <value>OpenAI API Schlüssel</value>
+  </data>
+  <data name="OpenAIModelCard.Header" xml:space="preserve">
+    <value>KI-Modell</value>
+  </data>
+  <data name="OpenAIModelCard.Description" xml:space="preserve">
+    <value>Zu verwendendes Modell auswählen</value>
+  </data>
+  <data name="AISettingsCard.Header" xml:space="preserve">
+    <value>KI</value>
+  </data>
+  <data name="AISettingsCard.Description" xml:space="preserve">
+    <value>KI-Einstellungen ändern</value>
+  </data>
 </root>

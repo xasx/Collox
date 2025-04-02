@@ -23,6 +23,12 @@
                               Header="General"
                               HeaderIcon="{dev:BitmapIcon Source=Assets/Fluent/Settings.png}"
                               IsClickEnabled="True" />
+            <dev:SettingsCard x:Uid="AISettingsCard"
+                              dev:NavigationHelperEx.NavigateToSetting="views:AISettingPage"
+                              Description="Change AI preferences"
+                              Header="AI"
+                              HeaderIcon="{dev:BitmapIcon Source=Assets/Fluent/AI.png}"
+                              IsClickEnabled="True" />
             <dev:SettingsCard x:Uid="ThemeSettingsCard"
                               dev:NavigationHelperEx.NavigateToSetting="views:ThemeSettingPage"
                               Description="Explore the different ways to customize the appearance and behavior of your app. You can change the material, theme, accent, and more options to sdevt your style and preference."

@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<Page x:Class="Collox.Views.AISettingPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:dev="using:DevWinUI"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="using:CommunityToolkit.WinUI.Controls"
+      dev:BreadcrumbNavigator.IsHeaderVisible="True"
+      mc:Ignorable="d">
+    <ScrollView Margin="{ThemeResource ContentPageMargin}"
+                VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="10"
+                    dev:PanelAttach.ChildrenTransitions="Default"
+                    Spacing="5">
+
+            <dev:SettingsExpander x:Uid="OllamaSettingsCard"
+                                  Description="Configure the Ollama integration"
+                                  Header="Ollama"
+                                  HeaderIcon="{dev:BitmapIcon Source=Assets/Fluent/Ollama.png}"
+                                  IsExpanded="True">
+                <ToggleSwitch IsOn="{x:Bind ViewModel.IsOllamaEnabled, Mode=TwoWay}" />
+                <dev:SettingsExpander.Items>
+                    <dev:SettingsCard x:Uid="OllamaAddressCard"
+                                      Description="The host address of the Ollama Server"
+                                      Header="Address">
+                        <TextBox x:Uid="OllamaAddressTextBox"
+                                 MinWidth="320"
+                                 PlaceholderText="Ollama server address"
+                                 Text="{x:Bind ViewModel.OllamaAddress, Mode=TwoWay}" />
+                    </dev:SettingsCard>
+                    <dev:SettingsCard x:Uid="OllamaModelCard"
+                                      Description="Select the model to use"
+                                      Header="AI Model">
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="4">
+                            <Button Command="{x:Bind ViewModel.LoadOllamaModelsCommand}"
+                                    Content="{dev:FontIcon GlyphName=Refresh}" />
+                            <ComboBox IsEditable="True"
+                                      ItemsSource="{x:Bind ViewModel.AvailableOllamaModelIds, Mode=OneWay}"
+                                      SelectedItem="{x:Bind ViewModel.SelectedOllamaModelId, Mode=TwoWay}">
+                            </ComboBox>
+                        </StackPanel>
+                    </dev:SettingsCard>
+                </dev:SettingsExpander.Items>
+            </dev:SettingsExpander>
+            <dev:SettingsExpander x:Uid="OpenAISettingsCard"
+                                  Description="Configure the OpenAI integration"
+                                  Header="OpenAI"
+                                  IsExpanded="True">
+                <dev:SettingsExpander.HeaderIcon>
+                    <BitmapIcon UriSource="ms-appx:///Assets/Fluent/OpenAI.png" />
+                </dev:SettingsExpander.HeaderIcon>
+                <ToggleSwitch IsOn="{x:Bind ViewModel.IsOpenAIEnabled, Mode=TwoWay}" />
+                <dev:SettingsExpander.Items>
+                    <dev:SettingsCard x:Uid="OpenAIAddressCard"
+                                      Description="The host address of the OpenAI Server"
+                                      Header="Address">
+                        <TextBox x:Uid="OpenAIAddressTextBox"
+                                 MinWidth="320"
+                                 PlaceholderText="OpenAI server address"
+                                 Text="{x:Bind ViewModel.OpenAIAddress, Mode=TwoWay}" />
+                    </dev:SettingsCard>
+                    <dev:SettingsCard x:Uid="OpenAIApiKeyCard"
+                                      Description="The API Key for accessing OpenAI"
+                                      Header="API Key">
+                        <TextBox x:Uid="OpenAIApiKeyTextBox"
+                                 MinWidth="320"
+                                 MaxWidth="560"
+                                 PlaceholderText="OpenAI API Key"
+                                 Text="{x:Bind ViewModel.OpenAIApiKey, Mode=TwoWay}"
+                                 TextWrapping="Wrap" />
+                    </dev:SettingsCard>
+                    <dev:SettingsCard x:Uid="OpenAIModelCard"
+                                      Description="Select the model to use"
+                                      Header="AI Model">
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="4">
+                            <Button Command="{x:Bind ViewModel.LoadOpenAIModelsCommand}"
+                                    Content="{dev:FontIcon GlyphName=Refresh}" />
+                            <ComboBox ItemsSource="{x:Bind ViewModel.AvailableOpenAIModelIds, Mode=OneWay}"
+                                      SelectedItem="{x:Bind ViewModel.SelectedOpenAIModelId, Mode=TwoWay}">
+                            </ComboBox>
+                        </StackPanel>
+                    </dev:SettingsCard>
+                </dev:SettingsExpander.Items>
+            </dev:SettingsExpander>
+        </StackPanel>
+    </ScrollView>
+</Page>

@@ -32,6 +32,24 @@ public partial class AppConfig : NotifiyingJsonSettings, IVersionable
 
     private bool persistMessages { get; set; } = true;
 
+    private bool ollamaEnabled { get; set; }
+
+    private string ollamaEndpoint { get; set; }
+
+    private string ollamaApiKey { get; set; }
+
+    private string ollamaModelId { get; set; }
+
+    private bool openAIEnabled { get; set; }
+
+    private string openAIEndpoint { get; set; }
+
+    private string openAIApiKey { get; set; }
+
+    private string openAIModelId { get; set; }
+
+
+
     [EnforcedVersion("1.0.0.0")] public Version Version { get; set; } = new(1, 0, 0, 0);
 
     // Docs: https://github.com/Nucs/JsonSettings

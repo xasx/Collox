@@ -327,4 +327,55 @@
   <data name="OpenMirrorWindow.Text" xml:space="preserve">
     <value>Open Mirror Window</value>
   </data>
+  <data name="OllamaSettingsCard.Description" xml:space="preserve">
+    <value>Configure the Ollama integration.</value>
+  </data>
+  <data name="OllamaAddressCard.Header" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="OllamaAddressCard.Description" xml:space="preserve">
+    <value>The host address of the Ollama Server</value>
+  </data>
+  <data name="OllamaAddressTextBox.PlaceholderText" xml:space="preserve">
+    <value>Ollama Server address</value>
+  </data>
+  <data name="OllamaModelCard.Header" xml:space="preserve">
+    <value>AI Model</value>
+  </data>
+  <data name="OllamaModelCard.Description" xml:space="preserve">
+    <value>Select the model to use</value>
+  </data>
+  <data name="OpenAISettingsCard.Description" xml:space="preserve">
+    <value>Configure the OpenAI integration</value>
+  </data>
+  <data name="OpenAIAddressCard.Header" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="OpenAIAddressCard.Description" xml:space="preserve">
+    <value>The Endpoint of an OpenAI API</value>
+  </data>
+  <data name="OpenAIAddressTextBox.PlaceholderText" xml:space="preserve">
+    <value>Address of OpenAI API endpoint</value>
+  </data>
+  <data name="OpenAIApiKeyCard.Header" xml:space="preserve">
+    <value>API Key</value>
+  </data>
+  <data name="OpenAIApiKeyCard.Description" xml:space="preserve">
+    <value>The API key for accessing OpenAI</value>
+  </data>
+  <data name="OpenAIApiKeyTextBox.PlaceholderText" xml:space="preserve">
+    <value>OpenAI API key</value>
+  </data>
+  <data name="OpenAIModelCard.Header" xml:space="preserve">
+    <value>AI Model</value>
+  </data>
+  <data name="OpenAIModelCard.Description" xml:space="preserve">
+    <value>Select model to use</value>
+  </data>
+  <data name="AISettingsCard.Header" xml:space="preserve">
+    <value>AI</value>
+  </data>
+  <data name="AISettingsCard.Description" xml:space="preserve">
+    <value>Change AI preferences</value>
+  </data>
 </root>

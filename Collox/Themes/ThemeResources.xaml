@@ -3,6 +3,8 @@
 
     <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Light">
+            <BitmapIconSource x:Key="OpenAILogo"
+                              UriSource="ms-appx:///Assets/Fluent/OpenAI-black-monoblossom.png" />
             <StaticResource x:Key="ColloxForegroundOnAccentColor"
                             ResourceKey="TextOnAccentAAFillColorPrimary" />
             <StaticResource x:Key="ColloxBackgroundAccentColor"
@@ -11,6 +13,8 @@
 
 
         <ResourceDictionary x:Key="Dark">
+            <BitmapIconSource x:Key="OpenAILogo"
+                              UriSource="ms-appx:///Assets/Fluent/OpenAI-white-monoblossom.png" />
             <StaticResource x:Key="ColloxForegroundOnAccentColor"
                             ResourceKey="TextOnAccentAAFillColorPrimary" />
             <StaticResource x:Key="ColloxBackgroundAccentColor"
