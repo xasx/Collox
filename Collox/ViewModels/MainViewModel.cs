@@ -5,6 +5,7 @@ using Collox.Services;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using NetworkHelper = CommunityToolkit.WinUI.Helpers.NetworkHelper;
+using Windows.Storage;
 
 namespace Collox.ViewModels;
 
@@ -25,6 +26,8 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
     [ObservableProperty] public partial ObservableCollection<UserNotification> UserNotifications { get; set; } = [];
 
     [ObservableProperty] public partial string DocumentFilename { get; set; }
+
+    [ObservableProperty] public partial string ConfigurationLocation { get; set; } = Constants.AppConfigPath;
 
     private UserNotificationService UserNotificationService { get; } = App.GetService<UserNotificationService>();
 
@@ -64,6 +67,27 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
         dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
         DocumentFilename = App.GetService<IStoreService>().GetFilename();
+    }
+
+    [RelayCommand]
+    public async Task OpenDocumentFolder()
+    {
+        var filename = App.GetService<IStoreService>().GetFilename();
+        if (string.IsNullOrEmpty(filename))
+            return;
+        var folder = Path.GetDirectoryName(filename);
+        if (folder == null)
+            return;
+        await Launcher.LaunchFolderAsync(await StorageFolder.GetFolderFromPathAsync(folder));
+    }
+
+    [RelayCommand]
+    public async Task OpenConfigurationFolder()
+    {
+        var folder = Path.GetDirectoryName(ConfigurationLocation);
+        if (folder == null)
+            return;
+        await Launcher.LaunchFolderAsync(await StorageFolder.GetFolderFromPathAsync(folder));
     }
 
     private void Instance_NetworkChanged(object sender, EventArgs e)

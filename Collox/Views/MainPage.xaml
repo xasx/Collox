@@ -22,29 +22,44 @@
     <Page.Resources>
 
         <conv:VisualToSummaryStringConverter x:Key="VisualToSummaryStringConverter" />
-        <Flyout x:Name="AIFlyout">
-            <StackPanel>
-                <dev:SettingsCard x:Uid="AISettingCard"
-                                  ContentAlignment="Right"
-                                  Description="Use AI in-app"
-                                  Header="AI"
-                                  HeaderIcon="{dev:FontIcon Glyph=&#xEEA1;}">
-                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsAIEnabled, Mode=TwoWay}" />
-                </dev:SettingsCard>
-            </StackPanel>
-        </Flyout>
 
         <Flyout x:Name="InfoFlyout">
-            <StackPanel Width="320">
+            <StackPanel Width="400">
                 <controls:HeaderedContentControl x:Uid="CurrentDocumentHeader"
                                                  FontWeight="Light"
                                                  Header="Current document">
-                    <marquee:MarqueeText Behavior="Bouncing"
-                                         Direction="Left"
-                                         FontWeight="SemiBold"
-                                         RepeatBehavior="Forever"
-                                         Speed="32"
-                                         Text="{x:Bind ViewModel.DocumentFilename, Mode=OneWay}" />
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="4">
+                        <marquee:MarqueeText Width="320"
+                                             Behavior="Bouncing"
+                                             Direction="Left"
+                                             FontWeight="SemiBold"
+                                             RepeatBehavior="Forever"
+                                             Speed="32"
+                                             Text="{x:Bind ViewModel.DocumentFilename, Mode=OneWay}" />
+                        <Button VerticalAlignment="Top"
+                                Command="{x:Bind ViewModel.OpenDocumentFolderCommand}"
+                                Content="{dev:FontIcon GlyphName=Folder}"
+                                Style="{ThemeResource EllipsisButton}" />
+                    </StackPanel>
+                </controls:HeaderedContentControl>
+                <controls:HeaderedContentControl x:Uid="ConfigurationLocationHeader"
+                                                 FontWeight="Light"
+                                                 Header="Configuration location">
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="4">
+                        <marquee:MarqueeText Width="320"
+                                             Behavior="Bouncing"
+                                             Direction="Left"
+                                             FontWeight="SemiBold"
+                                             RepeatBehavior="Forever"
+                                             Speed="32"
+                                             Text="{x:Bind ViewModel.ConfigurationLocation, Mode=OneWay}" />
+                        <Button VerticalAlignment="Top"
+                                Command="{x:Bind ViewModel.OpenConfigurationFolderCommand}"
+                                Content="{dev:FontIcon GlyphName=Folder}"
+                                Style="{ThemeResource EllipsisButton}" />
+                    </StackPanel>
                 </controls:HeaderedContentControl>
             </StackPanel>
         </Flyout>

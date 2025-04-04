@@ -23,6 +23,9 @@ public partial class App : Application
         Services = ConfigureServices();
         UnhandledException += Application_UnhandledException;
         InitializeComponent();
+
+        System.Runtime.ProfileOptimization.SetProfileRoot(Constants.RootDirectoryPath);
+        System.Runtime.ProfileOptimization.StartProfile("Startup.Profile");
     }
 
     public IServiceProvider Services { get; }
