@@ -114,20 +114,20 @@
     <PackageReference Include="CommunityToolkit.Common" Version="8.4.0" />
     <PackageReference Include="CommunityToolkit.Labs.WinUI.MarqueeText" Version="0.1.250319-build.2093" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.250129-preview2" />
-    <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.250129-preview2" />
-    <PackageReference Include="CommunityToolkit.WinUI.Collections" Version="8.2.250129-preview2" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.CameraPreview" Version="8.2.250129-preview2" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.HeaderedControls" Version="8.2.250129-preview2" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.250129-preview2" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.RichSuggestBox" Version="8.2.250129-preview2" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.250129-preview2" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.250129-preview2" />
-    <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250129-preview2" />
-    <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.250129-preview2" />
-    <PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.250129-preview2" />
+    <PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.Collections" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.CameraPreview" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.HeaderedControls" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.RichSuggestBox" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.250402" />
     <PackageReference Include="CommunityToolkit.WinUI.Input.GazeInteraction" Version="7.1.2" />
-    <PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.250129-preview2" />
+    <PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.250402" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.Markdown" Version="7.1.2" />
     <PackageReference Include="Cottle" Version="2.1.0" />
     <PackageReference Include="DevWinUI" Version="8.1.0" />
