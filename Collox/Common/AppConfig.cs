@@ -32,7 +32,7 @@ public partial class AppConfig : NotifiyingJsonSettings, IVersionable
 
     private bool persistMessages { get; set; } = true;
 
-    private bool ollamaEnabled { get; set; }
+    private bool isOllamaEnabled { get; set; }
 
     private string ollamaEndpoint { get; set; }
 
@@ -40,7 +40,7 @@ public partial class AppConfig : NotifiyingJsonSettings, IVersionable
 
     private string ollamaModelId { get; set; }
 
-    private bool openAIEnabled { get; set; }
+    private bool isOpenAIEnabled { get; set; }
 
     private string openAIEndpoint { get; set; }
 

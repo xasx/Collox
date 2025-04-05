@@ -1,6 +1,4 @@
-﻿using Collox.ViewModels;
-
-namespace Collox.Views;
+﻿namespace Collox.Views;
 
 public sealed partial class AISettingPage : Page
 {

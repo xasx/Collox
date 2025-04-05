@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.ClientModel;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Media;
 using System.Speech.Synthesis;
@@ -8,6 +9,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Markdig;
 using Microsoft.Extensions.AI;
+using OpenAI.Chat;
 using Windows.ApplicationModel;
 
 namespace Collox.ViewModels;
@@ -266,7 +268,13 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
         try
         {
-            var client = new OllamaChatClient(new Uri("http://localhost:11434/"), "phi4");
+            var client = //new OllamaChatClient(new Uri("http://localhost:11434/"), "phi4");
+                new ChatClient(AppHelper.Settings.OpenAIModelId,
+                new ApiKeyCredential(AppHelper.Settings.OpenAIApiKey),
+                new OpenAI.OpenAIClientOptions()
+                {
+                    Endpoint = new Uri(AppHelper.Settings.OpenAIEndpoint)
+                }).AsChatClient();
 
             var prompt = $"""
                           Please give me a couple of alternatives to the following text between BEGIN and END

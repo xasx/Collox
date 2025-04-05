@@ -1,23 +1,18 @@
-﻿using System;
-using System.ClientModel;
-using System.Collections.Generic;
+﻿using System.ClientModel;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OllamaSharp;
 using OpenAI.Models;
 
 namespace Collox.ViewModels;
 public partial class AISettingsViewModel : ObservableObject
 {
-    [ObservableProperty] public partial ObservableCollection<string> AvailableOllamaModelIds { get; set; } = new ObservableCollection<string>();
+    [ObservableProperty] public partial ObservableCollection<string> AvailableOllamaModelIds { get; set; } = [];
 
     [ObservableProperty] public partial string SelectedOllamaModelId { get; set; } = AppHelper.Settings.OllamaModelId;
 
     [ObservableProperty] public partial string OllamaAddress { get; set; } = AppHelper.Settings.OllamaEndpoint;
 
-    [ObservableProperty] public partial bool IsOllamaEnabled { get; set; } = AppHelper.Settings.OllamaEnabled;
+    [ObservableProperty] public partial bool IsOllamaEnabled { get; set; } = AppHelper.Settings.IsOllamaEnabled;
 
     [ObservableProperty] public partial ObservableCollection<string> AvailableOpenAIModelIds { get; set; } = new ObservableCollection<string>();
 
@@ -27,11 +22,11 @@ public partial class AISettingsViewModel : ObservableObject
 
     [ObservableProperty] public partial string OpenAIApiKey { get; set; } = AppHelper.Settings.OpenAIApiKey;
 
-    [ObservableProperty] public partial bool IsOpenAIEnabled { get; set; } = AppHelper.Settings.OpenAIEnabled;
+    [ObservableProperty] public partial bool IsOpenAIEnabled { get; set; } = AppHelper.Settings.IsOpenAIEnabled;
 
 
     [RelayCommand]
-    public async void LoadOllamaModels()
+    public async Task LoadOllamaModels()
     {
         AvailableOllamaModelIds.Clear();
 
@@ -44,7 +39,7 @@ public partial class AISettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async void LoadOpenAIModels()
+    public async Task LoadOpenAIModels()
     {
         AvailableOpenAIModelIds.Clear();
         OpenAIModelClient client = new OpenAIModelClient(
@@ -60,7 +55,7 @@ public partial class AISettingsViewModel : ObservableObject
 
     partial void OnIsOllamaEnabledChanged(bool value)
     {
-        AppHelper.Settings.OllamaEnabled = value;
+        AppHelper.Settings.IsOllamaEnabled = value;
     }
 
 
@@ -92,8 +87,8 @@ public partial class AISettingsViewModel : ObservableObject
 
     partial void OnIsOpenAIEnabledChanged(bool value)
     {
-        AppHelper.Settings.OpenAIEnabled = value;
+        AppHelper.Settings.IsOpenAIEnabled = value;
     }
 
-     
+
 }
