@@ -197,8 +197,24 @@
             </StackPanel>
         </DataTemplate>
 
+        <DataTemplate x:Name="InternalTemplate"
+                      x:DataType="vm:InternalColloxMessage">
+
+            <InfoBar x:Name="InternalMessageInfoBar"
+                     Title="Collox"
+                     IsClosable="False"
+                     IsIconVisible="True"
+                     IsOpen="True"
+                     Message="{x:Bind Message}"
+                     Severity="{x:Bind Severity}">
+                <InfoBar.Resources>
+                    <ResourceDictionary Source="ms-appx:///DevWinUI.Controls/Themes/InfoBarInformationalColor.xaml" />
+                </InfoBar.Resources>
+            </InfoBar>
+        </DataTemplate>
         <cc:MessageTemplateSelector x:Name="MessagesTemplate"
                                     DefaultTemplate="{StaticResource DefaultTemplate}"
+                                    InternalTemplate="{StaticResource InternalTemplate}"
                                     TextTemplate="{StaticResource TextTemplate}"
                                     TimeTemplate="{StaticResource TimeTemplate}" />
     </Page.Resources>

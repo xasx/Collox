@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Markdig;
 using Microsoft.Extensions.AI;
+using Microsoft.Graphics.Canvas.Geometry;
 using OpenAI.Chat;
 using Windows.ApplicationModel;
 
@@ -210,6 +211,21 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
             case "pin":
                 ConversationContext.IsCloseable = false;
+                return;
+
+
+            case "unpin":
+                ConversationContext.IsCloseable = true;
+                return;
+
+            case "help":
+                var helpMessage = new InternalColloxMessage
+                {
+                    Message = "Available commands: clear, save, speak, time, pin, unpin",
+                    Severity = InfoBarSeverity.Informational
+                };
+
+                Messages.Add(helpMessage);
                 return;
         }
     }

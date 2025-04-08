@@ -54,6 +54,12 @@ public partial class TimeColloxMessage : ColloxMessage
     public TimeSpan Time { get; init; }
 }
 
+public partial class  InternalColloxMessage :ColloxMessage
+{
+    public string  Message { get; set; }
+    public InfoBarSeverity Severity { get; set; }
+}
+
 internal class ColloxWeakEventListener
 {
     private readonly WeakReference<ColloxMessage> _weakInstance;
