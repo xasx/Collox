@@ -290,7 +290,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 new OpenAI.OpenAIClientOptions()
                 {
                     Endpoint = new Uri(AppHelper.Settings.OpenAIEndpoint)
-                }).AsChatClient();
+                }).AsIChatClient();
 
             var prompt = $"""
                           Please give me a couple of alternatives to the following text between BEGIN and END

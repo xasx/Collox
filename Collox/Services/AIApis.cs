@@ -1,28 +1,26 @@
 ﻿using System.ClientModel;
-using Microsoft.Extensions.AI;
+using OllamaSharp;
 using OpenAI;
-using OpenAI.Chat;
 
 namespace Collox.Services;
 
 public class AIApis
 {
-    public OllamaChatClient OllamaChat { get; private set; }
+    public OllamaApiClient Ollama { get; private set; }
 
-    public OpenAIChatClient OpenAIChat { get; private set; }
+    public OpenAIClient OpenAI { get; private set; }
 
     private void Init()
     {
         if (Settings.IsOllamaEnabled)
         {
-            OllamaChat = new OllamaChatClient(Settings.OllamaEndpoint, Settings.OllamaModelId);
+            Ollama = new OllamaApiClient(Settings.OllamaEndpoint);
         }
 
         if (Settings.IsOpenAIEnabled)
         {
-            OpenAIChat = new OpenAIChatClient(new ChatClient(Settings.OpenAIModelId,
-                new ApiKeyCredential(Settings.OpenAIApiKey),
-                new OpenAIClientOptions { Endpoint = new Uri(Settings.OpenAIEndpoint) }));
+            OpenAI = new OpenAIClient(new ApiKeyCredential(Settings.OpenAIApiKey),
+                new OpenAIClientOptions { Endpoint = new Uri(Settings.OpenAIEndpoint) });
         }
     }
 }
