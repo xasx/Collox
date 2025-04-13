@@ -7,6 +7,7 @@
       xmlns:dev="using:DevWinUI"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="using:CommunityToolkit.WinUI.Controls"
+      xmlns:vm="using:Collox.ViewModels"
       dev:BreadcrumbNavigator.IsHeaderVisible="True"
       mc:Ignorable="d">
     <ScrollView Margin="{ThemeResource ContentPageMargin}"
@@ -85,6 +86,44 @@
                         </StackPanel>
                     </dev:SettingsCard>
                 </dev:SettingsExpander.Items>
+            </dev:SettingsExpander>
+
+
+            <dev:SettingsExpander Header="AI Fx"
+                                  HeaderIcon="{dev:FontIcon GlyphName=Robot}"
+                                  ItemsSource="{x:Bind ViewModel.Enhancers}">
+                <dev:SettingsExpander.ItemTemplate>
+                    <DataTemplate x:DataType="vm:MessageEnhancer">
+                        <dev:SettingsExpander Description="{x:Bind Id, Mode=OneWay}"
+                                              Header="Enhance message">
+                            <ToggleSwitch IsOn="{x:Bind IsEnabled, Mode=TwoWay}" />
+                            <dev:SettingsExpander.Items>
+
+                                <dev:SettingsCard Description="The prompt to pass on to the AI Provider."
+                                                  Header="Prompt">
+                                    <TextBox Text="{x:Bind Prompt, Mode=TwoWay}" />
+                                </dev:SettingsCard>
+                                <dev:SettingsCard Description="Source of the enhancement, Provider configured above."
+                                                  Header="Source">
+                                    <ComboBox ItemsSource="{dev:EnumValues Type=vm:EnhancerSource}"
+                                              SelectedItem="{x:Bind Source, Mode=TwoWay}" />
+                                </dev:SettingsCard>
+                                <dev:SettingsCard Description="Target of the enhancement, location to put the response to."
+                                                  Header="Target">
+                                    <ComboBox ItemsSource="{dev:EnumValues Type=vm:EnhancerTarget}"
+                                              SelectedItem="{x:Bind Target, Mode=TwoWay}" />
+                                </dev:SettingsCard>
+
+                                <dev:SettingsCard Description="The Id of the model to use."
+                                                  Header="Model Id">
+                                    <ComboBox ItemsSource="{x:Bind AvailableModelIds, Mode=TwoWay}"
+                                              SelectedItem="{x:Bind ModelId, Mode=TwoWay}" />
+                                </dev:SettingsCard>
+
+                            </dev:SettingsExpander.Items>
+                        </dev:SettingsExpander>
+                    </DataTemplate>
+                </dev:SettingsExpander.ItemTemplate>
             </dev:SettingsExpander>
         </StackPanel>
     </ScrollView>

@@ -8,33 +8,53 @@ public partial class AISettingsViewModel : ObservableObject
 {
     [ObservableProperty] public partial ObservableCollection<string> AvailableOllamaModelIds { get; set; } = [];
 
-    [ObservableProperty] public partial string SelectedOllamaModelId { get; set; } = AppHelper.Settings.OllamaModelId;
+    [ObservableProperty] public partial string SelectedOllamaModelId { get; set; } = Settings.OllamaModelId;
 
-    [ObservableProperty] public partial string OllamaAddress { get; set; } = AppHelper.Settings.OllamaEndpoint;
+    [ObservableProperty] public partial string OllamaAddress { get; set; } = Settings.OllamaEndpoint;
 
-    [ObservableProperty] public partial bool IsOllamaEnabled { get; set; } = AppHelper.Settings.IsOllamaEnabled;
+    [ObservableProperty] public partial bool IsOllamaEnabled { get; set; } = Settings.IsOllamaEnabled;
 
     [ObservableProperty] public partial ObservableCollection<string> AvailableOpenAIModelIds { get; set; } = new ObservableCollection<string>();
 
-    [ObservableProperty] public partial string SelectedOpenAIModelId { get; set; } = AppHelper.Settings.OpenAIModelId;
+    [ObservableProperty] public partial string SelectedOpenAIModelId { get; set; } = Settings.OpenAIModelId;
 
-    [ObservableProperty] public partial string OpenAIAddress { get; set; } = AppHelper.Settings.OpenAIEndpoint;
+    [ObservableProperty] public partial string OpenAIAddress { get; set; } = Settings.OpenAIEndpoint;
 
-    [ObservableProperty] public partial string OpenAIApiKey { get; set; } = AppHelper.Settings.OpenAIApiKey;
+    [ObservableProperty] public partial string OpenAIApiKey { get; set; } = Settings.OpenAIApiKey;
 
-    [ObservableProperty] public partial bool IsOpenAIEnabled { get; set; } = AppHelper.Settings.IsOpenAIEnabled;
+    [ObservableProperty] public partial bool IsOpenAIEnabled { get; set; } = Settings.IsOpenAIEnabled;
 
+    [ObservableProperty] public partial ObservableCollection<MessageEnhancer> Enhancers { get; set; } = [];
 
+    public AISettingsViewModel()
+    {
+        Enhancers.Add(new MessageEnhancer()
+        {
+            Id = Guid.NewGuid().ToString(),
+            IsEnabled = true,
+            Prompt = "Please enhance this message.",
+            ModelId = Settings.OllamaModelId,
+            Source = EnhancerSource.Ollama,
+            Target = EnhancerTarget.Comment,
+            ViewModelRef = this,
+        });
+    }
     [RelayCommand]
     public async Task LoadOllamaModels()
     {
         AvailableOllamaModelIds.Clear();
 
-        OllamaApiClient client = new OllamaApiClient(OllamaAddress);
-        var models = await client.ListLocalModelsAsync();
-        foreach (var model in models)
+        try
         {
-            AvailableOllamaModelIds.Add(model.Name);
+            using OllamaApiClient client = new OllamaApiClient(OllamaAddress);
+            var models = await client.ListLocalModelsAsync();
+            foreach (var model in models)
+            {
+                AvailableOllamaModelIds.Add(model.Name);
+            }
+        }
+        catch (Exception ex)
+        {
         }
     }
 
@@ -42,52 +62,59 @@ public partial class AISettingsViewModel : ObservableObject
     public async Task LoadOpenAIModels()
     {
         AvailableOpenAIModelIds.Clear();
-        OpenAIModelClient client = new OpenAIModelClient(
+
+        try
+        {
+            OpenAIModelClient client = new OpenAIModelClient(
             new ApiKeyCredential(OpenAIApiKey),
             new OpenAI.OpenAIClientOptions() { Endpoint = new Uri(OpenAIAddress) });
-        var res = await client.GetModelsAsync();
-        var models = res.Value;
-        foreach (var model in models)
+            var res = await client.GetModelsAsync();
+            var models = res.Value;
+            foreach (var model in models)
+            {
+                AvailableOpenAIModelIds.Add(model.Id);
+            }
+        }
+        catch (Exception ex)
         {
-            AvailableOpenAIModelIds.Add(model.Id);
         }
     }
 
     partial void OnIsOllamaEnabledChanged(bool value)
     {
-        AppHelper.Settings.IsOllamaEnabled = value;
+        Settings.IsOllamaEnabled = value;
     }
 
 
     partial void OnSelectedOllamaModelIdChanged(string value)
     {
-        AppHelper.Settings.OllamaModelId = value;
+        Settings.OllamaModelId = value;
     }
 
     partial void OnOllamaAddressChanged(string value)
     {
-        AppHelper.Settings.OllamaEndpoint = value;
+        Settings.OllamaEndpoint = value;
     }
 
 
     partial void OnSelectedOpenAIModelIdChanged(string value)
     {
-        AppHelper.Settings.OpenAIModelId = value;
+        Settings.OpenAIModelId = value;
     }
 
     partial void OnOpenAIAddressChanged(string value)
     {
-        AppHelper.Settings.OpenAIEndpoint = value;
+        Settings.OpenAIEndpoint = value;
     }
 
     partial void OnOpenAIApiKeyChanged(string value)
     {
-        AppHelper.Settings.OpenAIApiKey = value;
+        Settings.OpenAIApiKey = value;
     }
 
     partial void OnIsOpenAIEnabledChanged(bool value)
     {
-        AppHelper.Settings.IsOpenAIEnabled = value;
+        Settings.IsOpenAIEnabled = value;
     }
 
 
