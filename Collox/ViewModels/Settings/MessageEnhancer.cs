@@ -16,6 +16,8 @@ public partial class MessageEnhancer : ObservableObject
 
     [ObservableProperty] public partial EnhancerTarget Target { get; set; }
 
+    [ObservableProperty] public partial string FallbackEnhancerId { get; set; } = string.Empty;
+
     [ObservableProperty] public partial ObservableCollection<string> AvailableModelIds { get; set; } = [];
 
     partial void OnSourceChanged(EnhancerSource value)

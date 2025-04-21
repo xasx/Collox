@@ -33,7 +33,7 @@ public partial class App : Application
     public IJsonNavigationService GetNavService => GetService<IJsonNavigationService>();
     public IThemeService GetThemeService => GetService<IThemeService>();
 
-    private bool isClosing = false;
+    private bool isClosing;
 
     public static T GetService<T>() where T : class
     {
@@ -67,6 +67,8 @@ public partial class App : Application
         services.AddSingleton<ITemplateService, TemplateService>();
         services.AddSingleton<UserNotificationService>();
         services.AddSingleton<ITabContextService, TabContextService>();
+        services.AddSingleton<AIApis>();
+        services.AddSingleton<AIService>();
 
         return services.BuildServiceProvider();
     }
@@ -170,7 +172,7 @@ public partial class App : Application
         MainWindow.Title = MainWindow.AppWindow.Title = ProcessInfoHelper.ProductNameAndVersion;
         MainWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
         var msm = new ModernSystemMenu(MainWindow);
-        
+
 
         MainWindow.Activate();
         MainWindow.SetForegroundWindow();

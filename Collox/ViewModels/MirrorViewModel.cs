@@ -1,8 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.Messaging;
-using NLog.Filters;
 
 namespace Collox.ViewModels;
 
@@ -14,7 +11,7 @@ public partial class MirrorViewModel : ObservableRecipient, IRecipient<TextSubmi
 
     [ObservableProperty] public partial ObservableCollection<TextColloxMessage> FilteredMessages { get; set; } = [];
 
-    [ObservableProperty] public partial string SelectedContext { get; set; } = All;
+    [ObservableProperty] public partial ObservableCollection<string> SelectedContexts { get; set; } = [All];
 
     [ObservableProperty] public partial ObservableCollection<string> Contexts { get; set; } = [All];
 
@@ -43,7 +40,8 @@ public partial class MirrorViewModel : ObservableRecipient, IRecipient<TextSubmi
         {
             Contexts.Add(message.Value.Context);
         }
-        if (SelectedContext == All || SelectedContext == message.Value.Context)
+
+        if (SelectedContexts.Contains(All) || SelectedContexts.Contains(message.Value.Context))
         {
             FilteredMessages.Add(message.Value);
             if (FilteredMessages.Count > 20)
@@ -56,19 +54,13 @@ public partial class MirrorViewModel : ObservableRecipient, IRecipient<TextSubmi
     public void FilterMessages()
     {
         FilteredMessages.Clear();
-        if (SelectedContext == All)
-        {
-            FilteredMessages.AddRange(Messages);
-        }
-        else
-        {
-            FilteredMessages.AddRange(Messages.Where(m => m.Context == SelectedContext));
-        }
+        FilteredMessages.AddRange(SelectedContexts.Contains(All)
+            ? Messages
+            : Messages.Where(m => SelectedContexts.Contains(m.Context)));
     }
 
-    partial void OnSelectedContextChanged(string value)
+    partial void OnSelectedContextsChanged(ObservableCollection<string> value)
     {
         FilterMessages();
     }
-
 }

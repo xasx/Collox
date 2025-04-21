@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Windowing;
+﻿using System.Collections.ObjectModel;
+using Microsoft.UI.Windowing;
 using WinUIEx;
 
 namespace Collox.Views;
@@ -34,5 +35,11 @@ public sealed partial class MirrorPage : Page
     private void HideButton_Click(object sender, RoutedEventArgs e)
     {
         App.MirrorWindow.Hide();
+    }
+
+    private void TokenView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        ViewModel.SelectedContexts = new ObservableCollection<string>(TokenView.SelectedItems.Cast<string>());
+
     }
 }

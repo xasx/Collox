@@ -90,6 +90,12 @@
     <Content Remove="Assets\Store\BadgeLogo.scale-150.png" />
     <Content Remove="Assets\Store\BadgeLogo.scale-200.png" />
     <Content Remove="Assets\Store\BadgeLogo.scale-400.png" />
+    <Content Include="Strings\de-DE\DefaultValues.resw" />
+    <Content Include="Strings\de-DE\Helpers.resw" />
+    <Content Include="Strings\de-DE\Resources.resw" />
+    <Content Include="Strings\en-US\DefaultValues.resw" />
+    <Content Include="Strings\en-US\Helpers.resw" />
+    <Content Include="Strings\en-US\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="MultilingualResources\Collox.de-DE.xlf" />

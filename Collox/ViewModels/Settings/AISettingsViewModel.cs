@@ -1,5 +1,7 @@
 ﻿using System.ClientModel;
 using System.Collections.ObjectModel;
+using Collox.Services;
+using Windows.ApplicationModel.Resources.Core;
 using OllamaSharp;
 using OpenAI.Models;
 
@@ -28,16 +30,20 @@ public partial class AISettingsViewModel : ObservableObject
 
     public AISettingsViewModel()
     {
+        var prompt = ResourceManager.Current.MainResourceMap.GetValue("DefaultValues/SynonymsPrompt").ValueAsString;
+
         Enhancers.Add(new MessageEnhancer()
         {
             Id = Guid.NewGuid().ToString(),
             IsEnabled = true,
-            Prompt = "Please enhance this message.",
+            Prompt = prompt,
             ModelId = Settings.OllamaModelId,
             Source = EnhancerSource.Ollama,
             Target = EnhancerTarget.Comment,
             ViewModelRef = this,
         });
+
+        App.GetService<AIService>().Init();
     }
     [RelayCommand]
     public async Task LoadOllamaModels()
@@ -55,6 +61,8 @@ public partial class AISettingsViewModel : ObservableObject
         }
         catch (Exception ex)
         {
+            // log
+
         }
     }
 

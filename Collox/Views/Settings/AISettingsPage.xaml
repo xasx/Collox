@@ -95,13 +95,18 @@
                 <dev:SettingsExpander.ItemTemplate>
                     <DataTemplate x:DataType="vm:MessageEnhancer">
                         <dev:SettingsExpander Description="{x:Bind Id, Mode=OneWay}"
-                                              Header="Enhance message">
+                                              Header="Enhance message"
+                                              HeaderIcon="{dev:FontIcon GlyphCode=E950}">
                             <ToggleSwitch IsOn="{x:Bind IsEnabled, Mode=TwoWay}" />
                             <dev:SettingsExpander.Items>
 
                                 <dev:SettingsCard Description="The prompt to pass on to the AI Provider."
                                                   Header="Prompt">
-                                    <TextBox Text="{x:Bind Prompt, Mode=TwoWay}" />
+                                    <TextBox MinWidth="320"
+                                             MaxWidth="560"
+                                             AcceptsReturn="True"
+                                             Text="{x:Bind Prompt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             TextWrapping="Wrap" />
                                 </dev:SettingsCard>
                                 <dev:SettingsCard Description="Source of the enhancement, Provider configured above."
                                                   Header="Source">

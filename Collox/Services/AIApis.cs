@@ -10,7 +10,7 @@ public class AIApis
 
     public OpenAIClient OpenAI { get; private set; }
 
-    private void Init()
+    public void Init()
     {
         if (Settings.IsOllamaEnabled)
         {

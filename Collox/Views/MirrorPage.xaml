@@ -2,10 +2,11 @@
 <Page x:Class="Collox.Views.MirrorPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
       xmlns:conv="using:Collox.Common.Converters"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:dev="using:DevWinUI"
-      xmlns:labs="using:CommunityToolkit.WinUI.UI.Controls"
+      xmlns:labs="using:CommunityToolkit.Labs.WinUI"
       xmlns:local="using:Collox.Views"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:vm="using:Collox.ViewModels"
@@ -28,9 +29,12 @@
                     <FontIcon Margin="8,0"
                               VerticalAlignment="Center"
                               Glyph="&#xE71C;" />
-                    <ComboBox VerticalAlignment="Center"
-                              ItemsSource="{x:Bind ViewModel.Contexts, Mode=OneWay}"
-                              SelectedValue="{x:Bind ViewModel.SelectedContext, Mode=TwoWay}" />
+
+                    <labs:TokenView x:Name="TokenView"
+                                    ItemsSource="{x:Bind ViewModel.Contexts, Mode=OneWay}"
+                                    SelectionChanged="TokenView_SelectionChanged"
+                                    SelectionMode="Multiple" />
+
                 </StackPanel>
             </AppBarElementContainer>
 
@@ -78,13 +82,13 @@
                                    VerticalAlignment="Top"
                                    Foreground="{ThemeResource AccentTextFillColorTertiaryBrush}"
                                    Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource TimeSpanToFriendlyConverter}}" />
-                        <labs:MarkdownTextBlock MaxWidth="400"
-                                                Margin="10,0,0,0"
-                                                VerticalAlignment="Bottom"
-                                                Background="Transparent"
-                                                FontSize="28"
-                                                Text="{x:Bind Text}"
-                                                TextWrapping="WrapWholeWords" />
+                        <controls:MarkdownTextBlock MaxWidth="400"
+                                                    Margin="10,0,0,0"
+                                                    VerticalAlignment="Bottom"
+                                                    Background="Transparent"
+                                                    FontSize="28"
+                                                    Text="{x:Bind Text}"
+                                                    TextWrapping="WrapWholeWords" />
                         <TextBlock Margin="10,0,0,0"
                                    VerticalAlignment="Bottom"
                                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
