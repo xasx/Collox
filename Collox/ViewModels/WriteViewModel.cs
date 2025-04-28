@@ -197,7 +197,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 return;
 
             case "..":
-                Messages.Last().AdditionalSpacing += 42;
+                
                 return;
 
             case "time":
@@ -264,7 +264,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             ReadText(textMessage.Text, SelectedVoice?.Name);
         }
 
-        await AddComment(textMessage);
+        await AddMore(textMessage);
     }
 
     private static void PlayBeepSound()
@@ -274,7 +274,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         sp.Play();
     }
 
-    private async Task AddComment(TextColloxMessage textColloxMessage)
+    private async Task AddMore(TextColloxMessage textColloxMessage)
     {
         if (!Settings.EnableAI)
         {
@@ -284,27 +284,24 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
         try
         {
-            var client = //new OllamaChatClient(new Uri("http://localhost:11434/"), "phi4");
-                new ChatClient(AppHelper.Settings.OpenAIModelId,
-                new ApiKeyCredential(AppHelper.Settings.OpenAIApiKey),
-                new OpenAI.OpenAIClientOptions()
-                {
-                    Endpoint = new Uri(AppHelper.Settings.OpenAIEndpoint)
-                }).AsIChatClient();
-
-            var prompt = $"""
-                          Please give me a couple of alternatives to the following text between BEGIN and END
-                          Stick to the language of the sentence. Only output the alternatives.
-
-                          BEGIN
-                          {textColloxMessage.Text}
-                          END
-                          """;
-
-            await foreach (var update in client.GetStreamingResponseAsync(prompt))
+            var aisvc = App.GetService<AIService>();
+            aisvc.Init();
+            var procs = aisvc.Get(_=>true);
+            await foreach (var processor in procs)
             {
-                Debug.WriteLine(update.Text);
-                textColloxMessage.Comment += update.Text;
+                processor.Process = async (client) => processor.Target switch
+             {
+                 Target.Comment => await CreateComment(textColloxMessage, processor.Prompt, client),
+                 Target.Task => throw new NotImplementedException(),
+                 Target.Context => throw new NotImplementedException(),
+                 Target.Chat => await CreateMessage(textColloxMessage.Text, processor.Prompt, client),
+             };
+                processor.OnError = (ex) =>
+                {
+                    textColloxMessage.Comment = $"Error: {ex.Message}";
+                    Debug.WriteLine($"Error: {ex.Message}");
+                };
+                await processor.Work();
             }
         }
         catch (Exception ex)
@@ -313,6 +310,38 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         }
 
         textColloxMessage.IsLoading = false;
+    }
+
+    private async Task<string> CreateMessage(string originalMessage, string prompt, IChatClient client)
+    {
+
+        var textColloxMessage = new TextColloxMessage
+        {
+            Text = string.Empty,
+            Timestamp = DateTime.Now,
+            IsLoading = true
+        };
+        Messages.Add(textColloxMessage);
+
+        var ret = string.Empty;
+        await foreach (var update in client.GetStreamingResponseAsync(string.Format(prompt, originalMessage)))
+        {
+            textColloxMessage.Text += update.Text;
+            ret += update.Text;
+        }
+        textColloxMessage.IsLoading = false;
+        return ret;
+    }
+
+    private static async Task<string> CreateComment(TextColloxMessage textColloxMessage, string prompt, IChatClient client)
+    {
+        var ret = string.Empty;
+        await foreach (var update in client.GetStreamingResponseAsync(string.Format(prompt, textColloxMessage.Text)))
+        {
+            textColloxMessage.Comment += update.Text;
+            ret += update.Text;
+        }
+        return ret;
     }
 
     private static string StripMd(string mdText)

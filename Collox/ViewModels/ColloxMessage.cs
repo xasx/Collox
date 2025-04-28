@@ -25,8 +25,6 @@ public partial class ColloxMessage : ObservableObject
         Timer.Tick += colloxWeakEventListener.OnTimerTick;
     }
 
-    [ObservableProperty] public partial int AdditionalSpacing { get; set; } = 0;
-
     [ObservableProperty] public partial TimeSpan RelativeTimestamp { get; set; } = TimeSpan.Zero;
 
     public DateTime Timestamp { get; init; }
@@ -34,7 +32,7 @@ public partial class ColloxMessage : ObservableObject
 
 public partial class TextColloxMessage : ColloxMessage
 {
-    public string Text { get; init; }
+    [ObservableProperty] public partial string Text { get; set; }
 
     [ObservableProperty] public partial string Comment { get; set; }
 

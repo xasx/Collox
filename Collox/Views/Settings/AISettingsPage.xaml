@@ -20,7 +20,7 @@
                                   Description="Configure the Ollama integration"
                                   Header="Ollama"
                                   HeaderIcon="{dev:BitmapIcon Source=Assets/Fluent/Ollama.png}"
-                                  IsExpanded="True">
+                                  IsExpanded="False">
                 <ToggleSwitch IsOn="{x:Bind ViewModel.IsOllamaEnabled, Mode=TwoWay}" />
                 <dev:SettingsExpander.Items>
                     <dev:SettingsCard x:Uid="OllamaAddressCard"
@@ -49,7 +49,7 @@
             <dev:SettingsExpander x:Uid="OpenAISettingsCard"
                                   Description="Configure the OpenAI integration"
                                   Header="OpenAI"
-                                  IsExpanded="True">
+                                  IsExpanded="False">
                 <dev:SettingsExpander.HeaderIcon>
                     <BitmapIcon UriSource="ms-appx:///Assets/Fluent/OpenAI.png" />
                 </dev:SettingsExpander.HeaderIcon>
@@ -91,13 +91,35 @@
 
             <dev:SettingsExpander Header="AI Fx"
                                   HeaderIcon="{dev:FontIcon GlyphName=Robot}"
+                                  IsExpanded="True"
                                   ItemsSource="{x:Bind ViewModel.Enhancers}">
+                <StackPanel Orientation="Horizontal">
+                    <Button Command="{x:Bind ViewModel.AddProcessorCommand}">
+                        <FontIcon Glyph="&#xE710;" />
+                    </Button>
+                </StackPanel>
                 <dev:SettingsExpander.ItemTemplate>
-                    <DataTemplate x:DataType="vm:MessageEnhancer">
+                    <DataTemplate x:DataType="vm:IntelligentProcessorViewModel">
                         <dev:SettingsExpander Description="{x:Bind Id, Mode=OneWay}"
-                                              Header="Enhance message"
                                               HeaderIcon="{dev:FontIcon GlyphCode=E950}">
-                            <ToggleSwitch IsOn="{x:Bind IsEnabled, Mode=TwoWay}" />
+                            <dev:SettingsExpander.Header>
+                                <dev:SwitchPresenter Value="{x:Bind NamePresentation, Mode=OneWay}">
+                                    <dev:Case Value="Display">
+                                        <TextBlock Text="{x:Bind Name, Mode=OneWay}" />
+                                    </dev:Case>
+                                    <dev:Case Value="Edit">
+                                        <TextBox KeyDown="TextBox_KeyDown"
+                                                 Tag="{x:Bind}"
+                                                 Text="{x:Bind Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </dev:Case>
+                                </dev:SwitchPresenter>
+                            </dev:SettingsExpander.Header>
+                            <StackPanel Orientation="Horizontal"
+                                        Spacing="8">
+                                <Button Command="{x:Bind DeleteCommand}">
+                                    <FontIcon Glyph="&#xE74D;" />
+                                </Button>
+                            </StackPanel>
                             <dev:SettingsExpander.Items>
 
                                 <dev:SettingsCard Description="The prompt to pass on to the AI Provider."
@@ -110,12 +132,12 @@
                                 </dev:SettingsCard>
                                 <dev:SettingsCard Description="Source of the enhancement, Provider configured above."
                                                   Header="Source">
-                                    <ComboBox ItemsSource="{dev:EnumValues Type=vm:EnhancerSource}"
+                                    <ComboBox ItemsSource="{dev:EnumValues Type=vm:SourceProvider}"
                                               SelectedItem="{x:Bind Source, Mode=TwoWay}" />
                                 </dev:SettingsCard>
                                 <dev:SettingsCard Description="Target of the enhancement, location to put the response to."
                                                   Header="Target">
-                                    <ComboBox ItemsSource="{dev:EnumValues Type=vm:EnhancerTarget}"
+                                    <ComboBox ItemsSource="{dev:EnumValues Type=vm:ProcessorTarget}"
                                               SelectedItem="{x:Bind Target, Mode=TwoWay}" />
                                 </dev:SettingsCard>
 

@@ -6,4 +6,5 @@ public static class Constants
         Path.Combine(PathHelper.GetAppDataFolderPath(true), ProcessInfoHelper.ProductNameAndVersion);
 
     public static readonly string AppConfigPath = Path.Combine(RootDirectoryPath, "AppConfig.json");
+    public static readonly string IntelligenceConfigPath = Path.Combine(RootDirectoryPath, "Intelligence.json");
 }

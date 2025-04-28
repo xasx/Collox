@@ -413,7 +413,6 @@ Stick to the language of the sentence. Only output the alternatives.
 BEGIN
 {0}
 END</target>
-          <note from="MultilingualUpdate" annotates="source" priority="2">Please verify the translation’s accuracy as the source string was updated after it was translated.</note>
         </trans-unit>
       </group>
     </body>

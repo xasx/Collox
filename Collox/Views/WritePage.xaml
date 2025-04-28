@@ -159,7 +159,7 @@
                     <uictrls:MarkdownTextBlock x:Name="MessageMarkdownTextBlock"
                                                Background="Transparent"
                                                FontSize="32"
-                                               Text="{x:Bind Text}"
+                                               Text="{x:Bind Text, Mode=OneWay}"
                                                TextWrapping="WrapWholeWords" />
                 </ctrls:HeaderedContentControl>
                 <Button x:Name="ReadButton"
@@ -178,9 +178,6 @@
                                       Mode="ArcsRing"
                                       RelativePanel.AlignRightWithPanel="True"
                                       RelativePanel.Below="ReadButton" />
-                <Border Height="{x:Bind AdditionalSpacing, Mode=OneWay}"
-                        Background="DarkGoldenrod"
-                        RelativePanel.AlignBottomWithPanel="True" />
             </RelativePanel>
         </DataTemplate>
 
