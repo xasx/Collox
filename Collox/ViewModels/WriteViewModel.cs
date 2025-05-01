@@ -21,6 +21,12 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         [.. new SpeechSynthesizer().GetInstalledVoices().Select(iv => iv.VoiceInfo)];
 
     private readonly IStoreService storeService = App.GetService<IStoreService>();
+    private readonly AIService aiService = App.GetService<AIService>();
+
+    public WriteViewModel()
+    {
+        aiService.Init();
+    }
 
     [ObservableProperty] public partial int CharacterCount { get; set; }
 
@@ -49,6 +55,9 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     [ObservableProperty] public partial string Filename { get; set; }
 
     [ObservableProperty] public partial bool ClockShown { get; set; }
+
+    public List<IntelligentProcessorViewModel> AvailableProcessors { get; init; } = [];
+    //public List<IntelligentProcessorViewModel> SelectedProcessors { get; init; } = [];
 
     public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
@@ -197,7 +206,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 return;
 
             case "..":
-                
+
                 return;
 
             case "time":
@@ -284,10 +293,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
         try
         {
-            var aisvc = App.GetService<AIService>();
-            aisvc.Init();
-            var procs = aisvc.Get(_=>true);
-            await foreach (var processor in procs)
+            var procs = ConversationContext.ActiveProcessors;
+            foreach (var processor in procs)
             {
                 processor.Process = async (client) => processor.Target switch
              {
@@ -295,11 +302,11 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                  Target.Task => throw new NotImplementedException(),
                  Target.Context => throw new NotImplementedException(),
                  Target.Chat => await CreateMessage(textColloxMessage.Text, processor.Prompt, client),
+                 _ => throw new NotImplementedException(),
              };
                 processor.OnError = (ex) =>
                 {
                     textColloxMessage.Comment = $"Error: {ex.Message}";
-                    Debug.WriteLine($"Error: {ex.Message}");
                 };
                 await processor.Work();
             }
@@ -319,7 +326,9 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         {
             Text = string.Empty,
             Timestamp = DateTime.Now,
-            IsLoading = true
+            IsLoading = true,
+            IsGenerated = true,
+            Context = ConversationContext.Context
         };
         Messages.Add(textColloxMessage);
 

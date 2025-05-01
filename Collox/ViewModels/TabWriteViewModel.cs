@@ -1,11 +1,12 @@
 ﻿using System.Collections.ObjectModel;
+using Collox.Models;
 using Collox.Services;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 
 namespace Collox.ViewModels;
 
-public partial class TabWriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware
+public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSuggestBoxAware, IRecipient<UpdateTabMessage>
 {
     private static readonly TabData initialTab = new()
     {
@@ -14,7 +15,8 @@ public partial class TabWriteViewModel : ObservableObject, ITitleBarAutoSuggestB
         IsEditing = false
     };
 
-    private readonly Dictionary<TabData, TabContext> tabContexts = new() {
+    private readonly Dictionary<TabData, TabContext> tabContexts = new()
+    {
         [initialTab] = new TabContext { Name = initialTab.Context, IsCloseable = initialTab.IsCloseable }
     };
 
@@ -24,16 +26,30 @@ public partial class TabWriteViewModel : ObservableObject, ITitleBarAutoSuggestB
 
     [ObservableProperty] public partial TabData SelectedTab { get; set; } = initialTab;
 
+    public TabWriteViewModel()
+    {
+        WeakReferenceMessenger.Default.RegisterAll(this);
+    }
+
     [RelayCommand]
     public void LoadTabs()
     {
+        var procs = App.GetService<AIService>().Get(_ => true);
         foreach (var tabContext in tabContextService.GetTabs())
         {
+            if (tabContext.Name == initialTab.Context)
+            {
+                initialTab.ActiveProcessors = procs.Where(x => x.Id == tabContext.ActiveProcessors.FirstOrDefault()).ToList();
+                tabContexts[initialTab] = tabContext;
+                continue;
+            }
+
             var tabData = new TabData
             {
                 Context = tabContext.Name,
                 IsCloseable = tabContext.IsCloseable,
-                IsEditing = false
+                IsEditing = false,
+                ActiveProcessors = tabContext.ActiveProcessors.Select(x => procs.FirstOrDefault(p => p.Id == x)).ToList()
             };
             Tabs.Add(tabData);
             tabContexts[tabData] = tabContext;
@@ -45,8 +61,8 @@ public partial class TabWriteViewModel : ObservableObject, ITitleBarAutoSuggestB
     {
         var context = $"Context {Tabs.Count + 1}";
 
-        var newTabContext = new TabContext { Name = context, IsCloseable = true };
-        var newTabData = new TabData { Context = context, IsCloseable = true, IsEditing = true };
+        var newTabContext = new TabContext { Name = context, IsCloseable = true, ActiveProcessors = [] };
+        var newTabData = new TabData { Context = context, IsCloseable = true, IsEditing = true, ActiveProcessors = [] };
 
         Tabs.Add(newTabData);
         SelectedTab = newTabData;
@@ -69,7 +85,7 @@ public partial class TabWriteViewModel : ObservableObject, ITitleBarAutoSuggestB
     {
         Tabs.Remove(tabData);
         var tabContext = tabContexts[tabData];
-        tabContexts.Remove(tabData);
+        tabContexts.Remove(tabData); 
         tabContextService.RemoveTab(tabContext);
     }
 
@@ -78,13 +94,14 @@ public partial class TabWriteViewModel : ObservableObject, ITitleBarAutoSuggestB
         var tabContext = tabContexts[tabData];
         tabContext.Name = tabData.Context;
         tabContext.IsCloseable = tabData.IsCloseable;
+        tabContext.ActiveProcessors = tabData.ActiveProcessors.Select(x => x.Id).ToList();
         tabContextService.NotifyTabUpdate(tabContext);
     }
 
     public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
         // find tabframe in the tab.
-        var frame = WeakReferenceMessenger.Default.Send< GetFrameRequestMessage>();
+        var frame = WeakReferenceMessenger.Default.Send<GetFrameRequestMessage>();
         AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxTextChangedEvent(sender, args, frame);
     }
 
@@ -92,6 +109,11 @@ public partial class TabWriteViewModel : ObservableObject, ITitleBarAutoSuggestB
     {
         var frame = WeakReferenceMessenger.Default.Send<GetFrameRequestMessage>();
         AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxQuerySubmittedEvent(sender, args, frame);
+    }
+
+    public void Receive(UpdateTabMessage message)
+    {
+        UpdateContext(message.Value);
     }
 }
 
@@ -102,10 +124,14 @@ public partial class TabData : ObservableObject
     [ObservableProperty] public partial bool IsCloseable { get; set; }
 
     [ObservableProperty] public partial bool IsEditing { get; set; }
+
+    [ObservableProperty] public partial List<IntelligentProcessor> ActiveProcessors { get; set; } = [];
 }
 
 public class FocusTabMessage(TabData tabData) : ValueChangedMessage<TabData>(tabData);
 
-public class  GetFrameRequestMessage : RequestMessage<Frame>
+public class UpdateTabMessage(TabData tabData) : ValueChangedMessage<TabData>(tabData);
+
+public class GetFrameRequestMessage : RequestMessage<Frame>
 {
 }

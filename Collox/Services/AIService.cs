@@ -14,7 +14,7 @@ public class AIService(AIApis apis)
 
     }
 
-    public IntelligenceConfig Config { get; init; } = JsonSettings.Configure<IntelligenceConfig>()
+    private IntelligenceConfig Config { get; init; } = JsonSettings.Configure<IntelligenceConfig>()
         .WithRecovery(RecoveryAction.RenameAndLoadDefault)
             .WithVersioning(VersioningResultAction.RenameAndLoadDefault)
         
@@ -46,7 +46,7 @@ public class AIService(AIApis apis)
         Config.Processors.Add(intelligentProcessor);
     }
 
-    public async IAsyncEnumerable<IntelligentProcessor> Get(Func<IntelligentProcessor, bool> filter)
+    public  IEnumerable<IntelligentProcessor> Get(Func<IntelligentProcessor, bool> filter)
     {
         var processors = Config.Processors.Where(filter).ToList();
         foreach (var processor in processors)

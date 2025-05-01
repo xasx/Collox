@@ -26,8 +26,36 @@
         <conv:TimeSpanToFriendlyConverter x:Key="TimeSpanToFriendlyConverter"
                                           x:Uid="/Helpers/FriendlyTime" />
 
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+
         <converters:StringVisibilityConverter x:Key="StringVisibilityConverter" />
 
+        <Flyout x:Name="ProcessorFlyout"
+                Closed="ProcessorFlyout_Closed"
+                Opening="ProcessorFlyout_Opening">
+            <StackPanel>
+                <ListView x:Name="ProcessorsListView"
+                          ItemsSource="{x:Bind ViewModel.AvailableProcessors}"
+                          SelectionMode="Multiple">
+
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:IntelligentProcessorViewModel">
+                            <StackPanel>
+                                <TextBlock FontWeight="Bold"
+                                           Text="{x:Bind Name}" />
+                                <TextBlock FontWeight="SemiBold"
+                                           Text="{x:Bind Id}" />
+                                <TextBlock FontWeight="SemiBold">
+                                    <Run Text="{x:Bind Source}" />
+                                    <Run Text="&#x2192;" />
+                                    <Run Text="{x:Bind Target}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
+        </Flyout>
 
         <Flyout x:Name="VoiceSettingsFlyout"
                 ShowMode="TransientWithDismissOnPointerMoveAway">
@@ -124,6 +152,7 @@
                 </ScrollView>
             </StackPanel>
         </Flyout>
+
         <DataTemplate x:Name="DefaultTemplate"
                       x:DataType="vm:ColloxMessage">
 
@@ -132,6 +161,7 @@
                 <TextBlock Text="{x:Bind Timestamp}" />
             </StackPanel>
         </DataTemplate>
+
         <DataTemplate x:Name="TextTemplate"
                       x:DataType="vm:TextColloxMessage">
             <RelativePanel Margin="0,4"
@@ -146,14 +176,26 @@
                                 HorizontalAlignment="Left"
                                 Background="{ThemeResource AccentAAFillColorDefaultBrush}"
                                 CornerRadius="4">
-                            <TextBlock Foreground="{ThemeResource TextOnAccentAAFillColorPrimary}">
-                                <Run Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource TimeSpanToFriendlyConverter}}" />
-                                <Run FontFamily="Segoe Fluent Icons"
-                                     FontSize="12"
-                                     FontWeight="Bold"
-                                     Text="&#xE917;" />
-                                <Run Text="{x:Bind Timestamp}" />
-                            </TextBlock>
+                            <uictrls:SwitchPresenter TargetType="x:Boolean"
+                                                     Value="{x:Bind IsGenerated}">
+
+                                <uictrls:Case Value="False">
+                                    <TextBlock Foreground="{ThemeResource TextOnAccentAAFillColorPrimary}">
+                                        <Run Text="{x:Bind RelativeTimestamp, Mode=OneWay, Converter={StaticResource TimeSpanToFriendlyConverter}}" />
+                                        <Run FontFamily="Segoe Fluent Icons"
+                                             FontSize="12"
+                                             FontWeight="Bold"
+                                             Text="&#xE917;" />
+                                        <Run Text="{x:Bind Timestamp}" />
+                                    </TextBlock>
+                                </uictrls:Case>
+                                <uictrls:Case Value="True">
+                                    <StackPanel Orientation="Horizontal">
+                                        <FontIcon Foreground="{ThemeResource TextOnAccentAAFillColorPrimary}"
+                                                  Glyph="&#xE8BD;" />
+                                    </StackPanel>
+                                </uictrls:Case>
+                            </uictrls:SwitchPresenter>
                         </Border>
                     </ctrls:HeaderedContentControl.Header>
                     <uictrls:MarkdownTextBlock x:Name="MessageMarkdownTextBlock"
@@ -178,6 +220,14 @@
                                       Mode="ArcsRing"
                                       RelativePanel.AlignRightWithPanel="True"
                                       RelativePanel.Below="ReadButton" />
+                <ProgressBar Height="4"
+                             HorizontalAlignment="Stretch"
+                             IsIndeterminate="True"
+                             RelativePanel.AlignBottomWithPanel="True"
+                             RelativePanel.AlignLeftWithPanel="True"
+                             RelativePanel.AlignRightWithPanel="True"
+                             RelativePanel.Below="CommentBox"
+                             Visibility="{x:Bind IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}" />
             </RelativePanel>
         </DataTemplate>
 
@@ -246,6 +296,10 @@
                 </StackPanel>
             </AppBarElementContainer>
 
+            <AppBarButton Flyout="{StaticResource ProcessorFlyout}"
+                          Icon="{dev:FontIcon GlyphCode=E8B4}"
+                          Label="Processors" />
+
             <AppBarButton x:Uid="SaveButton"
                           Command="{x:Bind ViewModel.SaveNowCommand}"
                           Icon="Save"
@@ -256,11 +310,6 @@
                 </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
 
-            <AppBarToggleButton x:Uid="SaveToggleButton"
-                                Icon="SaveLocal"
-                                IsChecked="True"
-                                IsEnabled="False"
-                                Label="Auto save" />
 
             <AppBarButton x:Uid="ClearButton"
                           Command="{x:Bind ViewModel.ClearCommand}"

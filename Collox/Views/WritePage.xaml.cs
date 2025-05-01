@@ -6,6 +6,7 @@ using Cottle;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml.Input;
 using EmojiToolkit;
+using Collox.Services;
 
 namespace Collox.Views;
 
@@ -144,5 +145,30 @@ public sealed partial class WritePage : Page
     {
         ViewModel.SwitchModeCommand.Execute(null);
         args.Handled = true;
+    }
+
+    private void ProcessorFlyout_Opening(object sender, object e)
+    {
+        var aiSettings = App.GetService<AISettingsViewModel>();
+        ViewModel.AvailableProcessors.Clear();
+        var actives = ViewModel.ConversationContext.ActiveProcessors.Select(p=>p.Id);
+        var selection = new List<IntelligentProcessorViewModel>();
+        foreach (var processor in aiSettings.Enhancers)
+        {
+            ViewModel.AvailableProcessors.Add(processor);
+            if (actives.Contains(processor.Id))
+            {
+                selection.Add(processor);
+            }
+        }
+        ProcessorsListView.SelectedItems.AddRange(selection);
+    }
+
+    private void ProcessorFlyout_Closed(object sender, object e)
+    {
+        ViewModel.ConversationContext.ActiveProcessors.Clear();
+        ViewModel.ConversationContext.ActiveProcessors.AddRange(
+            [.. ProcessorsListView.SelectedItems.Cast<IntelligentProcessorViewModel>().Select(p => p.Model)]);
+        WeakReferenceMessenger.Default.Send(new UpdateTabMessage(ViewModel.ConversationContext));
     }
 }

@@ -39,7 +39,8 @@ public partial class AISettingsViewModel : ObservableObject
 
 
         aiService.Init();
-        if (aiService.Config.Processors.Count == 0)
+        var processors = aiService.Get(_ => true);
+        if (processors.Count() == 0)
         {
             var SynonymsEnhancerProcessor = new IntelligentProcessor()
             {
@@ -51,10 +52,10 @@ public partial class AISettingsViewModel : ObservableObject
                 Target = Target.Comment,
                 FallbackId = Guid.NewGuid(),
                 Name = "Synonyms",
-
+                GetClient = aiService.GetChatClient, 
             };
             aiService.Add(SynonymsEnhancerProcessor);
-            aiService.Config.Save();
+            aiService.Save();
 
 
             var synonymsProcessorViewModel = new IntelligentProcessorViewModel(SynonymsEnhancerProcessor);
@@ -62,7 +63,7 @@ public partial class AISettingsViewModel : ObservableObject
             Enhancers.Add(synonymsProcessorViewModel);
         } else
         {
-            foreach (var processor in aiService.Config.Processors)
+            foreach (var processor in processors)
             {
                 var vm = new IntelligentProcessorViewModel(processor);
                 vm.NamePresentation = "Display";
@@ -73,8 +74,8 @@ public partial class AISettingsViewModel : ObservableObject
         WeakReferenceMessenger.Default.Register<ProcessorDeletedMessage>(this, (r, m) =>
         {
             Enhancers.Remove(m.Value);
-            aiService.Config.Processors.Remove(m.Value.Model);
-            aiService.Config.Save();
+            aiService.Remove(m.Value.Model);
+            aiService.Save();
         });
     }
 
@@ -119,7 +120,7 @@ public partial class AISettingsViewModel : ObservableObject
         };
 
         aiService.Add(ip);
-        aiService.Config.Save();
+        aiService.Save();
         var vm = new IntelligentProcessorViewModel(ip);
         Enhancers.Add(vm);
     }

@@ -70,7 +70,7 @@ public partial class IntelligentProcessorViewModel : ObservableObject
                 Model.Provider = AIProvider.OpenAI;
                 break;
         }
-        App.GetService<AIService>().Config.Save();
+        App.GetService<AIService>().Save();
     }
 
     partial void OnTargetChanged(ProcessorTarget value)
@@ -83,36 +83,36 @@ public partial class IntelligentProcessorViewModel : ObservableObject
             ProcessorTarget.Chat => Models.Target.Chat,
             _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
         };
-        App.GetService<AIService>().Config.Save();
+        App.GetService<AIService>().Save();
     }
     partial void OnModelIdChanged(string value)
     {
         Model.ModelId = value;
-        App.GetService<AIService>().Config.Save();
+        App.GetService<AIService>().Save();
     }
 
     partial void OnPromptChanged(string value)
     {
         Model.Prompt = value;
-        App.GetService<AIService>().Config.Save();
+        App.GetService<AIService>().Save();
     }
 
     partial void OnNameChanged(string value)
     {
         Model.Name = value;
-        App.GetService<AIService>().Config.Save();
+        App.GetService<AIService>().Save();
     }
 
     partial void OnFallbackIdChanged(Guid value)
     {
         Model.FallbackId = value;
-        App.GetService<AIService>().Config.Save();
+        App.GetService<AIService>().Save();
     }
 
     partial void OnIdChanged(Guid value)
     {
         Model.Id = value;
-        App.GetService<AIService>().Config.Save();
+        App.GetService<AIService>().Save();
     }
 }
 

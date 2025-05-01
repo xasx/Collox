@@ -38,6 +38,8 @@ public partial class IntelligentProcessor
 
     public async Task Work()
     {
+        
+
         var client = GetClient(Provider, ModelId);
 
         try

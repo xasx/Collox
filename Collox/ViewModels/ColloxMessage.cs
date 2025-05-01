@@ -38,6 +38,9 @@ public partial class TextColloxMessage : ColloxMessage
 
     [ObservableProperty] public partial bool IsLoading { get; set; }
 
+    [ObservableProperty] public partial bool IsGenerated { get; set; } = false;
+
+
     public string Context { get; internal init; }
 
     [RelayCommand]

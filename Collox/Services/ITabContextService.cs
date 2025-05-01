@@ -18,4 +18,6 @@ public class TabContext
     public string Name { get; set; }
 
     public bool IsCloseable { get; set; }
+
+    public List<Guid> ActiveProcessors { get; set; } = new List<Guid>();
 }
