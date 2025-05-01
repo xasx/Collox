@@ -30,6 +30,7 @@
 
         <converters:StringVisibilityConverter x:Key="StringVisibilityConverter" />
 
+
         <Flyout x:Name="ProcessorFlyout"
                 Closed="ProcessorFlyout_Closed"
                 Opening="ProcessorFlyout_Opening">
@@ -41,11 +42,14 @@
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="vm:IntelligentProcessorViewModel">
                             <StackPanel>
-                                <TextBlock FontWeight="Bold"
+                                <TextBlock Margin="0,8,0,0"
+                                           FontWeight="SemiBold"
                                            Text="{x:Bind Name}" />
-                                <TextBlock FontWeight="SemiBold"
+                                <TextBlock Margin="4,0,0,0"
+                                           FontWeight="Light"
                                            Text="{x:Bind Id}" />
-                                <TextBlock FontWeight="SemiBold">
+                                <TextBlock Margin="4,0,0,8"
+                                           FontWeight="Light">
                                     <Run Text="{x:Bind Source}" />
                                     <Run Text="&#x2192;" />
                                     <Run Text="{x:Bind Target}" />
@@ -220,13 +224,22 @@
                                       Mode="ArcsRing"
                                       RelativePanel.AlignRightWithPanel="True"
                                       RelativePanel.Below="ReadButton" />
+                <TextBlock x:Name="ErrorTextBlock"
+                           Margin="8"
+                           Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                           RelativePanel.AlignLeftWithPanel="True"
+                           RelativePanel.AlignRightWithPanel="True"
+                           RelativePanel.Below="CommentBox"
+                           Text="{x:Bind ErrorMessage, Mode=OneWay}"
+                           Visibility="{x:Bind ErrorMessage, Mode=OneWay, Converter={StaticResource StringVisibilityConverter}, ConverterParameter=False}" />
                 <ProgressBar Height="4"
                              HorizontalAlignment="Stretch"
                              IsIndeterminate="True"
                              RelativePanel.AlignBottomWithPanel="True"
                              RelativePanel.AlignLeftWithPanel="True"
                              RelativePanel.AlignRightWithPanel="True"
-                             RelativePanel.Below="CommentBox"
+                             RelativePanel.Below="ErrorTextBlock"
+                             ShowError="{x:Bind HasProcessingError, Mode=OneWay}"
                              Visibility="{x:Bind IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}" />
             </RelativePanel>
         </DataTemplate>

@@ -1,6 +1,4 @@
-﻿using System.ClientModel;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
 using System.Media;
 using System.Speech.Synthesis;
 using Collox.Models;
@@ -9,8 +7,6 @@ using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Markdig;
 using Microsoft.Extensions.AI;
-using Microsoft.Graphics.Canvas.Geometry;
-using OpenAI.Chat;
 using Windows.ApplicationModel;
 
 namespace Collox.ViewModels;
@@ -301,25 +297,27 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                  Target.Comment => await CreateComment(textColloxMessage, processor.Prompt, client),
                  Target.Task => throw new NotImplementedException(),
                  Target.Context => throw new NotImplementedException(),
-                 Target.Chat => await CreateMessage(textColloxMessage.Text, processor.Prompt, client),
+                 Target.Chat => await CreateMessage(Messages.OfType<TextColloxMessage>().Where(m => !m.IsGenerated).Select(m => m.Text), processor.Prompt, client),
                  _ => throw new NotImplementedException(),
              };
                 processor.OnError = (ex) =>
                 {
-                    textColloxMessage.Comment = $"Error: {ex.Message}";
+                    textColloxMessage.ErrorMessage = $"Error: {ex.Message}";
+                    textColloxMessage.HasProcessingError = true;
                 };
                 await processor.Work();
             }
         }
         catch (Exception ex)
         {
-            textColloxMessage.Comment = $"Error: {ex.Message}";
+            textColloxMessage.ErrorMessage = $"Error: {ex.Message}";
+            textColloxMessage.HasProcessingError = true;
         }
 
         textColloxMessage.IsLoading = false;
     }
 
-    private async Task<string> CreateMessage(string originalMessage, string prompt, IChatClient client)
+    private async Task<string> CreateMessage(IEnumerable< string > messages, string prompt, IChatClient client)
     {
 
         var textColloxMessage = new TextColloxMessage
@@ -333,7 +331,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         Messages.Add(textColloxMessage);
 
         var ret = string.Empty;
-        await foreach (var update in client.GetStreamingResponseAsync(string.Format(prompt, originalMessage)))
+        var chatMessages = messages.Select(message => new ChatMessage(ChatRole.User, string.Format(prompt, message)));
+        await foreach (var update in client.GetStreamingResponseAsync(chatMessages))
         {
             textColloxMessage.Text += update.Text;
             ret += update.Text;

@@ -36,9 +36,13 @@ public partial class TextColloxMessage : ColloxMessage
 
     [ObservableProperty] public partial string Comment { get; set; }
 
+    [ObservableProperty] public partial string ErrorMessage { get; set; }
+
     [ObservableProperty] public partial bool IsLoading { get; set; }
 
     [ObservableProperty] public partial bool IsGenerated { get; set; } = false;
+
+    [ObservableProperty] public partial bool HasProcessingError { get; set; } = false;
 
 
     public string Context { get; internal init; }
