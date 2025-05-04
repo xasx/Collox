@@ -138,7 +138,7 @@
     <Grid RowDefinitions="Auto, *">
         <TitleBar x:Name="AppTitleBar"
                   Title="{x:Bind dev:ProcessInfoHelper.ProductName}"
-                  IconSource="{dev:BitmapIconSource Source=ms-appx:///Assets/Store/Square44x44Logo.altform-unplated_targetsize-256.png}"
+                  IconSource="{dev:BitmapIconSource Source=ms-appx:///Assets/Fluent/Collox.png}"
                   IsBackButtonVisible="True"
                   IsPaneToggleButtonVisible="True"
                   Subtitle="{x:Bind dev:ProcessInfoHelper.VersionWithPrefix}">

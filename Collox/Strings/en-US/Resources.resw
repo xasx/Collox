@@ -378,4 +378,34 @@
   <data name="AISettingsCard.Description" xml:space="preserve">
     <value>Change AI preferences</value>
   </data>
+  <data name="AiFxButton.Label" xml:space="preserve">
+    <value>AI Fx</value>
+  </data>
+  <data name="AiFxSettings.Header" xml:space="preserve">
+    <value>AI Fx</value>
+  </data>
+  <data name="PromptCard.Header" xml:space="preserve">
+    <value>Prompt</value>
+  </data>
+  <data name="PromptCard.Description" xml:space="preserve">
+    <value>The prompt to pass on to the AI Provider. Use {0} for the message.</value>
+  </data>
+  <data name="SourceCard.Header" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="SourceCard.Description" xml:space="preserve">
+    <value>The source of the processing. AI Provider.</value>
+  </data>
+  <data name="TargetCard.Header" xml:space="preserve">
+    <value>Header</value>
+  </data>
+  <data name="TargetCard.Description" xml:space="preserve">
+    <value>The target where the processing result is shown.</value>
+  </data>
+  <data name="ModelIdCard.Header" xml:space="preserve">
+    <value>Model Id</value>
+  </data>
+  <data name="ModelIdCard.Description" xml:space="preserve">
+    <value>The Id of the model to use.</value>
+  </data>
 </root>

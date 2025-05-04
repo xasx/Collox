@@ -171,4 +171,9 @@ public sealed partial class WritePage : Page
             [.. ProcessorsListView.SelectedItems.Cast<IntelligentProcessorViewModel>().Select(p => p.Model)]);
         WeakReferenceMessenger.Default.Send(new UpdateTabMessage(ViewModel.ConversationContext));
     }
+
+    private void DismissButton_Click(object sender, RoutedEventArgs e)
+    {
+        ProcessorFlyout.Hide();
+    }
 }

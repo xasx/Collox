@@ -89,7 +89,8 @@
             </dev:SettingsExpander>
 
 
-            <dev:SettingsExpander Header="AI Fx"
+            <dev:SettingsExpander x:Uid="AiFxSettings"
+                                  Header="AI Fx"
                                   HeaderIcon="{dev:FontIcon GlyphName=Robot}"
                                   IsExpanded="True"
                                   ItemsSource="{x:Bind ViewModel.Enhancers}">
@@ -122,7 +123,8 @@
                             </StackPanel>
                             <dev:SettingsExpander.Items>
 
-                                <dev:SettingsCard Description="The prompt to pass on to the AI Provider."
+                                <dev:SettingsCard x:Uid="PromptCard"
+                                                  Description="The prompt to pass on to the AI Provider."
                                                   Header="Prompt">
                                     <TextBox MinWidth="320"
                                              MaxWidth="560"
@@ -130,18 +132,21 @@
                                              Text="{x:Bind Prompt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              TextWrapping="Wrap" />
                                 </dev:SettingsCard>
-                                <dev:SettingsCard Description="Source of the enhancement, Provider configured above."
+                                <dev:SettingsCard x:Uid="SourceCard"
+                                                  Description="Source of the enhancement, Provider configured above."
                                                   Header="Source">
                                     <ComboBox ItemsSource="{dev:EnumValues Type=vm:SourceProvider}"
                                               SelectedItem="{x:Bind Source, Mode=TwoWay}" />
                                 </dev:SettingsCard>
-                                <dev:SettingsCard Description="Target of the enhancement, location to put the response to."
+                                <dev:SettingsCard x:Uid="TargetCard"
+                                                  Description="Target of the enhancement, location to put the response to."
                                                   Header="Target">
                                     <ComboBox ItemsSource="{dev:EnumValues Type=vm:ProcessorTarget}"
                                               SelectedItem="{x:Bind Target, Mode=TwoWay}" />
                                 </dev:SettingsCard>
 
-                                <dev:SettingsCard Description="The Id of the model to use."
+                                <dev:SettingsCard x:Uid="ModelIdCard"
+                                                  Description="The Id of the model to use."
                                                   Header="Model Id">
                                     <ComboBox ItemsSource="{x:Bind AvailableModelIds, Mode=TwoWay}"
                                               SelectedItem="{x:Bind ModelId, Mode=TwoWay}" />

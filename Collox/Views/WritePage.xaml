@@ -31,6 +31,7 @@
         <converters:StringVisibilityConverter x:Key="StringVisibilityConverter" />
 
 
+
         <Flyout x:Name="ProcessorFlyout"
                 Closed="ProcessorFlyout_Closed"
                 Opening="ProcessorFlyout_Opening">
@@ -38,7 +39,6 @@
                 <ListView x:Name="ProcessorsListView"
                           ItemsSource="{x:Bind ViewModel.AvailableProcessors}"
                           SelectionMode="Multiple">
-
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="vm:IntelligentProcessorViewModel">
                             <StackPanel>
@@ -58,6 +58,10 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
+                <Button x:Name="DismissButton"
+                        HorizontalAlignment="Stretch"
+                        Click="DismissButton_Click"
+                        Content="Dismiss" />
             </StackPanel>
         </Flyout>
 
@@ -113,6 +117,11 @@
                 </ListView>
             </StackPanel>
         </Flyout>
+
+        <CollectionViewSource x:Name="EmojiSource"
+                              IsSourceGrouped="True"
+                              Source="{x:Bind ViewModel.Emojis, Mode=OneTime}" />
+
         <Flyout x:Name="EmojiFlyout">
             <StackPanel Width="400"
                         Height="400">
@@ -130,7 +139,7 @@
                 <ScrollView Height="380"
                             ContentOrientation="Vertical">
                     <ItemsRepeater xmlns:et="using:EmojiToolkit"
-                                   ItemsSource="{x:Bind et:Emoji.All}">
+                                   ItemsSource="{x:Bind EmojiSource.View, Mode=OneTime}">
                         <ItemsRepeater.ItemTemplate>
                             <DataTemplate x:DataType="et:EmojiRecord">
                                 <Button Padding="0"
@@ -142,7 +151,6 @@
                                               FontSize="32"
                                               Glyph="{x:Bind Raw}" />
                                 </Button>
-
 
                             </DataTemplate>
                         </ItemsRepeater.ItemTemplate>
@@ -309,9 +317,11 @@
                 </StackPanel>
             </AppBarElementContainer>
 
-            <AppBarButton Flyout="{StaticResource ProcessorFlyout}"
+            <AppBarButton x:Uid="AiFxButton"
+                          Flyout="{StaticResource ProcessorFlyout}"
                           Icon="{dev:FontIcon GlyphCode=E8B4}"
-                          Label="Processors" />
+                          Label="AI Fx" />
+
 
             <AppBarButton x:Uid="SaveButton"
                           Command="{x:Bind ViewModel.SaveNowCommand}"

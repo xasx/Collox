@@ -3,8 +3,10 @@ using System.Media;
 using System.Speech.Synthesis;
 using Collox.Models;
 using Collox.Services;
+using CommunityToolkit.Mvvm.Collections;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
+using EmojiToolkit;
 using Markdig;
 using Microsoft.Extensions.AI;
 using Windows.ApplicationModel;
@@ -54,6 +56,9 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     public List<IntelligentProcessorViewModel> AvailableProcessors { get; init; } = [];
     //public List<IntelligentProcessorViewModel> SelectedProcessors { get; init; } = [];
+
+    public  ObservableGroupedCollection<string, EmojiRecord> Emojis { get; init; }
+        = new ObservableGroupedCollection<string, EmojiRecord>(Emoji.All.GroupBy(e => e.Category));
 
     public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
@@ -319,7 +324,6 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     private async Task<string> CreateMessage(IEnumerable< string > messages, string prompt, IChatClient client)
     {
-
         var textColloxMessage = new TextColloxMessage
         {
             Text = string.Empty,

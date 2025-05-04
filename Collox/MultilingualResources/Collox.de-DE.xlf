@@ -354,6 +354,46 @@
           <source>Change AI preferences</source>
           <target state="translated">KI-Einstellungen ändern</target>
         </trans-unit>
+        <trans-unit id="AiFxButton.Label" translate="yes" xml:space="preserve">
+          <source>AI Fx</source>
+          <target state="new">AI Fx</target>
+        </trans-unit>
+        <trans-unit id="AiFxSettings.Header" translate="yes" xml:space="preserve">
+          <source>AI Fx</source>
+          <target state="new">AI Fx</target>
+        </trans-unit>
+        <trans-unit id="PromptCard.Header" translate="yes" xml:space="preserve">
+          <source>Prompt</source>
+          <target state="new">Prompt</target>
+        </trans-unit>
+        <trans-unit id="PromptCard.Description" translate="yes" xml:space="preserve">
+          <source>The prompt to pass on to the AI Provider. Use {0} for the message.</source>
+          <target state="new">The prompt to pass on to the AI Provider. Use {0} for the message.</target>
+        </trans-unit>
+        <trans-unit id="SourceCard.Header" translate="yes" xml:space="preserve">
+          <source>Source</source>
+          <target state="new">Source</target>
+        </trans-unit>
+        <trans-unit id="SourceCard.Description" translate="yes" xml:space="preserve">
+          <source>The source of the processing. AI Provider.</source>
+          <target state="new">The source of the processing. AI Provider.</target>
+        </trans-unit>
+        <trans-unit id="TargetCard.Header" translate="yes" xml:space="preserve">
+          <source>Header</source>
+          <target state="new">Header</target>
+        </trans-unit>
+        <trans-unit id="TargetCard.Description" translate="yes" xml:space="preserve">
+          <source>The target where the processing result is shown.</source>
+          <target state="new">The target where the processing result is shown.</target>
+        </trans-unit>
+        <trans-unit id="ModelIdCard.Header" translate="yes" xml:space="preserve">
+          <source>Model Id</source>
+          <target state="new">Model Id</target>
+        </trans-unit>
+        <trans-unit id="ModelIdCard.Description" translate="yes" xml:space="preserve">
+          <source>The Id of the model to use.</source>
+          <target state="new">The Id of the model to use.</target>
+        </trans-unit>
       </group>
     </body>
   </file>

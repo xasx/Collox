@@ -41,6 +41,15 @@
     <SuppressPseudoWarning Condition="'$(Configuration)' == 'Debug'">true</SuppressPseudoWarning>
   </PropertyGroup>
   <ItemGroup>
+    <None Update="T4Templates\EmojiFlyout.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>EmojiFlyout.xaml</LastGenOutput>
+    </None>
+    <None Update="T4Templates\EmojiFlyout.xaml">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>EmojiFlyout.tt</DependentUpon>
+    </None>
     <None Update="T4Templates\NavigationPageMappings.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>NavigationPageMappings.cs</LastGenOutput>
@@ -54,6 +63,11 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>BreadcrumbPageMappings.cs</LastGenOutput>
     </None>
+    <Page Update="T4Templates\EmojiFlyout.xaml">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>EmojiFlyout.tt</DependentUpon>
+    </Page>
     <Page Update="Views\MirrorPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -197,5 +211,25 @@
   </ItemGroup>
   <ItemGroup>
     <PRIResource Remove="Strings\de-DE\Resources.resw" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="T4Templates\EmojiFlyout.xaml">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>EmojiFlyout.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Controls\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="T4Templates\EmojiFlyout.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>EmojiFlyout.tt</DependentUpon>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 </Project>
