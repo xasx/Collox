@@ -17,7 +17,7 @@ public class AIService(AIApis apis)
     private IntelligenceConfig Config { get; init; } = JsonSettings.Configure<IntelligenceConfig>()
         .WithRecovery(RecoveryAction.RenameAndLoadDefault)
             .WithVersioning(VersioningResultAction.RenameAndLoadDefault)
-        
+
             .LoadNow();
 
     public IChatClient GetChatClient(AIProvider apiType, string modelId)
@@ -36,10 +36,7 @@ public class AIService(AIApis apis)
 
     public void Add(IntelligentProcessor intelligentProcessor)
     {
-        if (Config.Processors == null)
-        {
-            Config.Processors = new List<IntelligentProcessor>();
-        }
+        Config.Processors ??= [];
 
         intelligentProcessor.GetClient = GetChatClient;
 
@@ -48,7 +45,7 @@ public class AIService(AIApis apis)
 
     public  IEnumerable<IntelligentProcessor> Get(Func<IntelligentProcessor, bool> filter)
     {
-        var processors = Config.Processors.Where(filter).ToList();
+        var processors = Config.Processors.Where(filter);
         foreach (var processor in processors)
         {
             processor.GetClient = GetChatClient;
@@ -57,10 +54,20 @@ public class AIService(AIApis apis)
         }
     }
 
-    
+    // get all processors
+    public IEnumerable<IntelligentProcessor> GetAll()
+    {
+        var processors = Config.Processors.ToList();
+        foreach (var processor in processors)
+        {
+            processor.GetClient = GetChatClient;
+            yield return processor;
+
+        }
+    }
 
 
-    
+
 
     public void Remove(IntelligentProcessor intelligentProcessor)
     {

@@ -34,12 +34,12 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
     [RelayCommand]
     public void LoadTabs()
     {
-        var procs = App.GetService<AIService>().Get(_ => true);
+        var procs = App.GetService<AIService>().GetAll();
         foreach (var tabContext in tabContextService.GetTabs())
         {
             if (tabContext.Name == initialTab.Context)
             {
-                initialTab.ActiveProcessors = procs.Where(x => x.Id == tabContext.ActiveProcessors.FirstOrDefault()).ToList();
+                initialTab.ActiveProcessors = [.. procs.Where(x => x.Id == tabContext.ActiveProcessors.FirstOrDefault())];
                 tabContexts[initialTab] = tabContext;
                 continue;
             }
@@ -49,8 +49,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
                 Context = tabContext.Name,
                 IsCloseable = tabContext.IsCloseable,
                 IsEditing = false,
-                ActiveProcessors = tabContext.ActiveProcessors.Select(x => procs.FirstOrDefault(p => p.Id == x)).ToList()
-            };
+                ActiveProcessors = tabContext.ActiveProcessors.ConvertAll(x => procs.FirstOrDefault(p => p.Id == x))            };
             Tabs.Add(tabData);
             tabContexts[tabData] = tabContext;
         }
@@ -85,7 +84,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
     {
         Tabs.Remove(tabData);
         var tabContext = tabContexts[tabData];
-        tabContexts.Remove(tabData); 
+        tabContexts.Remove(tabData);
         tabContextService.RemoveTab(tabContext);
     }
 
@@ -94,7 +93,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
         var tabContext = tabContexts[tabData];
         tabContext.Name = tabData.Context;
         tabContext.IsCloseable = tabData.IsCloseable;
-        tabContext.ActiveProcessors = tabData.ActiveProcessors.Select(x => x.Id).ToList();
+        tabContext.ActiveProcessors = tabData.ActiveProcessors.ConvertAll(x => x.Id);
         tabContextService.NotifyTabUpdate(tabContext);
     }
 
@@ -132,6 +131,4 @@ public class FocusTabMessage(TabData tabData) : ValueChangedMessage<TabData>(tab
 
 public class UpdateTabMessage(TabData tabData) : ValueChangedMessage<TabData>(tabData);
 
-public class GetFrameRequestMessage : RequestMessage<Frame>
-{
-}
+public class GetFrameRequestMessage : RequestMessage<Frame>;

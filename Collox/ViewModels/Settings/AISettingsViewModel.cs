@@ -1,9 +1,6 @@
-﻿using System.ClientModel;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using Collox.Services;
 using Windows.ApplicationModel.Resources.Core;
-using OllamaSharp;
-using OpenAI.Models;
 using Collox.Models;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using CommunityToolkit.Mvvm.Messaging;
@@ -39,8 +36,8 @@ public partial class AISettingsViewModel : ObservableObject
 
 
         aiService.Init();
-        var processors = aiService.Get(_ => true);
-        if (processors.Count() == 0)
+        var processors = aiService.GetAll().ToList();
+        if (!processors.Any())
         {
             var SynonymsEnhancerProcessor = new IntelligentProcessor()
             {
@@ -52,21 +49,25 @@ public partial class AISettingsViewModel : ObservableObject
                 Target = Target.Comment,
                 FallbackId = Guid.NewGuid(),
                 Name = "Synonyms",
-                GetClient = aiService.GetChatClient, 
+                GetClient = aiService.GetChatClient,
             };
             aiService.Add(SynonymsEnhancerProcessor);
             aiService.Save();
 
 
-            var synonymsProcessorViewModel = new IntelligentProcessorViewModel(SynonymsEnhancerProcessor);
-            synonymsProcessorViewModel.NamePresentation = "Display";
+            var synonymsProcessorViewModel = new IntelligentProcessorViewModel(SynonymsEnhancerProcessor)
+                {
+                    NamePresentation = "Display"
+                };
             Enhancers.Add(synonymsProcessorViewModel);
         } else
         {
             foreach (var processor in processors)
             {
-                var vm = new IntelligentProcessorViewModel(processor);
-                vm.NamePresentation = "Display";
+                var vm = new IntelligentProcessorViewModel(processor)
+                {
+                    NamePresentation = "Display"
+                };
                 Enhancers.Add(vm);
             }
         }
@@ -90,8 +91,6 @@ public partial class AISettingsViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            // log
-
         }
     }
 

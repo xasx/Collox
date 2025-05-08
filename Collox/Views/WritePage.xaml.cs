@@ -1,4 +1,5 @@
-﻿using Windows.Foundation;
+﻿using System.Diagnostics;
+using Windows.Foundation;
 using Windows.System;
 using Windows.UI.Core;
 using CommunityToolkit.Mvvm.Messaging;
@@ -19,17 +20,9 @@ public sealed partial class WritePage : Page
         DataContext = App.GetService<WriteViewModel>();
         InitializeComponent();
 
-        WeakReferenceMessenger.Default.Register<TextSubmittedMessage>(this, (s, e) =>
-        {
-            InputTextBox.Focus(FocusState.Programmatic);
-        });
+        WeakReferenceMessenger.Default.Register<TextSubmittedMessage>(this, (s, e) => InputTextBox.Focus(FocusState.Programmatic));
 
-        WeakReferenceMessenger.Default.Register<MessageSelectedMessage>(this, (s, e) =>
-        {
-           var message = e.Value;
-            // Scroll to selected item
-            MessageListView.ScrollIntoView(message);
-        });
+        WeakReferenceMessenger.Default.Register<MessageSelectedMessage>(this, (s, e) => MessageListView.ScrollIntoView(e.Value));
     }
 
     public WriteViewModel ViewModel => DataContext as WriteViewModel;
@@ -132,6 +125,7 @@ public sealed partial class WritePage : Page
     {
         await ViewModel.SaveNowCommand.ExecuteAsync(null);
         var navService = App.GetService<IJsonNavigationService>() as JsonNavigationService;
+        Debug.Assert(navService != null, nameof(navService) + " != null");
         navService.Navigate(typeof(TemplatesPage));
     }
 
