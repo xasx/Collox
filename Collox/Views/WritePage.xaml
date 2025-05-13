@@ -23,7 +23,6 @@
 
     <Page.Resources>
 
-        <Flyout x:Name="TaskFlyout" />
         <conv:TimeSpanToFriendlyConverter x:Key="TimeSpanToFriendlyConverter"
                                           x:Uid="/Helpers/FriendlyTime" />
 
@@ -31,12 +30,10 @@
 
         <converters:StringVisibilityConverter x:Key="StringVisibilityConverter" />
 
-
-
         <Flyout x:Name="ProcessorFlyout"
                 Closed="ProcessorFlyout_Closed"
                 Opening="ProcessorFlyout_Opening">
-            <StackPanel>
+            <StackPanel Spacing="8">
                 <ListView x:Name="ProcessorsListView"
                           ItemsSource="{x:Bind ViewModel.AvailableProcessors}"
                           SelectionMode="Multiple">

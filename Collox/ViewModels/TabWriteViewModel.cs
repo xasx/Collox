@@ -39,7 +39,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
         {
             if (tabContext.Name == initialTab.Context)
             {
-                initialTab.ActiveProcessors = [.. procs.Where(x => x.Id == tabContext.ActiveProcessors.FirstOrDefault())];
+                initialTab.ActiveProcessors = tabContext.ActiveProcessors.ConvertAll(x => procs.FirstOrDefault(p => p.Id == x));
                 tabContexts[initialTab] = tabContext;
                 continue;
             }

@@ -1,13 +1,11 @@
 ﻿using System.Diagnostics;
-using Windows.Foundation;
-using Windows.System;
-using Windows.UI.Core;
 using CommunityToolkit.Mvvm.Messaging;
 using Cottle;
+using EmojiToolkit;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml.Input;
-using EmojiToolkit;
-using Collox.Services;
+using Windows.System;
+using Windows.UI.Core;
 
 namespace Collox.Views;
 

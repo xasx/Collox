@@ -11,8 +11,16 @@ public enum SourceProvider
     OpenAI
 }
 
-public partial class IntelligentProcessorViewModel : ObservableObject
+public partial class IntelligentProcessorViewModel : ObservableObject, IEquatable<IntelligentProcessorViewModel>
 {
+    public bool Equals(IntelligentProcessorViewModel other)
+    {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return Id.Equals(other.Id);
+    }
+    public override int GetHashCode() => Id.GetHashCode();
+
     [ObservableProperty] public partial ObservableCollection<string> AvailableModelIds { get; set; } = [];
     [ObservableProperty] public partial Guid FallbackId { get; set; }
     [ObservableProperty] public partial Guid Id { get; set; }
@@ -47,6 +55,7 @@ public partial class IntelligentProcessorViewModel : ObservableObject
             _ => throw new ArgumentOutOfRangeException(nameof(model.Target), model.Target, null)
         };
         FallbackId = model.FallbackId;
+        AvailableModelIds.Add(ModelId);
     }
 
     [RelayCommand]
