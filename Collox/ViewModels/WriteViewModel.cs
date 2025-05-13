@@ -13,7 +13,7 @@ using Windows.ApplicationModel;
 
 namespace Collox.ViewModels;
 
-public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware
+public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware, IRecipient<TaskDoneMessage>
 {
     private static readonly ICollection<VoiceInfo> voiceInfos =
         [.. new SpeechSynthesizer().GetInstalledVoices().Select(iv => iv.VoiceInfo)];
@@ -24,6 +24,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     public WriteViewModel()
     {
         aiService.Init();
+        Tasks.CollectionChanged += (_, _) => ShowTasks = Tasks.Count > 0;
+        WeakReferenceMessenger.Default.RegisterAll(this);
     }
 
     [ObservableProperty] public partial int CharacterCount { get; set; }
@@ -55,10 +57,12 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     [ObservableProperty] public partial bool ClockShown { get; set; }
 
     public List<IntelligentProcessorViewModel> AvailableProcessors { get; init; } = [];
-    //public List<IntelligentProcessorViewModel> SelectedProcessors { get; init; } = [];
 
     public  ObservableGroupedCollection<string, EmojiRecord> Emojis { get; init; }
         = new ObservableGroupedCollection<string, EmojiRecord>(Emoji.All.GroupBy(e => e.Category));
+
+    [ObservableProperty] public partial ObservableCollection<TaskViewModel> Tasks { get; set; } = [];
+    [ObservableProperty] public partial bool ShowTasks { get; set; }
 
     public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
@@ -191,26 +195,22 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     {
         var msg = InputMessage;
         InputMessage = string.Empty;
-
-        switch (msg)
+        var tok = msg.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        switch (tok)
         {
-            case "clear":
+            case ["clear",..]:
                 await Clear();
                 return;
 
-            case "save":
+            case ["save", ..]:
                 await SaveNow();
                 return;
 
-            case "speak":
+            case ["speak", ..]:
                 SpeakLast();
                 return;
 
-            case "..":
-
-                return;
-
-            case "time":
+            case ["time", ..]:
                 var timestampMessage = new TimeColloxMessage
                 {
                     Time = DateTime.Now.TimeOfDay
@@ -219,23 +219,26 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 Messages.Add(timestampMessage);
                 return;
 
-            case "pin":
+            case ["pin", ..]:
                 ConversationContext.IsCloseable = false;
                 return;
 
 
-            case "unpin":
+            case ["unpin", ..]:
                 ConversationContext.IsCloseable = true;
                 return;
 
-            case "help":
+            case ["help", ..]:
                 var helpMessage = new InternalColloxMessage
                 {
-                    Message = "Available commands: clear, save, speak, time, pin, unpin",
+                    Message = "Available commands: clear, save, speak, time, pin, unpin, task",
                     Severity = InfoBarSeverity.Informational
                 };
 
                 Messages.Add(helpMessage);
+                return;
+            case ["task", .. var taskName]:
+                Tasks.Add(new TaskViewModel { Name = string.Join(" ", taskName), IsDone = false });
                 return;
         }
     }
@@ -300,7 +303,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 processor.Process = async (client) => processor.Target switch
              {
                  Target.Comment => await CreateComment(textColloxMessage, processor.Prompt, client),
-                 Target.Task => throw new NotImplementedException(),
+                 Target.Task => await CreateTask(textColloxMessage, processor.Prompt, client),
                  Target.Context => throw new NotImplementedException(),
                  Target.Chat => await CreateMessage(Messages.OfType<TextColloxMessage>().Where(m => !m.IsGenerated).Select(m => m.Text), processor.Prompt, client),
                  _ => throw new NotImplementedException(),
@@ -320,6 +323,17 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         }
 
         textColloxMessage.IsLoading = false;
+    }
+
+    private async Task<string> CreateTask(TextColloxMessage textColloxMessage, string prompt, IChatClient client)
+    {
+        var response = await client.GetResponseAsync(string.Format(prompt, textColloxMessage.Text));
+        Tasks.Add(new TaskViewModel
+        {
+            Name = response.Text,
+            IsDone = false
+        });
+        return response.Text;
     }
 
     private async Task<string> CreateMessage(IEnumerable< string > messages, string prompt, IChatClient client)
@@ -362,6 +376,11 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         var content = Markdown.ToPlainText(mdText, p);
 
         return content;
+    }
+
+    public void Receive(TaskDoneMessage message)
+    {
+        Tasks.Remove(message.Value);
     }
 }
 

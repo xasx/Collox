@@ -307,6 +307,9 @@
             <RowDefinition Height="42" />
         </Grid.RowDefinitions>
 
+
+
+
         <CommandBar Grid.Row="0"
                     Background="Transparent"
                     DefaultLabelPosition="Right"
@@ -435,6 +438,36 @@
 
         </ListView>
 
+        <Popup x:Name="TaskPopup"
+               Grid.Row="1"
+               Grid.RowSpan="2"
+               HorizontalOffset="720"
+               IsOpen="{x:Bind ViewModel.ShowTasks, Mode=OneWay}"
+               VerticalOffset="16">
+            <Popup.Child>
+                <Border Width="280"
+                        Height="200"
+                        Background="{ThemeResource SolidBackgroundFillColorTertiaryBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefault}"
+                        BorderThickness="1">
+                    <StackPanel x:Name="TaskPopupContent">
+
+                        <ItemsRepeater ItemsSource="{x:Bind ViewModel.Tasks, Mode=OneWay}">
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="vm:TaskViewModel">
+                                    <CheckBox Margin="8,4"
+                                              Foreground="{ThemeResource AccentTextFillColorTertiaryBrush}"
+                                              IsChecked="{x:Bind IsDone, Mode=TwoWay}"
+                                              Scale="1.5,1.5,1.5">
+                                        <TextBlock Text="{x:Bind Name}" />
+                                    </CheckBox>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+                </Border>
+            </Popup.Child>
+        </Popup>
 
         <InfoBar x:Uid="CurrentContext"
                  Title="Current Context"
