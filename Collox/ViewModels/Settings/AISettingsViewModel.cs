@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Collox.ViewModels;
+
 public partial class AISettingsViewModel : ObservableObject
 {
     [ObservableProperty] public partial ObservableCollection<string> AvailableOllamaModelIds { get; set; } = [];
@@ -16,7 +17,9 @@ public partial class AISettingsViewModel : ObservableObject
 
     [ObservableProperty] public partial bool IsOllamaEnabled { get; set; } = Settings.IsOllamaEnabled;
 
-    [ObservableProperty] public partial ObservableCollection<string> AvailableOpenAIModelIds { get; set; } = new ObservableCollection<string>();
+    [ObservableProperty]
+    public partial ObservableCollection<string> AvailableOpenAIModelIds { get; set; } =
+        new ObservableCollection<string>();
 
     [ObservableProperty] public partial string SelectedOpenAIModelId { get; set; } = Settings.OpenAIModelId;
 
@@ -26,7 +29,8 @@ public partial class AISettingsViewModel : ObservableObject
 
     [ObservableProperty] public partial bool IsOpenAIEnabled { get; set; } = Settings.IsOpenAIEnabled;
 
-    [ObservableProperty] public partial ObservableCollection<IntelligentProcessorViewModel> Enhancers { get; set; } = [];
+    [ObservableProperty]
+    public partial ObservableCollection<IntelligentProcessorViewModel> Enhancers { get; set; } = [];
 
     private readonly AIService aiService = App.GetService<AIService>();
 
@@ -56,11 +60,12 @@ public partial class AISettingsViewModel : ObservableObject
 
 
             var synonymsProcessorViewModel = new IntelligentProcessorViewModel(SynonymsEnhancerProcessor)
-                {
-                    NamePresentation = "Display"
-                };
+            {
+                NamePresentation = "Display"
+            };
             Enhancers.Add(synonymsProcessorViewModel);
-        } else
+        }
+        else
         {
             foreach (var processor in processors)
             {
@@ -111,7 +116,6 @@ public partial class AISettingsViewModel : ObservableObject
     [RelayCommand]
     public void AddProcessor()
     {
-
         var ip = new IntelligentProcessor()
         {
             Id = Guid.NewGuid(),
@@ -160,8 +164,7 @@ public partial class AISettingsViewModel : ObservableObject
     {
         Settings.IsOpenAIEnabled = value;
     }
-
-
 }
 
-public class ProcessorDeletedMessage(IntelligentProcessorViewModel intelligentProcessorViewModel) : ValueChangedMessage<IntelligentProcessorViewModel>(intelligentProcessorViewModel);
+public class ProcessorDeletedMessage(IntelligentProcessorViewModel intelligentProcessorViewModel)
+    : ValueChangedMessage<IntelligentProcessorViewModel>(intelligentProcessorViewModel);

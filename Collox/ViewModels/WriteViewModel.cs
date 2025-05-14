@@ -58,7 +58,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     public List<IntelligentProcessorViewModel> AvailableProcessors { get; init; } = [];
 
-    public  ObservableGroupedCollection<string, EmojiRecord> Emojis { get; init; }
+    public ObservableGroupedCollection<string, EmojiRecord> Emojis { get; init; }
         = new ObservableGroupedCollection<string, EmojiRecord>(Emoji.All.GroupBy(e => e.Category));
 
     [ObservableProperty] public partial ObservableCollection<TaskViewModel> Tasks { get; set; } = [];
@@ -198,7 +198,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         var tok = msg.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         switch (tok)
         {
-            case ["clear",..]:
+            case ["clear", ..]:
                 await Clear();
                 return;
 
@@ -259,7 +259,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
         CharacterCount = Math.Min(KeyStrokesCount, CharacterCount + textMessage.Text.Length);
 
-        if (AppHelper.Settings.PersistMessages)
+        if (Settings.PersistMessages)
         {
             var singleMessage = new SingleMessage(textMessage.Text, textMessage.Context, textMessage.Timestamp);
             await storeService.Append(singleMessage);
@@ -301,13 +301,15 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             foreach (var processor in procs)
             {
                 processor.Process = async (client) => processor.Target switch
-             {
-                 Target.Comment => await CreateComment(textColloxMessage, processor.Prompt, client),
-                 Target.Task => await CreateTask(textColloxMessage, processor.Prompt, client),
-                 Target.Context => throw new NotImplementedException(),
-                 Target.Chat => await CreateMessage(Messages.OfType<TextColloxMessage>().Where(m => !m.IsGenerated).Select(m => m.Text), processor.Prompt, client),
-                 _ => throw new NotImplementedException(),
-             };
+                {
+                    Target.Comment => await CreateComment(textColloxMessage, processor.Prompt, client),
+                    Target.Task => await CreateTask(textColloxMessage, processor.Prompt, client),
+                    Target.Context => throw new NotImplementedException(),
+                    Target.Chat => await CreateMessage(
+                        Messages.OfType<TextColloxMessage>().Where(m => !m.IsGenerated).Select(m => m.Text),
+                        processor.Prompt, client),
+                    _ => throw new NotImplementedException(),
+                };
                 processor.OnError = (ex) =>
                 {
                     textColloxMessage.ErrorMessage = $"Error: {ex.Message}";
@@ -336,7 +338,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         return response.Text;
     }
 
-    private async Task<string> CreateMessage(IEnumerable< string > messages, string prompt, IChatClient client)
+    private async Task<string> CreateMessage(IEnumerable<string> messages, string prompt, IChatClient client)
     {
         var textColloxMessage = new TextColloxMessage
         {
@@ -355,11 +357,13 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             textColloxMessage.Text += update.Text;
             ret += update.Text;
         }
+
         textColloxMessage.IsLoading = false;
         return ret;
     }
 
-    private static async Task<string> CreateComment(TextColloxMessage textColloxMessage, string prompt, IChatClient client)
+    private static async Task<string> CreateComment(TextColloxMessage textColloxMessage, string prompt,
+        IChatClient client)
     {
         var ret = string.Empty;
         await foreach (var update in client.GetStreamingResponseAsync(string.Format(prompt, textColloxMessage.Text)))
@@ -367,6 +371,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             textColloxMessage.Comment += update.Text;
             ret += update.Text;
         }
+
         return ret;
     }
 

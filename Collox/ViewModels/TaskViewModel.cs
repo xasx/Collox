@@ -10,7 +10,7 @@ public partial class TaskViewModel : ObservableObject
 
     public static implicit operator TaskViewModel(string task)
     {
-         return new TaskViewModel { Name = task, IsDone = false };
+        return new TaskViewModel { Name = task, IsDone = false };
     }
 
     partial void OnIsDoneChanged(bool value)

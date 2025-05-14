@@ -39,7 +39,8 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
         {
             if (tabContext.Name == initialTab.Context)
             {
-                initialTab.ActiveProcessors = tabContext.ActiveProcessors.ConvertAll(x => procs.FirstOrDefault(p => p.Id == x));
+                initialTab.ActiveProcessors =
+                    tabContext.ActiveProcessors.ConvertAll(x => procs.FirstOrDefault(p => p.Id == x));
                 tabContexts[initialTab] = tabContext;
                 continue;
             }
@@ -49,7 +50,8 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
                 Context = tabContext.Name,
                 IsCloseable = tabContext.IsCloseable,
                 IsEditing = false,
-                ActiveProcessors = tabContext.ActiveProcessors.ConvertAll(x => procs.FirstOrDefault(p => p.Id == x))            };
+                ActiveProcessors = tabContext.ActiveProcessors.ConvertAll(x => procs.FirstOrDefault(p => p.Id == x))
+            };
             Tabs.Add(tabData);
             tabContexts[tabData] = tabContext;
         }

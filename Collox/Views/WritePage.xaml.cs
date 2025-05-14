@@ -18,9 +18,11 @@ public sealed partial class WritePage : Page
         DataContext = App.GetService<WriteViewModel>();
         InitializeComponent();
 
-        WeakReferenceMessenger.Default.Register<TextSubmittedMessage>(this, (s, e) => InputTextBox.Focus(FocusState.Programmatic));
+        WeakReferenceMessenger.Default.Register<TextSubmittedMessage>(this,
+            (s, e) => InputTextBox.Focus(FocusState.Programmatic));
 
-        WeakReferenceMessenger.Default.Register<MessageSelectedMessage>(this, (s, e) => MessageListView.ScrollIntoView(e.Value));
+        WeakReferenceMessenger.Default.Register<MessageSelectedMessage>(this,
+            (s, e) => MessageListView.ScrollIntoView(e.Value));
     }
 
     public WriteViewModel ViewModel => DataContext as WriteViewModel;
@@ -102,7 +104,7 @@ public sealed partial class WritePage : Page
                 "now" => Value.FromString(DateTime.Now.ToString("F")),
                 "random_emoji_nature" => Value.FromString(
                     Emoji.All.Where(e => e.Category == "nature")
-                    .OrderBy(e => Random.Shared.Next()).First().Raw),
+                        .OrderBy(e => Random.Shared.Next()).First().Raw),
                 _ => Value.Undefined
             };
         });
@@ -113,7 +115,7 @@ public sealed partial class WritePage : Page
     private void Button_Click(object sender, RoutedEventArgs e)
     {
         var b = sender as Button;
-        ViewModel.InputMessage += b.Tag;
+        ViewModel.InputMessage += b!.Tag;
         ViewModel.KeyStrokesCount++;
         InputTextBox.Focus(FocusState.Programmatic);
         InputTextBox.Select(InputTextBox.Text.Length, 0);
@@ -143,7 +145,7 @@ public sealed partial class WritePage : Page
     {
         var aiSettings = App.GetService<AISettingsViewModel>();
         ViewModel.AvailableProcessors.Clear();
-        var actives = ViewModel.ConversationContext.ActiveProcessors.Select(p=>p.Id);
+        var actives = ViewModel.ConversationContext.ActiveProcessors.Select(p => p.Id);
         var selection = new List<IntelligentProcessorViewModel>();
         foreach (var processor in aiSettings.Enhancers)
         {
@@ -153,6 +155,7 @@ public sealed partial class WritePage : Page
                 selection.Add(processor);
             }
         }
+
         ProcessorsListView.SelectedItems.AddRange(selection);
     }
 
