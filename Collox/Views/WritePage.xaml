@@ -30,12 +30,16 @@
 
         <converters:StringVisibilityConverter x:Key="StringVisibilityConverter" />
 
+        <converters:BoolToObjectConverter x:Key="BoolToObjectConverter"
+                                          FalseValue="Left"
+                                          TrueValue="Right" />
+
         <Flyout x:Name="ProcessorFlyout"
                 Closed="ProcessorFlyout_Closed"
                 Opening="ProcessorFlyout_Opening">
             <StackPanel Spacing="8">
                 <ListView x:Name="ProcessorsListView"
-                          ItemsSource="{x:Bind ViewModel.AvailableProcessors}"
+                          ItemsSource="{x:Bind ViewModel.AvailableProcessors, Mode=OneWay}"
                           SelectionMode="Multiple">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="vm:IntelligentProcessorViewModel">
@@ -50,6 +54,8 @@
                                            FontWeight="Light"
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                                     <Run Text="{x:Bind Source}" />
+                                    <Run Text="@" />
+                                    <Run Text="{x:Bind ModelId}" />
                                     <Run Text="&#x2192;" />
                                     <Run Text="{x:Bind Target}" />
                                 </TextBlock>
@@ -186,6 +192,7 @@
         <DataTemplate x:Name="TextTemplate"
                       x:DataType="vm:TextColloxMessage">
             <RelativePanel Margin="0,4"
+                           HorizontalAlignment="{x:Bind IsGenerated, Converter={StaticResource BoolToObjectConverter}}"
                            Background="{ThemeResource CardBackgroundFillColorDefault}"
                            CornerRadius="8">
 
@@ -227,7 +234,8 @@
                 </ctrls:HeaderedContentControl>
                 <Button x:Name="ReadButton"
                         Command="{x:Bind ReadCommand}"
-                        RelativePanel.AlignRightWithPanel="True">
+                        RelativePanel.AlignRightWithPanel="True"
+                        RelativePanel.RightOf="TimeHeader">
                     <SymbolIcon Symbol="Volume" />
                 </Button>
                 <TextBlock x:Name="CommentBox"
@@ -303,9 +311,6 @@
             <RowDefinition Height="84" />
             <RowDefinition Height="42" />
         </Grid.RowDefinitions>
-
-
-
 
         <CommandBar Grid.Row="0"
                     Background="Transparent"
@@ -417,7 +422,7 @@
 
         <ListView x:Name="MessageListView"
                   Grid.Row="1"
-                  Background="Transparent"
+                  Background="{ThemeResource LayerOnMicaBaseAltFillColorTransparentBrush}"
                   CacheMode="BitmapCache"
                   ItemTemplateSelector="{StaticResource MessagesTemplate}"
                   ItemsSource="{x:Bind ViewModel.Messages, Mode=OneWay}"
@@ -426,6 +431,12 @@
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   SelectedValue="{x:Bind ViewModel.SelectedMessage, Mode=TwoWay}"
                   SelectionMode="Extended">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
+
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <ItemsStackPanel VerticalAlignment="Bottom"

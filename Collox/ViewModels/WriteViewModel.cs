@@ -15,8 +15,9 @@ namespace Collox.ViewModels;
 
 public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware, IRecipient<TaskDoneMessage>
 {
-    private static readonly ICollection<VoiceInfo> voiceInfos =
-        [.. new SpeechSynthesizer().GetInstalledVoices().Select(iv => iv.VoiceInfo)];
+    // Improve voice initialization with lazy loading
+    private static readonly Lazy<ICollection<VoiceInfo>> _voiceInfos = new(() => 
+        [.. new SpeechSynthesizer().GetInstalledVoices().Select(iv => iv.VoiceInfo)]);
 
     private readonly IStoreService storeService = App.GetService<IStoreService>();
     private readonly AIService aiService = App.GetService<AIService>();
@@ -32,7 +33,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     [ObservableProperty] public partial TabData ConversationContext { get; set; }
 
-    public ICollection<VoiceInfo> InstalledVoices => voiceInfos;
+    public ICollection<VoiceInfo> InstalledVoices => _voiceInfos.Value;
 
     [ObservableProperty] public partial bool IsBeeping { get; set; } = Settings.AutoBeep;
 
@@ -48,7 +49,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     [ObservableProperty]
     public partial VoiceInfo SelectedVoice { get; set; }
-        = voiceInfos.FirstOrDefault(vi => vi.Name == Settings.Voice);
+        = _voiceInfos.Value.FirstOrDefault(vi => vi.Name == Settings.Voice);
 
     [ObservableProperty] public partial Symbol SubmitModeIcon { get; set; } = Symbol.Send;
 
@@ -298,25 +299,35 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         try
         {
             var procs = ConversationContext.ActiveProcessors;
-            foreach (var processor in procs)
+            var tasks = procs.Select(async processor =>
             {
-                processor.Process = async (client) => processor.Target switch
+                try
                 {
-                    Target.Comment => await CreateComment(textColloxMessage, processor.Prompt, client),
-                    Target.Task => await CreateTask(textColloxMessage, processor.Prompt, client),
-                    Target.Context => throw new NotImplementedException(),
-                    Target.Chat => await CreateMessage(
-                        Messages.OfType<TextColloxMessage>().Where(m => !m.IsGenerated).Select(m => m.Text),
-                        processor.Prompt, client),
-                    _ => throw new NotImplementedException(),
-                };
-                processor.OnError = (ex) =>
+                    processor.Process = async (client) => processor.Target switch
+                    {
+                        Target.Comment => await CreateComment(textColloxMessage, processor.Prompt, client),
+                        Target.Task => await CreateTask(textColloxMessage, processor.Prompt, client),
+                        Target.Context => throw new NotImplementedException(),
+                        Target.Chat => await CreateMessage(
+                            Messages.OfType<TextColloxMessage>().Where(m => !m.IsGenerated).Select(m => m.Text),
+                            processor.Prompt, client),
+                        _ => throw new NotImplementedException(),
+                    };
+                    processor.OnError = (ex) =>
+                    {
+                        textColloxMessage.ErrorMessage = $"Error: {ex.Message}";
+                        textColloxMessage.HasProcessingError = true;
+                    };
+                    await processor.Work();
+                }
+                catch (Exception ex)
                 {
                     textColloxMessage.ErrorMessage = $"Error: {ex.Message}";
                     textColloxMessage.HasProcessingError = true;
-                };
-                await processor.Work();
-            }
+                }
+            });
+
+            await Task.WhenAll(tasks);
         }
         catch (Exception ex)
         {
@@ -375,12 +386,13 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         return ret;
     }
 
+    // Add this method to cache the markdown pipeline
+    private static readonly Lazy<MarkdownPipeline> _markdownPipeline = new(() => 
+        new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
+
     private static string StripMd(string mdText)
     {
-        var p = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
-        var content = Markdown.ToPlainText(mdText, p);
-
-        return content;
+        return Markdown.ToPlainText(mdText, _markdownPipeline.Value);
     }
 
     public void Receive(TaskDoneMessage message)
