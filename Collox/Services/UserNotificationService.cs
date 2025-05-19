@@ -21,7 +21,7 @@ public class UserNotificationService
             case UserNotificationListenerAccessStatus.Allowed:
                 listener.NotificationChanged += Listener_NotificationChanged;
                 // Yay! Proceed as normal
-                await UpdateUserNotifications(listener);
+                await UpdateUserNotifications(listener).ConfigureAwait(false);
                 break;
 
             // This means the user has denied access.

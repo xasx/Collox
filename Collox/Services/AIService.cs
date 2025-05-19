@@ -8,16 +8,11 @@ using Nucs.JsonSettings.Modulation.Recovery;
 namespace Collox.Services;
 public class AIService(AIApis apis)
 {
-    public void Init()
-    {
-        apis.Init();
-
-    }
+    public void Init() => apis.Init();
 
     private IntelligenceConfig Config { get; init; } = JsonSettings.Configure<IntelligenceConfig>()
         .WithRecovery(RecoveryAction.RenameAndLoadDefault)
             .WithVersioning(VersioningResultAction.RenameAndLoadDefault)
-
             .LoadNow();
 
     public IChatClient GetChatClient(AIProvider apiType, string modelId)
@@ -43,7 +38,7 @@ public class AIService(AIApis apis)
         Config.Processors.Add(intelligentProcessor);
     }
 
-    public  IEnumerable<IntelligentProcessor> Get(Func<IntelligentProcessor, bool> filter)
+    public IEnumerable<IntelligentProcessor> Get(Func<IntelligentProcessor, bool> filter)
     {
         var processors = Config.Processors.Where(filter);
         foreach (var processor in processors)
@@ -66,13 +61,11 @@ public class AIService(AIApis apis)
         }
     }
 
-
-
-
     public void Remove(IntelligentProcessor intelligentProcessor)
     {
         Config.Processors?.Remove(intelligentProcessor);
     }
+
     public void Save()
     {
         Config.Save();
@@ -83,5 +76,4 @@ public class AIService(AIApis apis)
         Config.Load();
         Config.Processors.ForEach(p => p.GetClient = GetChatClient);
     }
-
 }

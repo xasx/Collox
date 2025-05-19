@@ -40,6 +40,5 @@ public sealed partial class MirrorPage : Page
     private void TokenView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         ViewModel.SelectedContexts = new ObservableCollection<string>(TokenView.SelectedItems.Cast<string>());
-
     }
 }

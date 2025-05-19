@@ -16,7 +16,7 @@ namespace Collox.ViewModels;
 public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware, IRecipient<TaskDoneMessage>
 {
     // Improve voice initialization with lazy loading
-    private static readonly Lazy<ICollection<VoiceInfo>> _voiceInfos = new(() => 
+    private static readonly Lazy<ICollection<VoiceInfo>> _voiceInfos = new(() =>
         [.. new SpeechSynthesizer().GetInstalledVoices().Select(iv => iv.VoiceInfo)]);
 
     private readonly IStoreService storeService = App.GetService<IStoreService>();
@@ -120,7 +120,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     public async Task Clear()
     {
         Messages.Clear();
-        await storeService.SaveNow();
+        await storeService.SaveNow().ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -168,7 +168,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     [RelayCommand]
     private async Task SaveNow()
     {
-        await storeService.SaveNow();
+        await storeService.SaveNow().ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -184,10 +184,10 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         switch (SubmitModeIcon)
         {
             case Symbol.Send:
-                await AddTextMessage();
+                await AddTextMessage().ConfigureAwait(false);
                 break;
             case Symbol.Play:
-                await ProcessCommand();
+                await ProcessCommand().ConfigureAwait(false);
                 break;
         }
     }
@@ -200,11 +200,11 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         switch (tok)
         {
             case ["clear", ..]:
-                await Clear();
+                await Clear().ConfigureAwait(false);
                 return;
 
             case ["save", ..]:
-                await SaveNow();
+                await SaveNow().ConfigureAwait(false);
                 return;
 
             case ["speak", ..]:
@@ -223,7 +223,6 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             case ["pin", ..]:
                 ConversationContext.IsCloseable = false;
                 return;
-
 
             case ["unpin", ..]:
                 ConversationContext.IsCloseable = true;
@@ -263,7 +262,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         if (Settings.PersistMessages)
         {
             var singleMessage = new SingleMessage(textMessage.Text, textMessage.Context, textMessage.Timestamp);
-            await storeService.Append(singleMessage);
+            await storeService.Append(singleMessage).ConfigureAwait(true);
         }
 
         WeakReferenceMessenger.Default.Send(new TextSubmittedMessage(textMessage));
@@ -278,7 +277,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             ReadText(textMessage.Text, SelectedVoice?.Name);
         }
 
-        await AddMore(textMessage);
+        await AddMore(textMessage).ConfigureAwait(false);
     }
 
     private static void PlayBeepSound()
@@ -305,12 +304,12 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 {
                     processor.Process = async (client) => processor.Target switch
                     {
-                        Target.Comment => await CreateComment(textColloxMessage, processor.Prompt, client),
-                        Target.Task => await CreateTask(textColloxMessage, processor.Prompt, client),
+                        Target.Comment => await CreateComment(textColloxMessage, processor.Prompt, client).ConfigureAwait(false),
+                        Target.Task => await CreateTask(textColloxMessage, processor.Prompt, client).ConfigureAwait(false),
                         Target.Context => throw new NotImplementedException(),
                         Target.Chat => await CreateMessage(
                             Messages.OfType<TextColloxMessage>().Where(m => !m.IsGenerated).Select(m => m.Text),
-                            processor.Prompt, client),
+                            processor.Prompt, client).ConfigureAwait(false),
                         _ => throw new NotImplementedException(),
                     };
                     processor.OnError = (ex) =>
@@ -318,7 +317,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                         textColloxMessage.ErrorMessage = $"Error: {ex.Message}";
                         textColloxMessage.HasProcessingError = true;
                     };
-                    await processor.Work();
+                    await processor.Work().ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -327,7 +326,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 }
             });
 
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks).ConfigureAwait(true);
         }
         catch (Exception ex)
         {
@@ -340,7 +339,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     private async Task<string> CreateTask(TextColloxMessage textColloxMessage, string prompt, IChatClient client)
     {
-        var response = await client.GetResponseAsync(string.Format(prompt, textColloxMessage.Text));
+        var response = await client.GetResponseAsync(string.Format(prompt, textColloxMessage.Text)).ConfigureAwait(true);
         Tasks.Add(new TaskViewModel
         {
             Name = response.Text,
@@ -387,7 +386,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     }
 
     // Add this method to cache the markdown pipeline
-    private static readonly Lazy<MarkdownPipeline> _markdownPipeline = new(() => 
+    private static readonly Lazy<MarkdownPipeline> _markdownPipeline = new(() =>
         new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
     private static string StripMd(string mdText)

@@ -19,7 +19,7 @@ public class TemplateService : ITemplateService
             {
                 File.Delete(filename);
             }
-        });
+        }).ConfigureAwait(false);
         cache.Remove(name);
     }
 
@@ -32,7 +32,7 @@ public class TemplateService : ITemplateService
             throw new Exception($"The template \"{name}\" already exists.");
         }
 
-        await File.WriteAllTextAsync(filename!, content);
+        await File.WriteAllTextAsync(filename!, content).ConfigureAwait(false);
         cache.Add(name, new MarkdownTemplate
         {
             Name = name, FileName = filename, Content = content
@@ -46,7 +46,7 @@ public class TemplateService : ITemplateService
         foreach (var filename in filenames)
         {
             var name = Path.GetFileNameWithoutExtension(filename);
-            var content = await File.ReadAllTextAsync(filename);
+            var content = await File.ReadAllTextAsync(filename).ConfigureAwait(false);
             var t = new MarkdownTemplate { Name = name, Content = content, FileName = filename };
             templates.Add(name, t);
         }
@@ -64,7 +64,7 @@ public class TemplateService : ITemplateService
         {
             Debug.Assert(newName == Path.GetFileNameWithoutExtension(fn));
 
-            await File.WriteAllTextAsync(fn, newContent);
+            await File.WriteAllTextAsync(fn, newContent).ConfigureAwait(false);
             cache[newName].Content = newContent;
         }
         else
@@ -72,7 +72,7 @@ public class TemplateService : ITemplateService
             var newFn = DetermineFilename(newName);
             File.Move(fn, newFn);
 
-            await File.WriteAllTextAsync(newFn, newContent);
+            await File.WriteAllTextAsync(newFn, newContent).ConfigureAwait(false);
 
             cache.Remove(originalName);
 
@@ -84,8 +84,5 @@ public class TemplateService : ITemplateService
         }
     }
 
-    private string DetermineFilename(string name)
-    {
-        return Path.Combine(templatesDir, name + ".md");
-    }
+    private string DetermineFilename(string name) => Path.Combine(templatesDir, $"{name}.md");
 }

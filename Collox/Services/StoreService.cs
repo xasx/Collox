@@ -14,8 +14,7 @@ internal class StoreService : IStoreService
 
     private DateTime lastSave = DateTime.MinValue;
 
-    private bool newday;
-
+    private bool isNewDay;
 
     public StoreService()
     {
@@ -24,7 +23,7 @@ internal class StoreService : IStoreService
 
     public async Task Append(SingleMessage singleMessage)
     {
-        await Task.Run( () =>
+        await Task.Run(() =>
         {
             q.EnqueueIf(Settings.WriteDelimiters, $"<!-- collox.bop:{Guid.NewGuid()} -->");
             q.Enqueue(singleMessage.Timestamp?.ToMdTimestamp());
@@ -36,7 +35,7 @@ internal class StoreService : IStoreService
             {
                 Save();
             }
-        });
+        }).ConfigureAwait(false);
     }
 
     public string GetFilename()
@@ -57,18 +56,17 @@ internal class StoreService : IStoreService
             var dict = new Dictionary<string, ICollection<MarkdownRecording>>();
             foreach (var d in di.EnumerateDirectories("????-??_*"))
             {
-                //if (d.Name.Equals("Templates")) continue;
                 var files = d.EnumerateFiles("*.md");
                 var list = new List<MarkdownRecording>();
                 foreach (var f in files)
                 {
-                    string lines = string.Empty;
+                    var lines = string.Empty;
                     using (var sr = f.OpenText())
                     {
-                        // read three lines
+                        // read some lines
                         for (var i = 0; i < 5; i++)
                         {
-                            lines += await sr.ReadLineAsync();
+                            lines += await sr.ReadLineAsync().ConfigureAwait(false);
                             lines += Environment.NewLine;
                         }
                     }
@@ -114,9 +112,9 @@ internal class StoreService : IStoreService
         if (Settings.CustomRotation)
         {
             var now = DateTime.Now;
-            if (newday || DateOnly.FromDateTime(now) > DateOnly.FromDateTime(lastROD))
+            if (isNewDay || DateOnly.FromDateTime(now) > DateOnly.FromDateTime(lastROD))
             {
-                newday = true; // save some comparisons
+                isNewDay = true; // save some comparisons
                 if (TimeOnly.FromDateTime(now) >= Settings.RollOverTime)
                 {
                     var oldfn = currentFilename;
@@ -124,7 +122,7 @@ internal class StoreService : IStoreService
                     lastROD = now;
                     WeakReferenceMessenger.Default.Send(
                         new PropertyChangedMessage<string>(this, "Filename", oldfn, currentFilename));
-                    newday = false;
+                    isNewDay = false;
                 }
             }
         }

@@ -38,10 +38,9 @@ public partial class AISettingsViewModel : ObservableObject
     {
         var prompt = ResourceManager.Current.MainResourceMap.GetValue("DefaultValues/SynonymsPrompt").ValueAsString;
 
-
         aiService.Init();
         var processors = aiService.GetAll().ToList();
-        if (!processors.Any())
+        if (processors.Count == 0)
         {
             var SynonymsEnhancerProcessor = new IntelligentProcessor()
             {
@@ -57,7 +56,6 @@ public partial class AISettingsViewModel : ObservableObject
             };
             aiService.Add(SynonymsEnhancerProcessor);
             aiService.Save();
-
 
             var synonymsProcessorViewModel = new IntelligentProcessorViewModel(SynonymsEnhancerProcessor)
             {
@@ -92,7 +90,7 @@ public partial class AISettingsViewModel : ObservableObject
 
         try
         {
-            AvailableOllamaModelIds.AddRange(await AIModelHelpers.GetOllamaModels());
+            AvailableOllamaModelIds.AddRange(await AIModelHelpers.GetOllamaModels().ConfigureAwait(false));
         }
         catch (Exception ex)
         {
@@ -106,7 +104,7 @@ public partial class AISettingsViewModel : ObservableObject
 
         try
         {
-            AvailableOpenAIModelIds.AddRange(await AIModelHelpers.GetOpenAIModels());
+            AvailableOpenAIModelIds.AddRange(await AIModelHelpers.GetOpenAIModels().ConfigureAwait(false));
         }
         catch (Exception ex)
         {
@@ -133,7 +131,6 @@ public partial class AISettingsViewModel : ObservableObject
         Settings.IsOllamaEnabled = value;
     }
 
-
     partial void OnSelectedOllamaModelIdChanged(string value)
     {
         Settings.OllamaModelId = value;
@@ -143,7 +140,6 @@ public partial class AISettingsViewModel : ObservableObject
     {
         Settings.OllamaEndpoint = value;
     }
-
 
     partial void OnSelectedOpenAIModelIdChanged(string value)
     {

@@ -70,26 +70,34 @@ public sealed partial class WritePage : Page
 
     private async void TemplatesFlyout_Opening(object sender, object e)
     {
-        var vm = App.GetService<TemplatesViewModel>();
-        await vm.LoadTemplates();
-        var gfi = TemplatesFlyout.Items
-            .Where(item => (string)item.Tag != predefined).ToList();
-
-        foreach (var item in gfi)
+        try
         {
-            TemplatesFlyout.Items.Remove(item);
+            var vm = App.GetService<TemplatesViewModel>();
+            await vm.LoadTemplates();
+            var gfi = TemplatesFlyout.Items
+                .Where(item => (string)item.Tag != predefined).ToList();
+
+            foreach (var item in gfi)
+            {
+                TemplatesFlyout.Items.Remove(item);
+            }
+
+            foreach (var templateItem in vm.Templates)
+            {
+                TemplatesFlyout.Items.Add(
+                    new MenuFlyoutItem
+                    {
+                        Text = templateItem.Name,
+                        Icon = new SymbolIcon(Symbol.Document),
+                        Tag = templateItem.Content,
+                        Command = new RelayCommand(() => ApplyTemplate(templateItem))
+                    });
+            }
         }
-
-        foreach (var templateItem in vm.Templates)
+        catch (Exception ex)
         {
-            TemplatesFlyout.Items.Add(
-                new MenuFlyoutItem
-                {
-                    Text = templateItem.Name,
-                    Icon = new SymbolIcon(Symbol.Document),
-                    Tag = templateItem.Content,
-                    Command = new RelayCommand(() => ApplyTemplate(templateItem))
-                });
+            Debug.WriteLine($"Error in TemplatesFlyout_Opening: {ex.Message}");
+            // Optionally, handle the exception (e.g., show a message to the user)
         }
     }
 
@@ -123,10 +131,18 @@ public sealed partial class WritePage : Page
 
     private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
     {
-        await ViewModel.SaveNowCommand.ExecuteAsync(null);
-        var navService = App.GetService<IJsonNavigationService>() as JsonNavigationService;
-        Debug.Assert(navService != null, nameof(navService) + " != null");
-        navService.Navigate(typeof(TemplatesPage));
+        try
+        {
+            await ViewModel.SaveNowCommand.ExecuteAsync(null);
+            var navService = App.GetService<IJsonNavigationService>() as JsonNavigationService;
+            Debug.Assert(navService != null, nameof(navService) + " != null");
+            navService.Navigate(typeof(TemplatesPage));
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error in MenuFlyoutItem_Click: {ex.Message}");
+            // Optionally, handle the exception (e.g., show a message to the user)
+        }
     }
 
     private void GridView_ItemClick(object sender, ItemClickEventArgs e)

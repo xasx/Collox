@@ -27,10 +27,7 @@ public sealed partial class TabWritePage : Page
             tim.Start();
         });
 
-        WeakReferenceMessenger.Default.Register<TabWritePage, GetFrameRequestMessage>(this, (s, e) =>
-        {
-            e.Reply(FindTabFrame(MainTabView));
-        });
+        WeakReferenceMessenger.Default.Register<TabWritePage, GetFrameRequestMessage>(this, (s, e) => e.Reply(FindTabFrame(MainTabView)));
     }
 
     private TabWriteViewModel ViewModel => DataContext as TabWriteViewModel;

@@ -1,4 +1,5 @@
 ﻿using Collox.Services;
+using ColorCode.Common;
 using CommunityToolkit.Mvvm.Collections;
 
 namespace Collox.ViewModels;
@@ -15,10 +16,11 @@ public partial class HistoryViewModel : ObservableObject
     public async Task LoadHistory()
     {
         Histories.Clear();
-        var historyData = await storeService.Load();
-        foreach (var (month, historyItems) in historyData)
+        var historyData = await storeService.Load().ConfigureAwait(true);
+
+        foreach (var (month, historyItems) in historyData.Reverse())
         {
-            foreach (var historyItem in historyItems)
+            foreach (var historyItem in historyItems.Reverse())
             {
                 Histories.AddItem(month, new HistoryEntry
                 {

@@ -1,6 +1,6 @@
-﻿using System.ClientModel;
-using OllamaSharp;
+﻿using OllamaSharp;
 using OpenAI;
+using System.ClientModel;
 
 namespace Collox.Services;
 
@@ -12,15 +12,8 @@ public class AIApis
 
     public void Init()
     {
-        if (Settings.IsOllamaEnabled)
-        {
-            Ollama = new OllamaApiClient(Settings.OllamaEndpoint);
-        }
-
-        if (Settings.IsOpenAIEnabled)
-        {
-            OpenAI = new OpenAIClient(new ApiKeyCredential(Settings.OpenAIApiKey),
-                new OpenAIClientOptions { Endpoint = new Uri(Settings.OpenAIEndpoint) });
-        }
+        Ollama = new OllamaApiClient(Settings.OllamaEndpoint);
+        OpenAI = new OpenAIClient(new ApiKeyCredential(Settings.OpenAIApiKey),
+            new OpenAIClientOptions { Endpoint = new Uri(Settings.OpenAIEndpoint) });
     }
 }

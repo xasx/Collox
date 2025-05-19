@@ -44,7 +44,7 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
         {
             AIProvider.Ollama => SourceProvider.Ollama,
             AIProvider.OpenAI => SourceProvider.OpenAI,
-            _ => throw new ArgumentOutOfRangeException(nameof(model.Provider), model.Provider, null)
+            _ => throw new ArgumentOutOfRangeException(nameof(model), $"Invalid provider: {model.Provider}")
         };
         Target = model.Target switch
         {
@@ -52,7 +52,7 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
             Models.Target.Task => ProcessorTarget.Task,
             Models.Target.Context => ProcessorTarget.Context,
             Models.Target.Chat => ProcessorTarget.Chat,
-            _ => throw new ArgumentOutOfRangeException(nameof(model.Target), model.Target, null)
+            _ => throw new ArgumentOutOfRangeException(nameof(model), $"Invalid target: {model.Target}")
         };
         FallbackId = model.FallbackId;
         AvailableModelIds.Add(ModelId);
@@ -122,6 +122,11 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
     {
         Model.Id = value;
         App.GetService<AIService>().Save();
+    }
+
+    public override bool Equals(object obj)
+    {
+        return Equals(obj as IntelligentProcessorViewModel);
     }
 }
 
