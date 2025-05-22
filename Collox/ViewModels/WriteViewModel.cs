@@ -304,7 +304,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 {
                     processor.Process = async (client) => processor.Target switch
                     {
-                        Target.Comment => await CreateComment(textColloxMessage, processor.Prompt, client).ConfigureAwait(false),
+                        Target.Comment => await CreateComment(textColloxMessage, processor, client).ConfigureAwait(false),
                         Target.Task => await CreateTask(textColloxMessage, processor.Prompt, client).ConfigureAwait(false),
                         Target.Context => throw new NotImplementedException(),
                         Target.Chat => await CreateMessage(
@@ -386,17 +386,22 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         return textColloxMessage.Text;
     }
 
-    private static async Task<string> CreateComment(TextColloxMessage textColloxMessage, string prompt,
+    private static async Task<string> CreateComment(TextColloxMessage textColloxMessage, IntelligentProcessor processor,
         IChatClient client)
     {
-        var ret = string.Empty;
-        await foreach (var update in client.GetStreamingResponseAsync(string.Format(prompt, textColloxMessage.Text)))
+        var comment = new ColloxMessageComment()
         {
-            textColloxMessage.Comment += update.Text;
-            ret += update.Text;
+            Comment = string.Empty,
+            GeneratorId = processor.Id,
+        };
+        textColloxMessage.Comments.Add(comment);
+
+        await foreach (var update in client.GetStreamingResponseAsync(string.Format(processor.Prompt, textColloxMessage.Text)))
+        {
+            comment.Comment += update.Text;
         }
 
-        return ret;
+        return comment.Comment;
     }
 
     // Add this method to cache the markdown pipeline

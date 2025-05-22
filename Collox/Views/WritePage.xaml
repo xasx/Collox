@@ -240,19 +240,32 @@
                         RelativePanel.RightOf="TimeHeader">
                     <SymbolIcon Symbol="Volume" />
                 </Button>
-                <TextBlock x:Name="CommentBox"
-                           Margin="8"
-                           Foreground="{ThemeResource AccentTextFillColorSecondaryBrush}"
-                           RelativePanel.Below="TimeHeader"
-                           Text="{x:Bind Comment, Mode=OneWay}"
-                           TextWrapping="WrapWholeWords"
-                           Visibility="{x:Bind Comment, Mode=OneWay, Converter={StaticResource StringVisibilityConverter}, ConverterParameter=False}" />
+                <ItemsRepeater x:Name="CommentsItemsRepeater"
+                               ItemsSource="{x:Bind Comments, Mode=OneWay}"
+                               RelativePanel.Below="TimeHeader">
+
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ColloxMessageComment">
+                            <Border Margin="8,4,4,4"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefault}"
+                                    BorderThickness="1">
+                                <TextBlock HorizontalAlignment="Stretch"
+                                           FontSize="16"
+                                           Foreground="{ThemeResource AccentTextFillColorSecondaryBrush}"
+                                           Text="{x:Bind Comment, Mode=OneWay}"
+                                           TextWrapping="WrapWholeWords" />
+
+                            </Border>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+
                 <TextBlock x:Name="ErrorTextBlock"
                            Margin="8"
                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
                            RelativePanel.AlignLeftWithPanel="True"
                            RelativePanel.AlignRightWithPanel="True"
-                           RelativePanel.Below="CommentBox"
+                           RelativePanel.Below="CommentsItemsRepeater"
                            Text="{x:Bind ErrorMessage, Mode=OneWay}"
                            Visibility="{x:Bind ErrorMessage, Mode=OneWay, Converter={StaticResource StringVisibilityConverter}, ConverterParameter=False}" />
                 <ProgressBar Height="4"

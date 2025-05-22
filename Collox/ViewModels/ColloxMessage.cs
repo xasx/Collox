@@ -1,4 +1,4 @@
-﻿using System.Timers;
+﻿using System.Collections.ObjectModel;
 using Windows.System;
 using Timer = System.Timers.Timer;
 
@@ -10,7 +10,8 @@ public partial class ColloxMessage : ObservableObject
 
     private static readonly DispatcherQueueTimer Timer = DispatcherQueue.CreateTimer();
 
-    static ColloxMessage() {
+    static ColloxMessage()
+    {
         Timer.Interval = TimeSpan.FromMilliseconds(3333);
         Timer.IsRepeating = true;
         Timer.Start();
@@ -18,10 +19,7 @@ public partial class ColloxMessage : ObservableObject
 
     protected ColloxMessage()
     {
-        ColloxWeakEventListener colloxWeakEventListener = new(this)
-        {
-            Timer = ColloxMessage.Timer
-        };
+        ColloxWeakEventListener colloxWeakEventListener = new(this) { Timer = ColloxMessage.Timer };
         Timer.Tick += colloxWeakEventListener.OnTimerTick;
     }
 
@@ -34,7 +32,7 @@ public partial class TextColloxMessage : ColloxMessage
 {
     [ObservableProperty] public partial string Text { get; set; }
 
-    [ObservableProperty] public partial string Comment { get; set; }
+    [ObservableProperty] public partial ObservableCollection<ColloxMessageComment> Comments { get; set; } = [];
 
     [ObservableProperty] public partial string ErrorMessage { get; set; }
 
@@ -46,14 +44,10 @@ public partial class TextColloxMessage : ColloxMessage
 
     [ObservableProperty] public partial bool HasProcessingError { get; set; } = false;
 
-
     public string Context { get; internal init; }
 
     [RelayCommand]
-    public void Read()
-    {
-        WriteViewModel.ReadText(Text, Settings.Voice);
-    }
+    public void Read() { WriteViewModel.ReadText(Text, Settings.Voice); }
 }
 
 public partial class TimeColloxMessage : ColloxMessage
@@ -61,20 +55,23 @@ public partial class TimeColloxMessage : ColloxMessage
     public TimeSpan Time { get; init; }
 }
 
-public partial class  InternalColloxMessage :ColloxMessage
+public partial class InternalColloxMessage : ColloxMessage
 {
-    public string  Message { get; set; }
+    public string Message { get; set; }
+
     public InfoBarSeverity Severity { get; set; }
 }
 
-internal class ColloxWeakEventListener
+public partial class ColloxMessageComment : ObservableObject
 {
-    private readonly WeakReference<ColloxMessage> _weakInstance;
+    [ObservableProperty] public partial string Comment { get; set; }
 
-    public ColloxWeakEventListener(ColloxMessage colloxMessage)
-    {
-        _weakInstance = new WeakReference<ColloxMessage>(colloxMessage);
-    }
+    [ObservableProperty] public partial Guid GeneratorId { get; set; }
+}
+
+internal class ColloxWeakEventListener(ColloxMessage colloxMessage)
+{
+    private readonly WeakReference<ColloxMessage> _weakInstance = new(colloxMessage);
 
     public DispatcherQueueTimer Timer { get; init; }
 
@@ -90,4 +87,3 @@ internal class ColloxWeakEventListener
         }
     }
 }
-
