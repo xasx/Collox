@@ -4,6 +4,8 @@ using Cottle;
 using EmojiToolkit;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
+using Windows.Foundation;
 using Windows.System;
 using Windows.UI.Core;
 
@@ -12,6 +14,7 @@ namespace Collox.Views;
 public sealed partial class WritePage : Page
 {
     private const string predefined = "predefined";
+    private ScrollViewer _messageScrollViewer;
 
     public WritePage()
     {
@@ -23,6 +26,51 @@ public sealed partial class WritePage : Page
 
         WeakReferenceMessenger.Default.Register<MessageSelectedMessage>(this,
             (s, e) => MessageListView.ScrollIntoView(e.Value));
+
+        // Add this line to get the ScrollViewer after the control is loaded
+        Loaded += WritePage_Loaded;
+    }
+
+    private void WritePage_Loaded(object sender, RoutedEventArgs e)
+    {
+        // Get the ScrollViewer from the ListView
+        _messageScrollViewer = FindChildOfType<ScrollViewer>(MessageListView);
+        if (_messageScrollViewer != null)
+        {
+            _messageScrollViewer.ViewChanged += MessageScrollViewer_ViewChanged;
+        }
+    }
+
+    private void MessageScrollViewer_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
+    {
+        if (_messageScrollViewer == null || MessageListView.Items.Count == 0)
+        {
+            ScrollPopup.IsOpen = false;
+            return;
+        }
+
+        // Check if scrolled to bottom
+        var isAtBottom = _messageScrollViewer.VerticalOffset >=
+                        _messageScrollViewer.ScrollableHeight - 50; // 50px threshold
+
+        // Show popup only when not at bottom
+        ScrollPopup.IsOpen = !isAtBottom;
+    }
+
+    private static T FindChildOfType<T>(DependencyObject root) where T : DependencyObject
+    {
+        if (root == null) return null;
+        if (root is T typed) return typed;
+
+        int childCount = VisualTreeHelper.GetChildrenCount(root);
+        for (int i = 0; i < childCount; i++)
+        {
+            var child = VisualTreeHelper.GetChild(root, i);
+            var result = FindChildOfType<T>(child);
+            if (result != null) return result;
+        }
+
+        return null;
     }
 
     public WriteViewModel ViewModel => DataContext as WriteViewModel;
@@ -186,5 +234,11 @@ public sealed partial class WritePage : Page
     private void DismissButton_Click(object sender, RoutedEventArgs e)
     {
         ProcessorFlyout.Hide();
+    }
+
+    private void ScrollToBottomButton_Click(object sender, RoutedEventArgs e)
+    {
+        _messageScrollViewer?.ChangeView(null, _messageScrollViewer.ScrollableHeight, null, true);
+        ScrollPopup.IsOpen = false;
     }
 }

@@ -1,7 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Media;
-using System.Speech.Synthesis;
-using Collox.Models;
+﻿using Collox.Models;
 using Collox.Services;
 using CommunityToolkit.Mvvm.Collections;
 using CommunityToolkit.Mvvm.Messaging;
@@ -9,6 +6,9 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 using EmojiToolkit;
 using Markdig;
 using Microsoft.Extensions.AI;
+using System.Collections.ObjectModel;
+using System.Media;
+using System.Speech.Synthesis;
 using Windows.ApplicationModel;
 
 namespace Collox.ViewModels;
@@ -308,8 +308,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                         Target.Task => await CreateTask(textColloxMessage, processor.Prompt, client).ConfigureAwait(false),
                         Target.Context => throw new NotImplementedException(),
                         Target.Chat => await CreateMessage(
-                            Messages.OfType<TextColloxMessage>().Where(m => !m.IsGenerated).Select(m => m.Text),
-                            processor.Prompt, client).ConfigureAwait(false),
+                            Messages.OfType<TextColloxMessage>(),
+                            processor, client).ConfigureAwait(false),
                         _ => throw new NotImplementedException(),
                     };
                     processor.OnError = (ex) =>
@@ -348,7 +348,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         return response.Text;
     }
 
-    private async Task<string> CreateMessage(IEnumerable<string> messages, string prompt, IChatClient client)
+    private async Task<string> CreateMessage(IEnumerable<TextColloxMessage> messages, IntelligentProcessor processor, IChatClient client)
     {
         var textColloxMessage = new TextColloxMessage
         {
@@ -356,20 +356,34 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             Timestamp = DateTime.Now,
             IsLoading = true,
             IsGenerated = true,
+            GeneratorId = processor.Id,
             Context = ConversationContext.Context
         };
         Messages.Add(textColloxMessage);
 
-        var ret = string.Empty;
-        var chatMessages = messages.Select(message => new ChatMessage(ChatRole.User, string.Format(prompt, message)));
+        var chatMessages = new List<ChatMessage>();
+
+        chatMessages.Add(new ChatMessage(ChatRole.System, processor.Prompt));
+        foreach (var message in messages)
+        {
+            if (message.IsGenerated)
+            {
+                if (message.GeneratorId == processor.Id)
+                    chatMessages.Add(new ChatMessage(ChatRole.Assistant, message.Text));
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(message.Text))
+                    chatMessages.Add(new ChatMessage(ChatRole.User, message.Text));
+            }
+        }
         await foreach (var update in client.GetStreamingResponseAsync(chatMessages))
         {
             textColloxMessage.Text += update.Text;
-            ret += update.Text;
         }
 
         textColloxMessage.IsLoading = false;
-        return ret;
+        return textColloxMessage.Text;
     }
 
     private static async Task<string> CreateComment(TextColloxMessage textColloxMessage, string prompt,

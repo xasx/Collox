@@ -194,7 +194,6 @@
         <DataTemplate x:Name="TextTemplate"
                       x:DataType="vm:TextColloxMessage">
             <RelativePanel MaxWidth="800"
-                           Margin="0,4"
                            HorizontalAlignment="{x:Bind IsGenerated, Converter={StaticResource BoolToObjectConverter}}"
                            Background="{ThemeResource CardBackgroundFillColorDefault}"
                            CornerRadius="8">
@@ -429,7 +428,7 @@
                   ScrollViewer.HorizontalScrollMode="Disabled"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   SelectedValue="{x:Bind ViewModel.SelectedMessage, Mode=TwoWay}"
-                  SelectionMode="Extended">
+                  SelectionMode="None">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -522,14 +521,32 @@
 
                 <dev:LoadingIndicator Margin="4"
                                       VerticalAlignment="Bottom"
+                                      Foreground="SkyBlue"
                                       IsActive="True"
                                       Mode="ArcsRing" />
+            </Border>
+        </Popup>
+
+        <Popup x:Name="ScrollPopup"
+               HorizontalOffset="800"
+               VerticalOffset="400">
+            <Border>
+                <Button x:Name="ScrollToBottomButton"
+                        Background="{ThemeResource AccentFillColorTertiaryBrush}"
+                        Click="ScrollToBottomButton_Click"
+                        CornerRadius="8"
+                        Opacity="1">
+                    <FontIcon FontSize="24"
+                              Foreground="{ThemeResource TextOnAccentFillColorSecondaryBrush}"
+                              Glyph="&#xE74B;" />
+                </Button>
             </Border>
         </Popup>
 
         <InfoBar x:Uid="CurrentContext"
                  Title="Current Context"
                  Grid.Row="1"
+                 CornerRadius="0,0,4,4"
                  IsOpen="True"
                  Message="{x:Bind ViewModel.ConversationContext.Context, Mode=OneWay}"
                  Severity="Informational">
@@ -549,7 +566,7 @@
                 <ColumnDefinition Width="96" />
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0"
-                    VerticalAlignment="Center"
+                    VerticalAlignment="Stretch"
                     Flyout="{StaticResource EmojiFlyout}">
                 <SymbolIcon Symbol="Emoji2" />
             </Button>
@@ -566,7 +583,7 @@
             <SplitButton x:Name="BtnSubmit"
                          Grid.Column="2"
                          HorizontalAlignment="Center"
-                         VerticalAlignment="Center"
+                         VerticalAlignment="Stretch"
                          Command="{x:Bind ViewModel.SubmitCommand}">
                 <SplitButton.KeyboardAccelerators>
                     <KeyboardAccelerator Key="M"

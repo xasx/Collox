@@ -42,6 +42,8 @@ public partial class TextColloxMessage : ColloxMessage
 
     [ObservableProperty] public partial bool IsGenerated { get; set; } = false;
 
+    [ObservableProperty] public partial Guid GeneratorId { get; set; }
+
     [ObservableProperty] public partial bool HasProcessingError { get; set; } = false;
 
 
