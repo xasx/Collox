@@ -5,7 +5,7 @@ namespace Collox.ViewModels;
 
 public partial class MirrorViewModel : ObservableRecipient, IRecipient<TextSubmittedMessage>
 {
-    private static readonly string All = "All";
+    private const string All = "All";
 
     [ObservableProperty] public partial ObservableCollection<TextColloxMessage> Messages { get; set; } = [];
 

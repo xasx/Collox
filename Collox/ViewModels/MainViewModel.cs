@@ -13,9 +13,16 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
     ITitleBarAutoSuggestBoxAware
 {
     private DispatcherQueue dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+    private readonly UserNotificationService _userNotificationService;
+    private readonly IStoreService _storeService;
 
-    public MainViewModel()
+    public MainViewModel(
+        UserNotificationService userNotificationService,
+        IStoreService storeService)
     {
+        _userNotificationService = userNotificationService;
+        _storeService = storeService;
+        
         NetworkHelper.Instance.NetworkChanged += Instance_NetworkChanged;
     }
 
@@ -28,8 +35,6 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
     [ObservableProperty] public partial string DocumentFilename { get; set; }
 
     [ObservableProperty] public partial string ConfigurationLocation { get; set; } = Constants.AppConfigPath;
-
-    private UserNotificationService UserNotificationService { get; } = App.GetService<UserNotificationService>();
 
     public void Receive(PropertyChangedMessage<string> message)
     {
@@ -57,22 +62,22 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
     public async Task Init()
     {
         RefreshInternetState();
-        await UserNotificationService.Initialize().ConfigureAwait(true);
-        UserNotificationService.OnUserNotificationsViewChanged +=
+        await _userNotificationService.Initialize().ConfigureAwait(true);
+        _userNotificationService.OnUserNotificationsViewChanged +=
             UserNotificationService_OnUserNotificationsViewChanged;
 
-        var userNotifications = await UserNotificationService.GetNotifications().ConfigureAwait(true);
+        var userNotifications = await _userNotificationService.GetNotifications().ConfigureAwait(true);
         UserNotifications.AddRange(userNotifications);
 
         dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
-        DocumentFilename = App.GetService<IStoreService>().GetFilename();
+        DocumentFilename = _storeService.GetFilename();
     }
 
     [RelayCommand]
     public async Task OpenDocumentFolder()
     {
-        var filename = App.GetService<IStoreService>().GetFilename();
+        var filename = _storeService.GetFilename();
         if (string.IsNullOrEmpty(filename))
             return;
         var folder = Path.GetDirectoryName(filename);
@@ -117,11 +122,4 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
             UserNotifications.AddRange(newView);
         });
     }
-}
-
-public partial class InternetState : ObservableObject
-{
-    [ObservableProperty] public partial string Icon { get; set; } = "\uF384";
-
-    [ObservableProperty] public partial string State { get; set; } = "offline";
 }

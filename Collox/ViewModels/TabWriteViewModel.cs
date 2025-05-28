@@ -20,15 +20,43 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
         [initialTab] = new TabContext { Name = initialTab.Context, IsCloseable = initialTab.IsCloseable }
     };
 
-    private readonly ITabContextService tabContextService = App.GetService<ITabContextService>();
+    private readonly ITabContextService tabContextService;
 
-    [ObservableProperty] public partial ObservableCollection<TabData> Tabs { get; set; } = [initialTab];
-
-    [ObservableProperty] public partial TabData SelectedTab { get; set; } = initialTab;
+    public TabWriteViewModel(ITabContextService tabContextService)
+    {
+        this.tabContextService = tabContextService;
+    }
 
     public TabWriteViewModel()
     {
         WeakReferenceMessenger.Default.RegisterAll(this);
+    }
+
+    [ObservableProperty] public partial TabData SelectedTab { get; set; } = initialTab;
+    [ObservableProperty] public partial ObservableCollection<TabData> Tabs { get; set; } = [initialTab];
+    [RelayCommand]
+    public void AddNewTab()
+    {
+        var context = $"Context {Tabs.Count + 1}";
+
+        var newTabContext = new TabContext { Name = context, IsCloseable = true, ActiveProcessors = [] };
+        var newTabData = new TabData { Context = context, IsCloseable = true, IsEditing = true, ActiveProcessors = [] };
+
+        Tabs.Add(newTabData);
+        SelectedTab = newTabData;
+        WeakReferenceMessenger.Default.Send(new FocusTabMessage(newTabData));
+
+        tabContextService.SaveNewTab(newTabContext);
+        tabContexts[newTabData] = newTabContext;
+    }
+
+    [RelayCommand]
+    public void CloseSelectedTab()
+    {
+        if (Tabs.Count > 1)
+        {
+            RemoveTab(SelectedTab);
+        }
     }
 
     [RelayCommand]
@@ -56,30 +84,22 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
             tabContexts[tabData] = tabContext;
         }
     }
-
-    [RelayCommand]
-    public void AddNewTab()
+    public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
-        var context = $"Context {Tabs.Count + 1}";
-
-        var newTabContext = new TabContext { Name = context, IsCloseable = true, ActiveProcessors = [] };
-        var newTabData = new TabData { Context = context, IsCloseable = true, IsEditing = true, ActiveProcessors = [] };
-
-        Tabs.Add(newTabData);
-        SelectedTab = newTabData;
-        WeakReferenceMessenger.Default.Send(new FocusTabMessage(newTabData));
-
-        tabContextService.SaveNewTab(newTabContext);
-        tabContexts[newTabData] = newTabContext;
+        var frame = WeakReferenceMessenger.Default.Send<GetFrameRequestMessage>();
+        AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxQuerySubmittedEvent(sender, args, frame);
     }
 
-    [RelayCommand]
-    public void CloseSelectedTab()
+    public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
-        if (Tabs.Count > 1)
-        {
-            RemoveTab(SelectedTab);
-        }
+        // find tabframe in the tab.
+        var frame = WeakReferenceMessenger.Default.Send<GetFrameRequestMessage>();
+        AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxTextChangedEvent(sender, args, frame);
+    }
+
+    public void Receive(UpdateTabMessage message)
+    {
+        UpdateContext(message.Value);
     }
 
     public void RemoveTab(TabData tabData)
@@ -98,39 +118,4 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
         tabContext.ActiveProcessors = tabData.ActiveProcessors.ConvertAll(x => x.Id);
         tabContextService.NotifyTabUpdate(tabContext);
     }
-
-    public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
-    {
-        // find tabframe in the tab.
-        var frame = WeakReferenceMessenger.Default.Send<GetFrameRequestMessage>();
-        AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxTextChangedEvent(sender, args, frame);
-    }
-
-    public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
-    {
-        var frame = WeakReferenceMessenger.Default.Send<GetFrameRequestMessage>();
-        AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxQuerySubmittedEvent(sender, args, frame);
-    }
-
-    public void Receive(UpdateTabMessage message)
-    {
-        UpdateContext(message.Value);
-    }
 }
-
-public partial class TabData : ObservableObject
-{
-    [ObservableProperty] public partial string Context { get; set; }
-
-    [ObservableProperty] public partial bool IsCloseable { get; set; }
-
-    [ObservableProperty] public partial bool IsEditing { get; set; }
-
-    [ObservableProperty] public partial List<IntelligentProcessor> ActiveProcessors { get; set; } = [];
-}
-
-public class FocusTabMessage(TabData tabData) : ValueChangedMessage<TabData>(tabData);
-
-public class UpdateTabMessage(TabData tabData) : ValueChangedMessage<TabData>(tabData);
-
-public class GetFrameRequestMessage : RequestMessage<Frame>;

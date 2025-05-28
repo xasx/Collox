@@ -21,5 +21,3 @@ public partial class TaskViewModel : ObservableObject
         }
     }
 }
-
-public class TaskDoneMessage(TaskViewModel value) : ValueChangedMessage<TaskViewModel>(value);

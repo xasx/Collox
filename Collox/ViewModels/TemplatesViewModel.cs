@@ -6,32 +6,85 @@ using Cottle;
 
 namespace Collox.ViewModels;
 
-public partial class TemplatesViewModel : ObservableObject
+public partial class Template : ObservableObject
 {
     private readonly ITemplateService templateService = App.GetService<ITemplateService>();
 
-    [ObservableProperty] public partial string Name { get; set; }
+    [ObservableProperty] public partial string Content { get; set; } = "# Generic template 01";
+    [ObservableProperty] public partial string Name { get; set; } = "default";
+    [RelayCommand]
+    public async Task DeleteTemplate()
+    {
+        await templateService.DeleteTemplate(Name);
+        WeakReferenceMessenger.Default.Send(new TemplateDeletedMessage(this));
+    }
 
-    [ObservableProperty] public partial string Content { get; set; }
+    [RelayCommand]
+    public async Task DuplicateTemplate()
+    {
+        var duplicateName = $"{Name} - Duplicate";
+        var duplicateContent = Content;
+        var dt = new Template
+        {
+            Name = duplicateName,
+            Content = duplicateContent
+        };
 
-    [ObservableProperty] public partial Template SelectedTemplate { get; set; }
+        await templateService.SaveTemplate(dt.Name, dt.Content);
 
-    [ObservableProperty] public partial ObservableCollection<Template> Templates { get; set; } = [];
+        WeakReferenceMessenger.Default.Send(new TemplateAddedMessage(dt));
+    }
 
-    public bool IsEditing { get; set; }
+    [RelayCommand]
+    public void EditTemplate()
+    {
+        WeakReferenceMessenger.Default.Send(new TemplateEditedMessage(this));
+    }
+}
 
-    public Template TemplateToEdit { get; set; }
+public partial class TemplatesViewModel : ObservableObject
+{
+    private readonly ITemplateService templateService;
+
+    public TemplatesViewModel(ITemplateService templateService)
+    {
+        this.templateService = templateService;
+    }
 
     public TemplatesViewModel()
     {
         WeakReferenceMessenger.Default.Register<TemplateAddedMessage>(this, (r, m) => Templates.Add(m.Value));
         WeakReferenceMessenger.Default.Register<TemplateDeletedMessage>(this, (r, m) => Templates.Remove(m.Value));
-        WeakReferenceMessenger.Default.Register<TemplateEditedMessage>(this, (r, m) => {
+        WeakReferenceMessenger.Default.Register<TemplateEditedMessage>(this, (r, m) =>
+        {
             Name = m.Value.Name;
             Content = m.Value.Content;
             TemplateToEdit = m.Value;
             IsEditing = true;
         });
+    }
+
+    [ObservableProperty] public partial string Content { get; set; }
+    public bool IsEditing { get; set; }
+    [ObservableProperty] public partial string Name { get; set; }
+    [ObservableProperty] public partial Template SelectedTemplate { get; set; }
+
+    [ObservableProperty] public partial ObservableCollection<Template> Templates { get; set; } = [];
+    public Template TemplateToEdit { get; set; }
+    [RelayCommand]
+    public async Task LoadTemplates()
+    {
+        var templates = await templateService.LoadTemplates();
+        Templates.Clear();
+        foreach (var templateEntry in templates)
+        {
+            var t = new Template
+            {
+                Name = templateEntry.Value.Name,
+                Content = templateEntry.Value.Content
+            };
+            Templates.Add(t);
+        }
     }
 
     [RelayCommand]
@@ -66,62 +119,4 @@ public partial class TemplatesViewModel : ObservableObject
         Name = string.Empty;
         Content = string.Empty;
     }
-
-       [RelayCommand]
-    public async Task LoadTemplates()
-    {
-        var templates = await templateService.LoadTemplates();
-        Templates.Clear();
-        foreach (var templateEntry in templates)
-        {
-            var t = new Template
-            {
-                Name = templateEntry.Value.Name,
-                Content = templateEntry.Value.Content
-            };
-            Templates.Add(t);
-        }
-    }
 }
-
-public partial class Template : ObservableObject
-{
-    private readonly ITemplateService templateService = App.GetService<ITemplateService>();
-
-    [ObservableProperty] public partial string Name { get; set; } = "default";
-
-    [ObservableProperty] public partial string Content { get; set; } = "# Generic template 01";
-
-    [RelayCommand]
-    public async Task DeleteTemplate()
-    {
-        await templateService.DeleteTemplate(Name);
-        WeakReferenceMessenger.Default.Send(new TemplateDeletedMessage(this));
-    }
-
-    [RelayCommand]
-    public void EditTemplate()
-    {
-        WeakReferenceMessenger.Default.Send(new TemplateEditedMessage(this));
-    }
-
-    [RelayCommand]
-    public async Task DuplicateTemplate()
-    {
-        var duplicateName = Name + " - Duplicate";
-        var duplicateContent = Content;
-        var dt = new Template
-        {
-            Name = duplicateName,
-            Content = duplicateContent
-        };
-
-        await templateService.SaveTemplate(dt.Name, dt.Content);
-
-        WeakReferenceMessenger.Default.Send(new TemplateAddedMessage(dt));
-    }
-}
-
-public class TemplateAddedMessage(Template template) : ValueChangedMessage<Template>(template);
-public class TemplateDeletedMessage(Template template) : ValueChangedMessage<Template>(template);
-public class TemplateEditedMessage(Template template) : ValueChangedMessage<Template>(template);

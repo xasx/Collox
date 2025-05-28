@@ -1,12 +1,11 @@
 ﻿using Collox.Services;
-using ColorCode.Common;
 using CommunityToolkit.Mvvm.Collections;
 
 namespace Collox.ViewModels;
 
-public partial class HistoryViewModel : ObservableObject
+public partial class HistoryViewModel(IStoreService storeService) : ObservableObject
 {
-    private readonly IStoreService storeService = App.GetService<IStoreService>();
+    private readonly IStoreService storeService = storeService;
 
     public ObservableGroupedCollection<string, HistoryEntry> Histories { get; set; } = [];
 
@@ -31,13 +30,4 @@ public partial class HistoryViewModel : ObservableObject
             }
         }
     }
-}
-
-public class HistoryEntry
-{
-    public DateOnly Day { get; init; }
-
-    public string Preview { get; init; }
-
-    public Lazy<string> Content { get; init; }
 }
