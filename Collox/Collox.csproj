@@ -155,10 +155,10 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250515001-experimental2" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="NLog" Version="6.0.0-preview1" />
+    <PackageReference Include="NLog" Version="6.0.0-rc1" />
     <PackageReference Include="nucs.JsonSettings" Version="2.0.2" />
     <PackageReference Include="nucs.JsonSettings.AutoSaveGenerator" Version="2.0.4" />
-    <PackageReference Include="OllamaSharp" Version="5.1.18" />
+    <PackageReference Include="OllamaSharp" Version="5.1.19" />
     <PackageReference Include="OpenAI" Version="2.2.0-beta.4" />
     <PackageReference Include="System.Speech" Version="10.0.0-preview.4.25258.110" />
     <PackageReference Include="System.Windows.Extensions" Version="10.0.0-preview.4.25258.110" />

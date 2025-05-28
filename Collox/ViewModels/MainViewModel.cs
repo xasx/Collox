@@ -57,11 +57,11 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
     public async Task Init()
     {
         RefreshInternetState();
-        await UserNotificationService.Initialize();
+        await UserNotificationService.Initialize().ConfigureAwait(true);
         UserNotificationService.OnUserNotificationsViewChanged +=
             UserNotificationService_OnUserNotificationsViewChanged;
 
-        var userNotifications = await UserNotificationService.GetNotifications();
+        var userNotifications = await UserNotificationService.GetNotifications().ConfigureAwait(true);
         UserNotifications.AddRange(userNotifications);
 
         dispatcherQueue = DispatcherQueue.GetForCurrentThread();

@@ -190,9 +190,9 @@ public partial class App : Application
         }
     }
 
-    private async void MainWindow_Closed(object sender, WindowEventArgs args)
+    private void MainWindow_Closed(object sender, WindowEventArgs args)
     {
-        await GetService<IStoreService>().SaveNow();
+        GetService<IStoreService>().SaveNow().Wait();
         Interlocked.Exchange(ref isClosing, true);
         MirrorWindow.Close();
     }

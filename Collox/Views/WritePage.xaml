@@ -37,8 +37,18 @@
                                           TrueValue="Right" />
 
         <Flyout x:Name="ProcessorFlyout"
+                AreOpenCloseAnimationsEnabled="True"
                 Closed="ProcessorFlyout_Closed"
+                LightDismissOverlayMode="On"
                 Opening="ProcessorFlyout_Opening">
+            <Flyout.FlyoutPresenterStyle>
+                <Style TargetType="FlyoutPresenter">
+                    <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled" />
+                    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+                    <Setter Property="IsTabStop" Value="True" />
+                    <Setter Property="TabNavigation" Value="Cycle" />
+                </Style>
+            </Flyout.FlyoutPresenterStyle>
             <StackPanel Spacing="8">
                 <ListView x:Name="ProcessorsListView"
                           ItemsSource="{x:Bind ViewModel.AvailableProcessors, Mode=OneWay}"
@@ -237,7 +247,7 @@
                 <Button x:Name="ReadButton"
                         Command="{x:Bind ReadCommand}"
                         RelativePanel.AlignRightWithPanel="True"
-                        RelativePanel.RightOf="TimeHeader">
+                        RelativePanel.AlignTopWith="TimeHeader">
                     <SymbolIcon Symbol="Volume" />
                 </Button>
                 <ItemsRepeater x:Name="CommentsItemsRepeater"
@@ -437,7 +447,7 @@
                   CacheMode="BitmapCache"
                   ItemTemplateSelector="{StaticResource MessagesTemplate}"
                   ItemsSource="{x:Bind ViewModel.Messages, Mode=OneWay}"
-                  ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                   ScrollViewer.HorizontalScrollMode="Disabled"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   SelectedValue="{x:Bind ViewModel.SelectedMessage, Mode=TwoWay}"
@@ -450,7 +460,7 @@
 
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <ItemsStackPanel VerticalAlignment="Bottom"
+                    <ItemsStackPanel VerticalAlignment="Bottom" 
                                      ItemsUpdatingScrollMode="KeepLastItemInView" />
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>

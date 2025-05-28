@@ -68,7 +68,7 @@
 
         <Flyout x:Name="NotificationsFlyout">
             <ItemsView Width="336"
-                       Height="512"
+                       MinHeight="200"
                        ItemsSource="{x:Bind ViewModel.UserNotifications, Mode=OneWay}">
                 <ItemsView.ItemTemplate>
                     <DataTemplate x:DataType="notifications:UserNotification">
