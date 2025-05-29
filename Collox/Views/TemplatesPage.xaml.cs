@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿using Collox.ViewModels.Messages;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml.Controls.Primitives;
 
 // To learn more about WinUI, the WinUI project structure,

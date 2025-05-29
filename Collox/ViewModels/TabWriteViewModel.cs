@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using Collox.Models;
 using Collox.Services;
+using Collox.ViewModels.Messages;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 
@@ -8,12 +9,7 @@ namespace Collox.ViewModels;
 
 public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSuggestBoxAware, IRecipient<UpdateTabMessage>
 {
-    private static readonly TabData initialTab = new()
-    {
-        Context = "Default",
-        IsCloseable = false,
-        IsEditing = false
-    };
+    private static readonly TabData initialTab = new() { Context = "Default", IsCloseable = false, IsEditing = false };
 
     private readonly Dictionary<TabData, TabContext> tabContexts = new()
     {
@@ -25,15 +21,14 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
     public TabWriteViewModel(ITabContextService tabContextService)
     {
         this.tabContextService = tabContextService;
-    }
 
-    public TabWriteViewModel()
-    {
         WeakReferenceMessenger.Default.RegisterAll(this);
     }
 
     [ObservableProperty] public partial TabData SelectedTab { get; set; } = initialTab;
+
     [ObservableProperty] public partial ObservableCollection<TabData> Tabs { get; set; } = [initialTab];
+
     [RelayCommand]
     public void AddNewTab()
     {
@@ -84,6 +79,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
             tabContexts[tabData] = tabContext;
         }
     }
+
     public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
         var frame = WeakReferenceMessenger.Default.Send<GetFrameRequestMessage>();
@@ -97,10 +93,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
         AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxTextChangedEvent(sender, args, frame);
     }
 
-    public void Receive(UpdateTabMessage message)
-    {
-        UpdateContext(message.Value);
-    }
+    public void Receive(UpdateTabMessage message) { UpdateContext(message.Value); }
 
     public void RemoveTab(TabData tabData)
     {

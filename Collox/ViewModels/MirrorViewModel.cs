@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Collox.ViewModels.Messages;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Collox.ViewModels;

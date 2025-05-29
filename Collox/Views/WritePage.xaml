@@ -460,7 +460,7 @@
 
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <ItemsStackPanel VerticalAlignment="Bottom" 
+                    <ItemsStackPanel VerticalAlignment="Bottom"
                                      ItemsUpdatingScrollMode="KeepLastItemInView" />
                 </ItemsPanelTemplate>
             </ListView.ItemsPanel>
