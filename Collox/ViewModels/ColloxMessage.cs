@@ -6,21 +6,11 @@ namespace Collox.ViewModels;
 
 public partial class ColloxMessage : ObservableObject
 {
-    private static readonly DispatcherQueue DispatcherQueue = DispatcherQueue.GetForCurrentThread();
-
-    private static readonly DispatcherQueueTimer Timer = DispatcherQueue.CreateTimer();
-
-    static ColloxMessage()
-    {
-        Timer.Interval = TimeSpan.FromMilliseconds(3333);
-        Timer.IsRepeating = true;
-        Timer.Start();
-    }
+    private static MassageRelativeTimeUpdater timeUpdater = new();
 
     protected ColloxMessage()
     {
-        ColloxWeakEventListener colloxWeakEventListener = new(this) { Timer = ColloxMessage.Timer };
-        Timer.Tick += colloxWeakEventListener.OnTimerTick;
+        timeUpdater.RegisterMessage(this);
     }
 
     [ObservableProperty] public partial TimeSpan RelativeTimestamp { get; set; } = TimeSpan.Zero;
@@ -67,23 +57,4 @@ public partial class ColloxMessageComment : ObservableObject
     [ObservableProperty] public partial string Comment { get; set; }
 
     [ObservableProperty] public partial Guid GeneratorId { get; set; }
-}
-
-internal class ColloxWeakEventListener(ColloxMessage colloxMessage)
-{
-    private readonly WeakReference<ColloxMessage> _weakInstance = new(colloxMessage);
-
-    public DispatcherQueueTimer Timer { get; init; }
-
-    public void OnTimerTick(DispatcherQueueTimer sender, object args)
-    {
-        if (_weakInstance.TryGetTarget(out var target))
-        {
-            target.RelativeTimestamp = DateTime.Now - target.Timestamp;
-        }
-        else
-        {
-            Timer.Tick -= OnTimerTick;
-        }
-    }
 }

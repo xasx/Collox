@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Media;
 using System.Speech.Synthesis;
 using Collox.Models;
@@ -10,6 +11,7 @@ using EmojiToolkit;
 using Markdig;
 using Microsoft.Extensions.AI;
 using Windows.ApplicationModel;
+using Windows.System;
 
 namespace Collox.ViewModels;
 
@@ -23,10 +25,10 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     private static readonly Lazy<ICollection<VoiceInfo>> _voiceInfos = new(() =>
         [.. new SpeechSynthesizer().GetInstalledVoices().Select(iv => iv.VoiceInfo)]);
 
-    private readonly AIService aiService;
+    private readonly IAIService aiService;
     private readonly IStoreService storeService;
 
-    public WriteViewModel(IStoreService storeService, AIService aiService)
+    public WriteViewModel(IStoreService storeService, IAIService aiService)
     {
         this.storeService = storeService;
         this.aiService = aiService;
@@ -34,6 +36,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         aiService.Init();
         Tasks.CollectionChanged += (_, _) => ShowTasks = Tasks.Count > 0;
         WeakReferenceMessenger.Default.RegisterAll(this);
+
+        MassageRelativeTimeUpdater.CreateTimer = () => DispatcherQueue.GetForCurrentThread().CreateTimer();
     }
 
     private async Task AddMore(TextColloxMessage textColloxMessage)
@@ -154,9 +158,10 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         };
         Messages.Add(textColloxMessage);
 
-        var chatMessages = new List<ChatMessage>();
-
-        chatMessages.Add(new ChatMessage(ChatRole.System, processor.Prompt));
+        var chatMessages = new List<ChatMessage>
+        {
+            new(ChatRole.System, processor.Prompt)
+        };
         foreach (var message in messages)
         {
             if (message.IsGenerated)
@@ -302,20 +307,27 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     internal static void ReadText(string text, string voice = null)
     {
-        var speechSynthesizer = new SpeechSynthesizer();
-        // var voices = speechSynthesizer.GetInstalledVoices();
-
-        speechSynthesizer.SetOutputToDefaultAudioDevice();
-        if (voice == null)
+        try
         {
-            speechSynthesizer.SelectVoiceByHints(VoiceGender.Male, VoiceAge.Adult);
-        }
-        else
-        {
-            speechSynthesizer.SelectVoice(voice);
-        }
+            var speechSynthesizer = new SpeechSynthesizer();
+            // var voices = speechSynthesizer.GetInstalledVoices();
 
-        speechSynthesizer.SpeakAsync(text);
+            speechSynthesizer.SetOutputToDefaultAudioDevice();
+            if (voice == null)
+            {
+                speechSynthesizer.SelectVoiceByHints(VoiceGender.Male, VoiceAge.Adult);
+            }
+            else
+            {
+                speechSynthesizer.SelectVoice(voice);
+            }
+
+            speechSynthesizer.SpeakAsync(text);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(ex);
+        }
     }
 
     [RelayCommand]

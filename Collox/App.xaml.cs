@@ -68,7 +68,7 @@ public partial class App : Application
         services.AddSingleton<UserNotificationService>();
         services.AddSingleton<ITabContextService, TabContextService>();
         services.AddSingleton<AIApis>();
-        services.AddSingleton<AIService>();
+        services.AddSingleton<IAIService, AIService>();
 
         return services.BuildServiceProvider();
     }

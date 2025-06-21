@@ -7,6 +7,7 @@ using Nucs.JsonSettings.Modulation.Recovery;
 
 namespace Collox.Services;
 public class AIService(AIApis apis)
+: IAIService
 {
     public void Init() => apis.Init();
 

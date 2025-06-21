@@ -18,7 +18,11 @@ public partial class AISettingsViewModel : ObservableObject
     [ObservableProperty] public partial bool IsOllamaEnabled { get; set; } = Settings.IsOllamaEnabled;
 
     [ObservableProperty]
-    public partial ObservableCollection<string> AvailableOpenAIModelIds { get; set; } =
+    public partial ObservableCollection<string> AvailableOpenAIModelIds
+    {
+        get;
+        set;
+    } =
         new ObservableCollection<string>();
 
     [ObservableProperty] public partial string SelectedOpenAIModelId { get; set; } = Settings.OpenAIModelId;
@@ -32,16 +36,16 @@ public partial class AISettingsViewModel : ObservableObject
     [ObservableProperty]
     public partial ObservableCollection<IntelligentProcessorViewModel> Enhancers { get; set; } = [];
 
-    private readonly AIService aiService = App.GetService<AIService>();
+    private readonly IAIService aiService;
 
-    public AISettingsViewModel()
+    public AISettingsViewModel(IAIService aIService)
     {
-        var prompt = ResourceManager.Current.MainResourceMap.GetValue("DefaultValues/SynonymsPrompt").ValueAsString;
-
+        aiService = aIService;
         aiService.Init();
         var processors = aiService.GetAll().ToList();
         if (processors.Count == 0)
         {
+            var prompt = ResourceManager.Current.MainResourceMap.GetValue("DefaultValues/SynonymsPrompt").ValueAsString;
             var SynonymsEnhancerProcessor = new IntelligentProcessor()
             {
                 Id = Guid.NewGuid(),
@@ -67,20 +71,20 @@ public partial class AISettingsViewModel : ObservableObject
         {
             foreach (var processor in processors)
             {
-                var vm = new IntelligentProcessorViewModel(processor)
-                {
-                    NamePresentation = "Display"
-                };
+                var vm = new IntelligentProcessorViewModel(processor) { NamePresentation = "Display" };
                 Enhancers.Add(vm);
             }
         }
 
-        WeakReferenceMessenger.Default.Register<ProcessorDeletedMessage>(this, (r, m) =>
-        {
-            Enhancers.Remove(m.Value);
-            aiService.Remove(m.Value.Model);
-            aiService.Save();
-        });
+        WeakReferenceMessenger.Default
+            .Register<ProcessorDeletedMessage>(
+                this,
+                (r, m) =>
+                {
+                    Enhancers.Remove(m.Value);
+                    aiService.Remove(m.Value.Model);
+                    aiService.Save();
+                });
     }
 
     [RelayCommand]
@@ -114,11 +118,7 @@ public partial class AISettingsViewModel : ObservableObject
     [RelayCommand]
     public void AddProcessor()
     {
-        var ip = new IntelligentProcessor()
-        {
-            Id = Guid.NewGuid(),
-            IsEnabled = true,
-        };
+        var ip = new IntelligentProcessor() { Id = Guid.NewGuid(), IsEnabled = true, };
 
         aiService.Add(ip);
         aiService.Save();
@@ -126,41 +126,20 @@ public partial class AISettingsViewModel : ObservableObject
         Enhancers.Add(vm);
     }
 
-    partial void OnIsOllamaEnabledChanged(bool value)
-    {
-        Settings.IsOllamaEnabled = value;
-    }
+    partial void OnIsOllamaEnabledChanged(bool value) { Settings.IsOllamaEnabled = value; }
 
-    partial void OnSelectedOllamaModelIdChanged(string value)
-    {
-        Settings.OllamaModelId = value;
-    }
+    partial void OnSelectedOllamaModelIdChanged(string value) { Settings.OllamaModelId = value; }
 
-    partial void OnOllamaAddressChanged(string value)
-    {
-        Settings.OllamaEndpoint = value;
-    }
+    partial void OnOllamaAddressChanged(string value) { Settings.OllamaEndpoint = value; }
 
-    partial void OnSelectedOpenAIModelIdChanged(string value)
-    {
-        Settings.OpenAIModelId = value;
-    }
+    partial void OnSelectedOpenAIModelIdChanged(string value) { Settings.OpenAIModelId = value; }
 
-    partial void OnOpenAIAddressChanged(string value)
-    {
-        Settings.OpenAIEndpoint = value;
-    }
+    partial void OnOpenAIAddressChanged(string value) { Settings.OpenAIEndpoint = value; }
 
-    partial void OnOpenAIApiKeyChanged(string value)
-    {
-        Settings.OpenAIApiKey = value;
-    }
+    partial void OnOpenAIApiKeyChanged(string value) { Settings.OpenAIApiKey = value; }
 
-    partial void OnIsOpenAIEnabledChanged(bool value)
-    {
-        Settings.IsOpenAIEnabled = value;
-    }
+    partial void OnIsOpenAIEnabledChanged(bool value) { Settings.IsOpenAIEnabled = value; }
 }
 
-public class ProcessorDeletedMessage(IntelligentProcessorViewModel intelligentProcessorViewModel)
-    : ValueChangedMessage<IntelligentProcessorViewModel>(intelligentProcessorViewModel);
+public class ProcessorDeletedMessage(IntelligentProcessorViewModel intelligentProcessorViewModel) : ValueChangedMessage<IntelligentProcessorViewModel>(
+    intelligentProcessorViewModel);

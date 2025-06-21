@@ -81,6 +81,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="ViewModels\IMassageRelativeTimeUpdater.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Remove="Assets\AppIcon.ico" />
     <Content Remove="Assets\Fluent\AI.png" />
     <Content Remove="Assets\Fluent\Ollama.png" />

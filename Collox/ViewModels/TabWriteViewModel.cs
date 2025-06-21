@@ -1,9 +1,7 @@
-﻿using System.Collections.ObjectModel;
-using Collox.Models;
-using Collox.Services;
+﻿using Collox.Services;
 using Collox.ViewModels.Messages;
 using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.Mvvm.Messaging.Messages;
+using System.Collections.ObjectModel;
 
 namespace Collox.ViewModels;
 
@@ -17,10 +15,12 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
     };
 
     private readonly ITabContextService tabContextService;
+    private readonly IAIService aiService;
 
-    public TabWriteViewModel(ITabContextService tabContextService)
+    public TabWriteViewModel(ITabContextService tabContextService, IAIService aiService)
     {
         this.tabContextService = tabContextService;
+        this.aiService = aiService;
 
         WeakReferenceMessenger.Default.RegisterAll(this);
     }
@@ -57,7 +57,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
     [RelayCommand]
     public void LoadTabs()
     {
-        var procs = App.GetService<AIService>().GetAll();
+        var procs = aiService.GetAll();
         foreach (var tabContext in tabContextService.GetTabs())
         {
             if (tabContext.Name == initialTab.Context)
