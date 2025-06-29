@@ -32,7 +32,7 @@ public partial class TextColloxMessage : ColloxMessage
 
     [ObservableProperty] public partial bool HasProcessingError { get; set; } = false;
 
-    public string Context { get; internal init; }
+    public string Context { get; init; }
 
     [RelayCommand]
     public void Read() { WriteViewModel.ReadText(Text, Settings.Voice); }

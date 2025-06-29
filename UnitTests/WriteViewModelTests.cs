@@ -1,13 +1,12 @@
-﻿using System.Speech.Synthesis;
-using Collox.Common; // Added for .Count()
+﻿using Collox.Common; // Added for .Count()
 using Collox.Services;
 using Collox.ViewModels;
 using Collox.ViewModels.Messages;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NFluent;
+using System.Speech.Synthesis;
 using ITimer = Collox.ViewModels.ITimer;
 
 namespace Collox.Tests.ViewModels;

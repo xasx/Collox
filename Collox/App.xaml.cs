@@ -65,7 +65,7 @@ public partial class App : Application
 
         services.AddSingleton<IStoreService, StoreService>();
         services.AddSingleton<ITemplateService, TemplateService>();
-        services.AddSingleton<UserNotificationService>();
+        services.AddSingleton<IUserNotificationService, UserNotificationService>();
         services.AddSingleton<ITabContextService, TabContextService>();
         services.AddSingleton<AIApis>();
         services.AddSingleton<IAIService, AIService>();

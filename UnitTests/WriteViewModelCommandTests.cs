@@ -13,12 +13,17 @@ public class WriteViewModelCommandTests
     private readonly Mock<IAIService> _aiServiceMock;
     private readonly WriteViewModel _viewModel;
 
+    private readonly Mock<Collox.ViewModels.ITimer> _timerMock = new();
+
     public WriteViewModelCommandTests()
     {
         _storeServiceMock = new Mock<IStoreService>();
         _aiServiceMock = new Mock<IAIService>();
         _viewModel = new WriteViewModel(_storeServiceMock.Object, _aiServiceMock.Object);
         _viewModel.ConversationContext = new TabData();
+
+        _timerMock = new Mock<Collox.ViewModels.ITimer>();
+        MessageRelativeTimeUpdater.CreateTimer = () => _timerMock.Object;
     }
 
     [TestMethod]

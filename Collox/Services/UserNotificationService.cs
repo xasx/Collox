@@ -1,12 +1,11 @@
 ﻿using Windows.UI.Notifications;
 using Windows.UI.Notifications.Management;
+using static Collox.Services.IUserNotificationService;
 
 namespace Collox.Services;
 
-public class UserNotificationService
+public class UserNotificationService : IUserNotificationService
 {
-    public delegate void UserNotificationsViewChanged(IReadOnlyList<UserNotification> newView);
-
     public async Task Initialize()
     {
         // Get the listener
@@ -55,9 +54,7 @@ public class UserNotificationService
     }
 
     private void Listener_NotificationChanged(UserNotificationListener sender, UserNotificationChangedEventArgs args)
-    {
-        UpdateUserNotifications(sender).Wait(TimeSpan.FromSeconds(1));
-    }
+    { UpdateUserNotifications(sender).Wait(TimeSpan.FromSeconds(1)); }
 
     private async Task UpdateUserNotifications(UserNotificationListener sender)
     {
@@ -69,7 +66,5 @@ public class UserNotificationService
     }
 
     public async Task<IReadOnlyList<UserNotification>> GetNotifications()
-    {
-        return await UserNotificationListener.Current.GetNotificationsAsync(NotificationKinds.Toast);
-    }
+    { return await UserNotificationListener.Current.GetNotificationsAsync(NotificationKinds.Toast); }
 }

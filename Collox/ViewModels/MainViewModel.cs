@@ -13,11 +13,11 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
     ITitleBarAutoSuggestBoxAware
 {
     private DispatcherQueue dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-    private readonly UserNotificationService _userNotificationService;
+    private readonly IUserNotificationService _userNotificationService;
     private readonly IStoreService _storeService;
 
     public MainViewModel(
-        UserNotificationService userNotificationService,
+        IUserNotificationService userNotificationService,
         IStoreService storeService)
     {
         _userNotificationService = userNotificationService;
