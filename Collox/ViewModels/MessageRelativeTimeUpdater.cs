@@ -1,14 +1,14 @@
-﻿using Windows.System;
+﻿using Windows.Foundation;
 
 namespace Collox.ViewModels;
 
-public sealed class MassageRelativeTimeUpdater
+public sealed class MessageRelativeTimeUpdater
 {
-    public static Func<DispatcherQueueTimer> CreateTimer { get; set; }
+    public static Func<ITimer> CreateTimer { get; set; }
 
-    private readonly DispatcherQueueTimer Timer = CreateTimer();
+    private readonly ITimer Timer = CreateTimer();
 
-    public MassageRelativeTimeUpdater()
+    public MessageRelativeTimeUpdater()
     {
         Timer.Interval = TimeSpan.FromMilliseconds(3333);
         Timer.IsRepeating = true;
@@ -25,9 +25,9 @@ internal class ColloxWeakEventListener(ColloxMessage colloxMessage)
 {
     private readonly WeakReference<ColloxMessage> _weakInstance = new(colloxMessage);
 
-    public DispatcherQueueTimer Timer { get; init; }
+    public ITimer Timer { get; init; }
 
-    public void OnTimerTick(DispatcherQueueTimer sender, object args)
+    public void OnTimerTick(ITimer sender, object args)
     {
         if (_weakInstance.TryGetTarget(out var target))
         {

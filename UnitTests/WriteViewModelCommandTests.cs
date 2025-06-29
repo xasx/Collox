@@ -33,7 +33,7 @@ public class WriteViewModelCommandTests
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
         // Act
-        var task = (Task)method.Invoke(_viewModel, null);
+        var task = method.Invoke(_viewModel, null) as Task;
         await task;
 
         // Assert
@@ -52,7 +52,7 @@ public class WriteViewModelCommandTests
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
         // Act
-        var task = (Task)method.Invoke(_viewModel, null);
+        var task = method.Invoke(_viewModel, null) as Task;
         await task;
 
         // Assert
@@ -70,7 +70,7 @@ public class WriteViewModelCommandTests
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
         // Act
-        var task = (Task)method.Invoke(_viewModel, null);
+        var task = method.Invoke(_viewModel, null) as Task;
         await task;
 
         // Assert
@@ -91,7 +91,7 @@ public class WriteViewModelCommandTests
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
         // Act
-        var task = (Task)method.Invoke(_viewModel, null);
+        var task = method.Invoke(_viewModel, null) as Task;
         await task;
 
         // Assert
@@ -111,7 +111,7 @@ public class WriteViewModelCommandTests
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
         // Act
-        var task = (Task)method.Invoke(_viewModel, null);
+        var task = method.Invoke(_viewModel, null) as Task;
         await task;
 
         // Assert
@@ -130,7 +130,7 @@ public class WriteViewModelCommandTests
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
         // Act
-        var task = (Task)method.Invoke(_viewModel, null);
+        var task = method.Invoke(_viewModel, null) as Task;
         await task;
 
         // Assert
@@ -148,7 +148,7 @@ public class WriteViewModelCommandTests
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
         // Act
-        var task = (Task)method.Invoke(_viewModel, null);
+        var task = method.Invoke(_viewModel, null) as Task;
         await task;
 
         // Assert

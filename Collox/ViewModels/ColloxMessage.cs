@@ -1,12 +1,10 @@
 ﻿using System.Collections.ObjectModel;
-using Windows.System;
-using Timer = System.Timers.Timer;
 
 namespace Collox.ViewModels;
 
 public partial class ColloxMessage : ObservableObject
 {
-    private static MassageRelativeTimeUpdater timeUpdater = new();
+    private static readonly MessageRelativeTimeUpdater timeUpdater = new();
 
     protected ColloxMessage()
     {

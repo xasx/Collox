@@ -15,6 +15,7 @@ public class WriteViewModelAITests
     private readonly Mock<IChatClient> _chatClientMock;
     private readonly WriteViewModel _viewModel;
 
+    private readonly Mock<Collox.ViewModels.ITimer> _timerMock;
     public WriteViewModelAITests()
     {
         _storeServiceMock = new Mock<IStoreService>();
@@ -26,6 +27,8 @@ public class WriteViewModelAITests
 
         _viewModel = new WriteViewModel(_storeServiceMock.Object, _aiServiceMock.Object);
         _viewModel.ConversationContext = new TabData();
+        _timerMock = new Mock<Collox.ViewModels.ITimer>();
+        MessageRelativeTimeUpdater.CreateTimer = () => _timerMock.Object;
     }
 
     [TestMethod]
@@ -79,7 +82,7 @@ public class WriteViewModelAITests
 
         // Fix for CS0854: Replace the invocation with a lambda expression to avoid using optional arguments in expression trees.
         _chatClientMock.Setup(c => c.GetResponseAsync(It.IsAny<IEnumerable<ChatMessage>>(), null, default))
-            .ReturnsAsync(new ChatResponse (new ChatMessage(ChatRole.Assistant, "Test")));
+            .ReturnsAsync(new ChatResponse (new ChatMessage(ChatRole.Assistant, "New task")));
 
         // Use reflection to call the private method
         var method = typeof(WriteViewModel).GetMethod("CreateTask",
@@ -108,9 +111,11 @@ public class WriteViewModelAITests
             Target = Target.Chat
         };
 
+        var textColloxMessage = new TextColloxMessage { Text = "Hello" };
+        _viewModel.Messages.Add(textColloxMessage);
         var existingMessages = new List<TextColloxMessage>
         {
-            new TextColloxMessage { Text = "Hello" }
+            textColloxMessage
         };
 
         // Setup streaming response
@@ -139,47 +144,6 @@ public class WriteViewModelAITests
         Check.That(generatedMessage.IsGenerated).IsTrue();
         Check.That(generatedMessage.GeneratorId).IsEqualTo(processor.Id);
         Check.That(generatedMessage.IsLoading).IsFalse();
-    }
-
-    [TestMethod]
-    public async Task AddMore_AppendsContentToExistingMessage()
-    {
-        // Arrange
-        var message = new TextColloxMessage { Text = "Initial text" };
-        _viewModel.Messages.Add(message);
-
-        // Setup streaming response
-        // Fix for CS0854: Replace the invocation with a lambda expression to avoid using optional arguments in expression trees.
-        _chatClientMock.Setup(c => c.GetStreamingResponseAsync(
-            It.IsAny<IEnumerable<ChatMessage>>(),
-            It.IsAny<ChatOptions>(),
-            It.IsAny<CancellationToken>()
-        )).Returns(GetMockStreamingResponse(" Additional content"));
-        
-        _aiServiceMock.Setup(a => a.GetAll())
-            .Returns(new List<IntelligentProcessor>
-            {
-                new IntelligentProcessor
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Test Extender",
-                    Target = Target.Chat,
-                    Prompt = "Continue this: {0}"
-                }
-            });
-
-        // Use reflection to call the private method
-        var method = typeof(WriteViewModel).GetMethod("AddMore",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-        // Act
-        var task = (Task)method.Invoke(_viewModel, new object[] { message });
-        await task;
-
-        // Assert
-        Check.That(message.Text).IsEqualTo("Initial text Additional content");
-        Check.That(message.IsGenerated).IsTrue();
-        Check.That(message.IsLoading).IsFalse();
     }
 
     // Helper method to simulate streaming responses

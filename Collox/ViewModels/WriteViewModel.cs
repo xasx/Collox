@@ -37,7 +37,14 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         Tasks.CollectionChanged += (_, _) => ShowTasks = Tasks.Count > 0;
         WeakReferenceMessenger.Default.RegisterAll(this);
 
-        MassageRelativeTimeUpdater.CreateTimer = () => DispatcherQueue.GetForCurrentThread().CreateTimer();
+
+        // Update the lambda expression to use the adapter
+        MessageRelativeTimeUpdater.CreateTimer = () =>
+        {
+            var dispatcherQueueTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
+            return new DispatcherQueueTimerAdapter(dispatcherQueueTimer);
+        };
+        
     }
 
     private async Task AddMore(TextColloxMessage textColloxMessage)
