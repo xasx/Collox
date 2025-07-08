@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Media;
 using System.Speech.Synthesis;
 using Collox.Models;
@@ -10,6 +11,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using EmojiToolkit;
 using Markdig;
 using Microsoft.Extensions.AI;
+using NLog;
 using Windows.ApplicationModel;
 using Windows.System;
 
@@ -17,6 +19,8 @@ namespace Collox.ViewModels;
 
 public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware, IRecipient<TaskDoneMessage>
 {
+    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
     // Add this method to cache the markdown pipeline
     private static readonly Lazy<MarkdownPipeline> _markdownPipeline = new(() =>
         new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
@@ -66,7 +70,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                     {
                         Target.Comment => await CreateComment(textColloxMessage, processor, client).ConfigureAwait(false),
                         Target.Task => await CreateTask(textColloxMessage, processor.Prompt, client).ConfigureAwait(false),
-                        Target.Context => throw new NotImplementedException(),
+                        Target.Message => await ModifyMessage(textColloxMessage,processor,client),
                         Target.Chat => await CreateMessage(
                             Messages.OfType<TextColloxMessage>(),
                             processor, client).ConfigureAwait(false),
@@ -97,6 +101,19 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         textColloxMessage.IsLoading = false;
     }
 
+    private async Task<string> ModifyMessage(TextColloxMessage textColloxMessage, IntelligentProcessor processor, IChatClient client)
+    {
+        textColloxMessage.Text = string.Empty;
+
+        await foreach (var update in client.GetStreamingResponseAsync(string.Format(processor.Prompt, textColloxMessage.Text)))
+        {
+            textColloxMessage.Text += update.Text;
+        }
+
+        return textColloxMessage.Text;
+
+    }
+
     private async Task AddTextMessage()
     {
         var textMessage = new TextColloxMessage
@@ -112,6 +129,15 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         InputMessage = string.Empty;
 
         CharacterCount = Math.Min(KeyStrokesCount, CharacterCount + textMessage.Text.Length);
+        await Task.Run(() =>
+        {
+            var lc = DetectLanguage(textMessage.Text);
+
+            Logger.Info("Detected language for message '{MessageText}': {Language}", 
+                textMessage.Text, lc.Name);
+        }).ConfigureAwait(true);
+        
+        
 
         if (Settings.PersistMessages)
         {
@@ -317,9 +343,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         try
         {
             var speechSynthesizer = new SpeechSynthesizer();
-            // var voices = speechSynthesizer.GetInstalledVoices();
-
             speechSynthesizer.SetOutputToDefaultAudioDevice();
+
             if (voice == null)
             {
                 speechSynthesizer.SelectVoiceByHints(VoiceGender.Male, VoiceAge.Adult);
@@ -335,6 +360,42 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         {
             Debug.WriteLine(ex);
         }
+    }
+
+    private static CultureInfo DetectLanguage(string text)
+    {
+        var inputModel = new LanguageDetection.ModelInput() { Text = text };
+        var lang = LanguageDetection.Predict(inputModel);
+        var ll = lang.PredictedLabel.Trim('"');
+
+        var le = ll switch
+        {
+            "english" => "en-US",
+            "french" => "fr-FR",
+            "german" => "de-DE",
+            "spanish" => "es-ES",
+            "italian" => "it-IT",
+            "portuguese" => "pt-PT",
+            "chinese" => "zh-CN",
+            "japanese" => "ja-JP",
+            "korean" => "ko-KR",
+            "russian" => "ru-RU",
+            "arabic" => "ar-SA",
+            "dutch" => "nl-NL",
+            "polish" => "pl-PL",
+            "turkish" => "tr-TR",
+            "hindi" => "hi-IN",
+            "swedish" => "sv-SE",
+            "norwegian" => "no-NO",
+            "danish" => "da-DK",
+            "finnish" => "fi-FI",
+            "czech" => "cs-CZ",
+            "hungarian" => "hu-HU",
+            "greek" => "el-GR",
+
+            _ => "en-US"
+        };
+        return CultureInfo.GetCultureInfoByIetfLanguageTag(le);
     }
 
     [RelayCommand]

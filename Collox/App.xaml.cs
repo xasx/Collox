@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
-using Collox.Services;
+﻿using Collox.Services;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Dispatching;
 using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.AppNotifications;
+using NLog;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
@@ -15,6 +15,8 @@ namespace Collox;
 
 public partial class App : Application
 {
+    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+
     public static Window MainWindow;
     public static Window MirrorWindow;
 
@@ -75,6 +77,8 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        Logger.Info("Application launched with arguments: {Arguments}", args.Arguments);
+
         MainWindow = new Window();
 
         var notificationManager = AppNotificationManager.Default;
@@ -83,13 +87,17 @@ public partial class App : Application
 
         var activatedArgs = AppInstance.GetCurrent().GetActivatedEventArgs();
         var activationKind = activatedArgs.Kind;
+        Logger.Debug("Processing activation kind: {ActivationKind}", activationKind);
+
         if (activationKind != ExtendedActivationKind.AppNotification)
         {
+            Logger.Info("Setting up main window and mirror window");
             SetupMainWindow();
             SetupMirrorWindow();
         }
         else
         {
+            Logger.Info("Handling app notification activation");
             HandleNotification((AppNotificationActivatedEventArgs)activatedArgs.Data);
         }
     }
@@ -199,7 +207,7 @@ public partial class App : Application
 
     private void Application_UnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
-        Debug.WriteLine($"An error {e.Exception.Message}{Environment.NewLine}{e.Exception}");
+        Logger.Fatal(e.Exception, "Unhandled application exception occurred");
 
         var errorWindow = new ErrorWindow
         {

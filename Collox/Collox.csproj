@@ -41,6 +41,12 @@
     <SuppressPseudoWarning Condition="'$(Configuration)' == 'Debug'">true</SuppressPseudoWarning>
   </PropertyGroup>
   <ItemGroup>
+    <None Update="AI\LanguageDetection.mlnet">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="T4Templates\NavigationPageMappings.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>NavigationPageMappings.cs</LastGenOutput>
@@ -79,6 +85,7 @@
     <None Include="Assets\**\*">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
+    <!-- Include NLog configuration file -->
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="ViewModels\IMassageRelativeTimeUpdater.cs" />
@@ -150,6 +157,8 @@
     <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.6.0-preview.1.25310.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0-preview.5.25277.114" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-preview.5.25277.114" />
+    <PackageReference Include="Microsoft.ML" Version="5.0.0-preview.1.25127.4" />
+    <PackageReference Include="Microsoft.ML.LightGbm" Version="5.0.0-preview.1.25127.4" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -161,8 +170,8 @@
     <PackageReference Include="NLog" Version="6.0.1" />
     <PackageReference Include="nucs.JsonSettings" Version="2.0.2" />
     <PackageReference Include="nucs.JsonSettings.AutoSaveGenerator" Version="2.0.4" />
-    <PackageReference Include="OllamaSharp" Version="5.2.3" />
-    <PackageReference Include="OpenAI" Version="2.2.0-beta.4" />
+    <PackageReference Include="OllamaSharp" Version="5.2.7" />
+    <PackageReference Include="OpenAI" Version="2.2.0" />
     <PackageReference Include="System.Speech" Version="10.0.0-preview.5.25277.114" />
     <PackageReference Include="System.Windows.Extensions" Version="10.0.0-preview.5.25277.114" />
     <PackageReference Include="WinUIEx" Version="2.6.0" />

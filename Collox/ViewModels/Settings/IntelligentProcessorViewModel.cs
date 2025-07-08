@@ -15,20 +15,31 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
 {
     public bool Equals(IntelligentProcessorViewModel other)
     {
-        if (other is null) return false;
-        if (ReferenceEquals(this, other)) return true;
+        if (other is null)
+            return false;
+        if (ReferenceEquals(this, other))
+            return true;
         return Id.Equals(other.Id);
     }
+
     public override int GetHashCode() => Id.GetHashCode();
 
     [ObservableProperty] public partial ObservableCollection<string> AvailableModelIds { get; set; } = [];
+
     [ObservableProperty] public partial Guid FallbackId { get; set; }
+
     [ObservableProperty] public partial Guid Id { get; set; }
+
     [ObservableProperty] public partial string ModelId { get; set; }
+
     [ObservableProperty] public partial string Name { get; set; } = string.Empty;
+
     [ObservableProperty] public partial string Prompt { get; set; }
+
     [ObservableProperty] public partial SourceProvider Source { get; set; }
+
     [ObservableProperty] public partial ProcessorTarget Target { get; set; }
+
     [ObservableProperty] public partial string NamePresentation { get; set; } = "Edit";
 
     public IntelligentProcessor Model { get; init; }
@@ -50,7 +61,7 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
         {
             Models.Target.Comment => ProcessorTarget.Comment,
             Models.Target.Task => ProcessorTarget.Task,
-            Models.Target.Context => ProcessorTarget.Context,
+            Models.Target.Message => ProcessorTarget.Message,
             Models.Target.Chat => ProcessorTarget.Chat,
             _ => throw new ArgumentOutOfRangeException(nameof(model), $"Invalid target: {model.Target}")
         };
@@ -59,10 +70,7 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
     }
 
     [RelayCommand]
-    public void Delete()
-    {
-        WeakReferenceMessenger.Default.Send(new ProcessorDeletedMessage(this));
-    }
+    public void Delete() { WeakReferenceMessenger.Default.Send(new ProcessorDeletedMessage(this)); }
 
     async partial void OnSourceChanged(SourceProvider value)
     {
@@ -79,7 +87,7 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
                 Model.Provider = AIProvider.OpenAI;
                 break;
         }
-        App.GetService<AIService>().Save();
+        SaveModel();
     }
 
     partial void OnTargetChanged(ProcessorTarget value)
@@ -88,52 +96,55 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
         {
             ProcessorTarget.Comment => Models.Target.Comment,
             ProcessorTarget.Task => Models.Target.Task,
-            ProcessorTarget.Context => Models.Target.Context,
+            ProcessorTarget.Message => Models.Target.Message,
             ProcessorTarget.Chat => Models.Target.Chat,
             _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
         };
-        App.GetService<AIService>().Save();
+        SaveModel();
     }
+
     partial void OnModelIdChanged(string value)
     {
         Model.ModelId = value;
-        App.GetService<AIService>().Save();
+        SaveModel();
     }
 
     partial void OnPromptChanged(string value)
     {
         Model.Prompt = value;
-        App.GetService<AIService>().Save();
+        SaveModel();
     }
 
     partial void OnNameChanged(string value)
     {
         Model.Name = value;
-        App.GetService<AIService>().Save();
+        SaveModel();
     }
 
     partial void OnFallbackIdChanged(Guid value)
     {
         Model.FallbackId = value;
-        App.GetService<AIService>().Save();
+        SaveModel();
     }
 
     partial void OnIdChanged(Guid value)
     {
         Model.Id = value;
-        App.GetService<AIService>().Save();
+        SaveModel();
     }
 
-    public override bool Equals(object obj)
+    private void SaveModel()
     {
-        return Equals(obj as IntelligentProcessorViewModel);
+        App.GetService<IAIService>().Save();
     }
+
+    public override bool Equals(object obj) { return Equals(obj as IntelligentProcessorViewModel); }
 }
 
 public enum ProcessorTarget
 {
     Comment,
     Task,
-    Context,
+    Message,
     Chat
 }
