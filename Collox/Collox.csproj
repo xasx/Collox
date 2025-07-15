@@ -128,8 +128,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Common" Version="8.4.0" />
-    <PackageReference Include="CommunityToolkit.Labs.WinUI.MarqueeText" Version="0.1.250319-build.2093" />
-    <PackageReference Include="CommunityToolkit.Labs.WinUI.TokenView" Version="0.1.250319-build.2093" />
+    <PackageReference Include="CommunityToolkit.Labs.WinUI.MarqueeText" Version="0.1.250703-build.2173" />
+    <PackageReference Include="CommunityToolkit.Labs.WinUI.TokenView" Version="0.1.250703-build.2173" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="CommunityToolkit.WinUI.Animations" Version="8.2.250402" />
     <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.250402" />
@@ -143,18 +143,17 @@
     <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250402" />
     <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.250402" />
     <PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.250402" />
-    <PackageReference Include="CommunityToolkit.WinUI.Input.GazeInteraction" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.250402" />
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.250402" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.Markdown" Version="7.1.2" />
     <PackageReference Include="Cottle" Version="2.1.0" />
-    <PackageReference Include="DevWinUI" Version="8.4.1" />
-    <PackageReference Include="DevWinUI.Controls" Version="8.4.1" />
+    <PackageReference Include="DevWinUI" Version="8.5.0" />
+    <PackageReference Include="DevWinUI.Controls" Version="8.5.0" />
     <PackageReference Include="EmojiToolkit" Version="15.1.1" />
     <PackageReference Include="Humanizer.Core" Version="3.0.0-beta.96" />
     <PackageReference Include="Markdig" Version="0.41.3" />
-    <PackageReference Include="Microsoft.Extensions.AI.Ollama" Version="9.6.0-preview.1.25310.2" />
-    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.6.0-preview.1.25310.2" />
+    <PackageReference Include="Microsoft.Extensions.AI.Ollama" Version="9.7.0-preview.1.25356.2" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.7.0-preview.1.25356.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0-preview.5.25277.114" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-preview.5.25277.114" />
     <PackageReference Include="Microsoft.ML" Version="5.0.0-preview.1.25127.4" />
@@ -164,13 +163,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4188" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250610002-experimental3" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250702007-experimental4" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="NLog" Version="6.0.1" />
     <PackageReference Include="nucs.JsonSettings" Version="2.0.2" />
     <PackageReference Include="nucs.JsonSettings.AutoSaveGenerator" Version="2.0.4" />
-    <PackageReference Include="OllamaSharp" Version="5.2.7" />
+    <PackageReference Include="OllamaSharp" Version="5.2.10" />
     <PackageReference Include="OpenAI" Version="2.2.0" />
     <PackageReference Include="System.Speech" Version="10.0.0-preview.5.25277.114" />
     <PackageReference Include="System.Windows.Extensions" Version="10.0.0-preview.5.25277.114" />

@@ -5,11 +5,9 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:collections="using:CommunityToolkit.Mvvm.Collections"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:gaze="using:CommunityToolkit.WinUI.Input.GazeInteraction"
       xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:uictrls="using:CommunityToolkit.WinUI.UI.Controls"
-      gaze:GazeInput.Interaction="Disabled"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
       mc:Ignorable="d">
 

@@ -34,13 +34,31 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     public WriteViewModel(IStoreService storeService, IAIService aiService)
     {
+        Logger.Info("Initializing WriteViewModel");
+        
         this.storeService = storeService;
         this.aiService = aiService;
 
-        aiService.Init();
-        Tasks.CollectionChanged += (_, _) => ShowTasks = Tasks.Count > 0;
-        WeakReferenceMessenger.Default.RegisterAll(this);
+        try
+        {
+            Logger.Debug("Initializing AI service");
+            aiService.Init();
+            Logger.Info("AI service initialized successfully");
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Failed to initialize AI service. Disabling AI.");
+            Settings.EnableAI = false;
+        }
 
+        Tasks.CollectionChanged += (_, _) => 
+        {
+            ShowTasks = Tasks.Count > 0;
+            Logger.Debug("Tasks collection changed. ShowTasks: {ShowTasks}, TaskCount: {TaskCount}", ShowTasks, Tasks.Count);
+        };
+        
+        WeakReferenceMessenger.Default.RegisterAll(this);
+        Logger.Debug("Registered for all weak reference messages");
 
         // Update the lambda expression to use the adapter
         MessageRelativeTimeUpdater.CreateTimer = () =>
@@ -49,21 +67,35 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             return new DispatcherQueueTimerAdapter(dispatcherQueueTimer);
         };
         
+        Logger.Info("WriteViewModel initialization completed");
+    }
+
+    partial void OnConversationContextChanged(TabData value)
+    {
+        Logger.Debug("ConversationContext changed to {ContextName}", value?.Context ?? "unknown");
     }
 
     private async Task AddMore(TextColloxMessage textColloxMessage)
     {
+        Logger.Info("Starting further  processing for message: {MessageId}", textColloxMessage.GetHashCode());
+        
         if (!Settings.EnableAI)
         {
+            Logger.Debug("AI is disabled, skipping further processing");
             textColloxMessage.IsLoading = false;
             return;
         }
+
+        var processorCount = ConversationContext.ActiveProcessors.Count;
+        Logger.Debug("Processing with {ProcessorCount} active processors", processorCount);
 
         try
         {
             var procs = ConversationContext.ActiveProcessors;
             var tasks = procs.Select(async processor =>
             {
+                Logger.Debug("Processing with processor: {ProcessorName} (ID: {ProcessorId})", processor.Name, processor.Id);
+                
                 try
                 {
                     processor.Process = async (client) => processor.Target switch
@@ -71,51 +103,73 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                         Target.Comment => await CreateComment(textColloxMessage, processor, client).ConfigureAwait(false),
                         Target.Task => await CreateTask(textColloxMessage, processor.Prompt, client).ConfigureAwait(false),
                         Target.Message => await ModifyMessage(textColloxMessage,processor,client),
-                        Target.Chat => await CreateMessage(
-                            Messages.OfType<TextColloxMessage>(),
-                            processor, client).ConfigureAwait(false),
-                        _ => throw new NotImplementedException(),
+                        Target.Chat => await CreateMessage(Messages.OfType<TextColloxMessage>(), processor, client).ConfigureAwait(false),
+                        _ => throw new NotImplementedException($"Target {processor.Target} not implemented"),
                     };
                     processor.OnError = (ex) =>
                     {
+                        Logger.Error(ex, "Processor {ProcessorName} encountered an error", processor.Name);
                         textColloxMessage.ErrorMessage = $"Error: {ex.Message}";
                         textColloxMessage.HasProcessingError = true;
                     };
+                    
+                    Logger.Debug("Starting work for processor: {ProcessorName}", processor.Name);
                     await processor.Work().ConfigureAwait(false);
+                    Logger.Debug("Completed work for processor: {ProcessorName}", processor.Name);
                 }
                 catch (Exception ex)
                 {
+                    Logger.Error(ex, "Exception in processor {ProcessorName}: {ErrorMessage}", processor.Name, ex.Message);
                     textColloxMessage.ErrorMessage = $"Error: {ex.Message}";
                     textColloxMessage.HasProcessingError = true;
                 }
             });
 
             await Task.WhenAll(tasks).ConfigureAwait(true);
+            Logger.Info("Completed further processing for all {ProcessorCount} processors", processorCount);
         }
         catch (Exception ex)
         {
+            Logger.Error(ex, "Critical error in further processing: {ErrorMessage}", ex.Message);
             textColloxMessage.ErrorMessage = $"Error: {ex.Message}";
             textColloxMessage.HasProcessingError = true;
         }
 
         textColloxMessage.IsLoading = false;
+        Logger.Debug("Set IsLoading to false for message after further processing");
     }
 
     private async Task<string> ModifyMessage(TextColloxMessage textColloxMessage, IntelligentProcessor processor, IChatClient client)
     {
+        Logger.Info("Modifying message with processor: {ProcessorName}", processor.Name);
+        
+        var originalText = textColloxMessage.Text;
         textColloxMessage.Text = string.Empty;
 
-        await foreach (var update in client.GetStreamingResponseAsync(string.Format(processor.Prompt, textColloxMessage.Text)))
+        try
         {
-            textColloxMessage.Text += update.Text;
+            await foreach (var update in client.GetStreamingResponseAsync(string.Format(processor.Prompt, originalText)))
+            {
+                textColloxMessage.Text += update.Text;
+            }
+            
+            Logger.Debug("Message modification completed. Original length: {OriginalLength}, New length: {NewLength}", 
+                originalText.Length, textColloxMessage.Text.Length);
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Error during message modification with processor {ProcessorName}", processor.Name);
+            textColloxMessage.Text = originalText; // Fallback to original text
+            throw;
         }
 
         return textColloxMessage.Text;
-
     }
 
     private async Task AddTextMessage()
     {
+        Logger.Info("Adding new text message. Input length: {InputLength}", InputMessage.Length);
+        
         var textMessage = new TextColloxMessage
         {
             Text = InputMessage,
@@ -125,44 +179,67 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         };
 
         Messages.Add(textMessage);
+        Logger.Debug("Added message to collection. Total messages: {MessageCount}", Messages.Count);
 
+        var originalInput = InputMessage;
         InputMessage = string.Empty;
 
         CharacterCount = Math.Min(KeyStrokesCount, CharacterCount + textMessage.Text.Length);
+        Logger.Debug("Updated CharacterCount to {CharacterCount}", CharacterCount);
+
         await Task.Run(() =>
         {
-            var lc = DetectLanguage(textMessage.Text);
-
-            Logger.Info("Detected language for message '{MessageText}': {Language}", 
-                textMessage.Text, lc.Name);
+            try
+            {
+                var lc = DetectLanguage(textMessage.Text);
+                Logger.Info("Detected language for message '{MessageText}': {Language}", 
+                    textMessage.Text, lc.Name);
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn(ex, "Failed to detect language for message");
+            }
         }).ConfigureAwait(true);
-        
-        
 
         if (Settings.PersistMessages)
         {
-            var singleMessage = new SingleMessage(textMessage.Text, textMessage.Context, textMessage.Timestamp);
-            await storeService.Append(singleMessage).ConfigureAwait(true);
+            try
+            {
+                Logger.Debug("Persisting message to store");
+                var singleMessage = new SingleMessage(textMessage.Text, textMessage.Context, textMessage.Timestamp);
+                await storeService.Append(singleMessage).ConfigureAwait(true);
+                Logger.Debug("Message persisted successfully");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Failed to persist message to store");
+            }
         }
 
         WeakReferenceMessenger.Default.Send(new TextSubmittedMessage(textMessage));
+        Logger.Debug("Sent TextSubmittedMessage");
 
         if (IsBeeping)
         {
+            Logger.Debug("Playing beep sound");
             PlayBeepSound();
         }
 
         if (IsSpeaking)
         {
+            Logger.Debug("Reading text with voice: {VoiceName}", SelectedVoice?.Name ?? "Default");
             ReadText(textMessage.Text, SelectedVoice?.Name);
         }
 
         await AddMore(textMessage).ConfigureAwait(false);
+        Logger.Info("Completed adding text message");
     }
 
     private static async Task<string> CreateComment(TextColloxMessage textColloxMessage, IntelligentProcessor processor,
         IChatClient client)
     {
+        Logger.Info("Creating comment with processor: {ProcessorName}", processor.Name);
+        
         var comment = new ColloxMessageComment()
         {
             Comment = string.Empty,
@@ -170,9 +247,19 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         };
         textColloxMessage.Comments.Add(comment);
 
-        await foreach (var update in client.GetStreamingResponseAsync(string.Format(processor.Prompt, textColloxMessage.Text)))
+        try
         {
-            comment.Comment += update.Text;
+            await foreach (var update in client.GetStreamingResponseAsync(string.Format(processor.Prompt, textColloxMessage.Text)))
+            {
+                comment.Comment += update.Text;
+            }
+            
+            Logger.Debug("Comment created successfully. Length: {CommentLength}", comment.Comment.Length);
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Error creating comment with processor {ProcessorName}", processor.Name);
+            throw;
         }
 
         return comment.Comment;
@@ -180,6 +267,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     private async Task<string> CreateMessage(IEnumerable<TextColloxMessage> messages, IntelligentProcessor processor, IChatClient client)
     {
+        Logger.Info("Creating chat message with processor: {ProcessorName}", processor.Name);
+        
         var textColloxMessage = new TextColloxMessage
         {
             Text = string.Empty,
@@ -195,22 +284,43 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         {
             new(ChatRole.System, processor.Prompt)
         };
+        
+        var messageCount = 0;
         foreach (var message in messages)
         {
             if (message.IsGenerated)
             {
                 if (message.GeneratorId == processor.Id)
+                {
                     chatMessages.Add(new ChatMessage(ChatRole.Assistant, message.Text));
+                    messageCount++;
+                }
             }
             else
             {
                 if (!string.IsNullOrWhiteSpace(message.Text))
+                {
                     chatMessages.Add(new ChatMessage(ChatRole.User, message.Text));
+                    messageCount++;
+                }
             }
         }
-        await foreach (var update in client.GetStreamingResponseAsync(chatMessages))
+        
+        Logger.Debug("Built chat context with {MessageCount} messages for processor {ProcessorName}", messageCount, processor.Name);
+
+        try
         {
-            textColloxMessage.Text += update.Text;
+            await foreach (var update in client.GetStreamingResponseAsync(chatMessages))
+            {
+                textColloxMessage.Text += update.Text;
+            }
+            
+            Logger.Debug("Chat message generation completed. Length: {MessageLength}", textColloxMessage.Text.Length);
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Error generating chat message with processor {ProcessorName}", processor.Name);
+            throw;
         }
 
         textColloxMessage.IsLoading = false;
@@ -219,102 +329,161 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     private async Task<string> CreateTask(TextColloxMessage textColloxMessage, string prompt, IChatClient client)
     {
-        var response = await client.GetResponseAsync(string.Format(prompt, textColloxMessage.Text)).ConfigureAwait(true);
-        Tasks.Add(new TaskViewModel
+        Logger.Info("Creating task from message");
+        
+        try
         {
-            Name = response.Text,
-            IsDone = false
-        });
-        return response.Text;
+            var response = await client.GetResponseAsync(string.Format(prompt, textColloxMessage.Text)).ConfigureAwait(true);
+            
+            Tasks.Add(new TaskViewModel
+            {
+                Name = response.Text,
+                IsDone = false
+            });
+            
+            Logger.Debug("Task created: {TaskName}", response.Text);
+            return response.Text;
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Error creating task from message");
+            throw;
+        }
     }
 
     partial void OnIsBeepingChanged(bool value)
     {
+        Logger.Debug("IsBeeping changed to {Value}", value);
         Settings.AutoBeep = value;
     }
 
     partial void OnIsSpeakingChanged(bool value)
     {
+        Logger.Debug("IsSpeaking changed to {Value}", value);
         Settings.AutoRead = value;
     }
 
     partial void OnSelectedMessageChanged(ColloxMessage value)
     {
+        Logger.Debug("SelectedMessage changed");
         // always scroll to the selected message
         WeakReferenceMessenger.Default.Send(new MessageSelectedMessage(value));
     }
+    
     partial void OnSelectedVoiceChanged(VoiceInfo value)
     {
+        Logger.Debug("SelectedVoice changed to {VoiceName}", value?.Name ?? "null");
         Settings.Voice = value.Name;
     }
 
     private static void PlayBeepSound()
     {
-        var installedPath = Package.Current.InstalledLocation.Path;
-        var sp = new SoundPlayer(Path.Combine(installedPath, "Assets", "notify.wav"));
-        sp.Play();
+        try
+        {
+            var installedPath = Package.Current.InstalledLocation.Path;
+            var sp = new SoundPlayer(Path.Combine(installedPath, "Assets", "notify.wav"));
+            sp.Play();
+            Logger.Debug("Beep sound played successfully");
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn(ex, "Failed to play beep sound");
+        }
     }
 
     private async Task ProcessCommand()
     {
         var msg = InputMessage;
+        Logger.Info("Processing command: {Command}", msg);
+        
         InputMessage = string.Empty;
         var tok = msg.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        
         switch (tok)
         {
             case ["clear", ..]:
+                Logger.Debug("Executing clear command");
                 await Clear().ConfigureAwait(false);
                 return;
 
             case ["save", ..]:
+                Logger.Debug("Executing save command");
                 await SaveNow().ConfigureAwait(false);
                 return;
 
             case ["speak", ..]:
+                Logger.Debug("Executing speak command");
                 SpeakLast();
                 return;
 
             case ["time", ..]:
+                Logger.Debug("Executing time command");
                 var timestampMessage = new TimeColloxMessage
                 {
                     Time = DateTime.Now.TimeOfDay
                 };
-
                 Messages.Add(timestampMessage);
                 return;
 
             case ["pin", ..]:
+                Logger.Debug("Executing pin command");
                 ConversationContext.IsCloseable = false;
                 return;
 
             case ["unpin", ..]:
+                Logger.Debug("Executing unpin command");
                 ConversationContext.IsCloseable = true;
                 return;
 
             case ["help", ..]:
+                Logger.Debug("Executing help command");
                 var helpMessage = new InternalColloxMessage
                 {
                     Message = "Available commands: clear, save, speak, time, pin, unpin, task",
                     Severity = InfoBarSeverity.Informational
                 };
-
                 Messages.Add(helpMessage);
                 return;
+                
             case ["task", .. var taskName]:
-                Tasks.Add(new TaskViewModel { Name = string.Join(" ", taskName), IsDone = false });
+                var taskNameStr = string.Join(" ", taskName);
+                Logger.Debug("Executing task command: {TaskName}", taskNameStr);
+                Tasks.Add(new TaskViewModel { Name = taskNameStr, IsDone = false });
                 return;
+                
+            default:
+                Logger.Warn("Unknown command: {Command}", msg);
+                break;
         }
     }
 
     [RelayCommand]
     private async Task SaveNow()
     {
-        await storeService.SaveNow().ConfigureAwait(false);
+        Logger.Info("Save command initiated");
+        
+        try
+        {
+            await storeService.SaveNow().ConfigureAwait(false);
+            Logger.Info("Save completed successfully");
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Save operation failed");
+        }
     }
 
     private static string StripMd(string mdText)
     {
-        return Markdown.ToPlainText(mdText, _markdownPipeline.Value);
+        try
+        {
+            return Markdown.ToPlainText(mdText, _markdownPipeline.Value);
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn(ex, "Failed to strip markdown from text: {Text}", mdText);
+            return mdText; // Return original text if markdown processing fails
+        }
     }
 
     [RelayCommand]
@@ -322,24 +491,42 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     {
         if (string.IsNullOrWhiteSpace(InputMessage))
         {
+            Logger.Debug("Submit called with empty input message");
             return;
         }
 
+        Logger.Info("Submit command initiated. Mode: {Mode}, InputLength: {Length}", 
+            SubmitModeIcon, InputMessage.Length);
+
         ConversationContext.IsEditing = false;
 
-        switch (SubmitModeIcon)
+        try
         {
-            case Symbol.Send:
-                await AddTextMessage().ConfigureAwait(false);
-                break;
-            case Symbol.Play:
-                await ProcessCommand().ConfigureAwait(false);
-                break;
+            switch (SubmitModeIcon)
+            {
+                case Symbol.Send:
+                    Logger.Debug("Processing as text message");
+                    await AddTextMessage().ConfigureAwait(false);
+                    break;
+                case Symbol.Play:
+                    Logger.Debug("Processing as command");
+                    await ProcessCommand().ConfigureAwait(false);
+                    break;
+                default:
+                    Logger.Warn("Unknown submit mode: {Mode}", SubmitModeIcon);
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Error during submit processing");
         }
     }
 
     internal static void ReadText(string text, string voice = null)
     {
+        Logger.Debug("Reading text with voice: {Voice}, TextLength: {Length}", voice ?? "Default", text.Length);
+        
         try
         {
             var speechSynthesizer = new SpeechSynthesizer();
@@ -355,104 +542,170 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             }
 
             speechSynthesizer.SpeakAsync(text);
+            Logger.Debug("Text reading initiated successfully");
         }
         catch (Exception ex)
         {
+            Logger.Error(ex, "Failed to read text with voice: {Voice}", voice);
             Debug.WriteLine(ex);
         }
     }
 
     private static CultureInfo DetectLanguage(string text)
     {
-        var inputModel = new LanguageDetection.ModelInput() { Text = text };
-        var lang = LanguageDetection.Predict(inputModel);
-        var ll = lang.PredictedLabel.Trim('"');
-
-        var le = ll switch
+        Logger.Debug("Detecting language for text of length: {Length}", text.Length);
+        
+        try
         {
-            "english" => "en-US",
-            "french" => "fr-FR",
-            "german" => "de-DE",
-            "spanish" => "es-ES",
-            "italian" => "it-IT",
-            "portuguese" => "pt-PT",
-            "chinese" => "zh-CN",
-            "japanese" => "ja-JP",
-            "korean" => "ko-KR",
-            "russian" => "ru-RU",
-            "arabic" => "ar-SA",
-            "dutch" => "nl-NL",
-            "polish" => "pl-PL",
-            "turkish" => "tr-TR",
-            "hindi" => "hi-IN",
-            "swedish" => "sv-SE",
-            "norwegian" => "no-NO",
-            "danish" => "da-DK",
-            "finnish" => "fi-FI",
-            "czech" => "cs-CZ",
-            "hungarian" => "hu-HU",
-            "greek" => "el-GR",
+            var inputModel = new LanguageDetection.ModelInput() { Text = text };
+            var lang = LanguageDetection.Predict(inputModel);
+            var ll = lang.PredictedLabel.Trim('"');
 
-            _ => "en-US"
-        };
-        return CultureInfo.GetCultureInfoByIetfLanguageTag(le);
+            var le = ll switch
+            {
+                "english" => "en-US",
+                "french" => "fr-FR",
+                "german" => "de-DE",
+                "spanish" => "es-ES",
+                "italian" => "it-IT",
+                "portuguese" => "pt-PT",
+                "chinese" => "zh-CN",
+                "japanese" => "ja-JP",
+                "korean" => "ko-KR",
+                "russian" => "ru-RU",
+                "arabic" => "ar-SA",
+                "dutch" => "nl-NL",
+                "polish" => "pl-PL",
+                "turkish" => "tr-TR",
+                "hindi" => "hi-IN",
+                "swedish" => "sv-SE",
+                "norwegian" => "no-NO",
+                "danish" => "da-DK",
+                "finnish" => "fi-FI",
+                "czech" => "cs-CZ",
+                "hungarian" => "hu-HU",
+                "greek" => "el-GR",
+                _ => "en-US"
+            };
+            
+            var culture = CultureInfo.GetCultureInfoByIetfLanguageTag(le);
+            Logger.Debug("Language detected: {Language} -> {Culture}", ll, culture.Name);
+            return culture;
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn(ex, "Language detection failed, defaulting to en-US");
+            return CultureInfo.GetCultureInfoByIetfLanguageTag("en-US");
+        }
     }
 
     [RelayCommand]
     public void ChangeModeToCmd()
     {
+        Logger.Debug("Changing mode to Command");
         SubmitModeIcon = Symbol.Play;
     }
 
     [RelayCommand]
     public void ChangeModeToWrite()
     {
+        Logger.Debug("Changing mode to Write");
         SubmitModeIcon = Symbol.Send;
     }
 
     [RelayCommand]
     public async Task Clear()
     {
-        Messages.Clear();
-        await storeService.SaveNow().ConfigureAwait(false);
+        Logger.Info("Clear command initiated. Current message count: {MessageCount}", Messages.Count);
+        
+        try
+        {
+            Messages.Clear();
+            await storeService.SaveNow().ConfigureAwait(false);
+            Logger.Info("Clear completed successfully");
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Clear operation failed");
+        }
     }
 
     public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
+        Logger.Debug("AutoSuggestBox query submitted: {Query}", args.QueryText);
+        
         var message = Messages
             .OfType<TextColloxMessage>()
             .FirstOrDefault(p => p.Text == args.QueryText);
         if (message != null)
         {
             SelectedMessage = message;
+            Logger.Debug("Selected message found and set");
+        }
+        else
+        {
+            Logger.Debug("No matching message found for query");
         }
     }
 
     public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
-        AutoSuggestBoxHelper.LoadSuggestions(sender, args, [
-            .. Messages
+        Logger.Debug("AutoSuggestBox text changed: {Text}", sender.Text);
+        
+        try
+        {
+            var suggestions = Messages
                 .OfType<TextColloxMessage>()
-                .Where(p => p.Text.Contains(sender.Text)).Select(p => p.Text)
-        ]);
+                .Where(p => p.Text.Contains(sender.Text))
+                .Select(p => p.Text)
+                .ToArray();
+                
+            AutoSuggestBoxHelper.LoadSuggestions(sender, args, [..suggestions]);
+            Logger.Debug("Loaded {SuggestionCount} suggestions", suggestions.Length);
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn(ex, "Failed to load suggestions for AutoSuggestBox");
+        }
     }
+    
     public void Receive(TaskDoneMessage message)
     {
+        Logger.Debug("Received TaskDoneMessage for task: {TaskName}", message.Value.Name);
         Tasks.Remove(message.Value);
+        Logger.Debug("Task removed from collection. Remaining tasks: {TaskCount}", Tasks.Count);
     }
 
     [RelayCommand]
     public void SpeakLast()
     {
+        Logger.Debug("SpeakLast command initiated");
+        
         if (Messages.Count > 0)
         {
-            ReadText(StripMd(Messages.OfType<TextColloxMessage>().Last().Text), SelectedVoice?.Name);
+            var lastTextMessage = Messages.OfType<TextColloxMessage>().LastOrDefault();
+            if (lastTextMessage != null)
+            {
+                var textToSpeak = StripMd(lastTextMessage.Text);
+                ReadText(textToSpeak, SelectedVoice?.Name);
+                Logger.Debug("Speaking last message with length: {Length}", textToSpeak.Length);
+            }
+            else
+            {
+                Logger.Debug("No text messages found to speak");
+            }
+        }
+        else
+        {
+            Logger.Debug("No messages available to speak");
         }
     }
 
     [RelayCommand]
     public void SwitchMode()
     {
+        Logger.Debug("SwitchMode command initiated. Current mode: {Mode}", SubmitModeIcon);
+        
         if (SubmitModeIcon == Symbol.Send)
         {
             ChangeModeToCmd();
@@ -461,6 +714,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         {
             ChangeModeToWrite();
         }
+        
+        Logger.Debug("Mode switched to: {Mode}", SubmitModeIcon);
     }
 
     public List<IntelligentProcessorViewModel> AvailableProcessors { get; init; } = [];
