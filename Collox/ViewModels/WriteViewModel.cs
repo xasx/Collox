@@ -22,12 +22,12 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
     // Add this method to cache the markdown pipeline
-    private static readonly Lazy<MarkdownPipeline> _markdownPipeline = new(() =>
-        new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
+    private static readonly Lazy<MarkdownPipeline> _markdownPipeline = new(
+        () => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
     // Improve voice initialization with lazy loading
-    private static readonly Lazy<ICollection<VoiceInfo>> _voiceInfos = new(() =>
-        [.. new SpeechSynthesizer().GetInstalledVoices().Select(iv => iv.VoiceInfo)]);
+    private static readonly Lazy<ICollection<VoiceInfo>> _voiceInfos = new(
+        () => [.. new SpeechSynthesizer().GetInstalledVoices().Select(iv => iv.VoiceInfo)]);
 
     private readonly IAIService aiService;
     private readonly IStoreService storeService;
@@ -35,7 +35,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     public WriteViewModel(IStoreService storeService, IAIService aiService)
     {
         Logger.Info("Initializing WriteViewModel");
-        
+
         this.storeService = storeService;
         this.aiService = aiService;
 
@@ -51,12 +51,15 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             Settings.EnableAI = false;
         }
 
-        Tasks.CollectionChanged += (_, _) => 
+        Tasks.CollectionChanged += (_, _) =>
         {
             ShowTasks = Tasks.Count > 0;
-            Logger.Debug("Tasks collection changed. ShowTasks: {ShowTasks}, TaskCount: {TaskCount}", ShowTasks, Tasks.Count);
+            Logger.Debug(
+                "Tasks collection changed. ShowTasks: {ShowTasks}, TaskCount: {TaskCount}",
+                ShowTasks,
+                Tasks.Count);
         };
-        
+
         WeakReferenceMessenger.Default.RegisterAll(this);
         Logger.Debug("Registered for all weak reference messages");
 
@@ -66,19 +69,17 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             var dispatcherQueueTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
             return new DispatcherQueueTimerAdapter(dispatcherQueueTimer);
         };
-        
+
         Logger.Info("WriteViewModel initialization completed");
     }
 
     partial void OnConversationContextChanged(TabData value)
-    {
-        Logger.Debug("ConversationContext changed to {ContextName}", value?.Context ?? "unknown");
-    }
+    { Logger.Debug("ConversationContext changed to {ContextName}", value?.Context ?? "unknown"); }
 
     private async Task AddMore(TextColloxMessage textColloxMessage)
     {
-        Logger.Info("Starting further  processing for message: {MessageId}", textColloxMessage.GetHashCode());
-        
+        Logger.Info("Starting further processing for message: {MessageId}", textColloxMessage.GetHashCode());
+
         if (!Settings.EnableAI)
         {
             Logger.Debug("AI is disabled, skipping further processing");
@@ -92,38 +93,50 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         try
         {
             var procs = ConversationContext.ActiveProcessors;
-            var tasks = procs.Select(async processor =>
-            {
-                Logger.Debug("Processing with processor: {ProcessorName} (ID: {ProcessorId})", processor.Name, processor.Id);
-                
-                try
+            var tasks = procs.Select(
+                async processor =>
                 {
-                    processor.Process = async (client) => processor.Target switch
+                    Logger.Debug(
+                        "Processing with processor: {ProcessorName} (ID: {ProcessorId})",
+                        processor.Name,
+                        processor.Id);
+
+                    try
                     {
-                        Target.Comment => await CreateComment(textColloxMessage, processor, client).ConfigureAwait(false),
-                        Target.Task => await CreateTask(textColloxMessage, processor.Prompt, client).ConfigureAwait(false),
-                        Target.Message => await ModifyMessage(textColloxMessage,processor,client),
-                        Target.Chat => await CreateMessage(Messages.OfType<TextColloxMessage>(), processor, client).ConfigureAwait(false),
-                        _ => throw new NotImplementedException($"Target {processor.Target} not implemented"),
-                    };
-                    processor.OnError = (ex) =>
+                        processor.Process = async (client) => processor.Target switch
+                        {
+                            Target.Comment => await CreateComment(textColloxMessage, processor, client)
+                                .ConfigureAwait(false),
+                            Target.Task => await CreateTask(textColloxMessage, processor, client)
+                                .ConfigureAwait(false),
+                            Target.Message => await ModifyMessage(textColloxMessage, processor, client)
+                                .ConfigureAwait(false),
+                            Target.Chat => await CreateMessage(Messages.OfType<TextColloxMessage>(), processor, client)
+                                .ConfigureAwait(false),
+                            _ => throw new NotImplementedException($"Target {processor.Target} not implemented"),
+                        };
+                        processor.OnError = (ex) =>
+                        {
+                            Logger.Error(ex, "Processor {ProcessorName} encountered an error", processor.Name);
+                            textColloxMessage.ErrorMessage = $"Error: {ex.Message}";
+                            textColloxMessage.HasProcessingError = true;
+                        };
+
+                        Logger.Debug("Starting work for processor: {ProcessorName}", processor.Name);
+                        await processor.Work().ConfigureAwait(false);
+                        Logger.Debug("Completed work for processor: {ProcessorName}", processor.Name);
+                    }
+                    catch (Exception ex)
                     {
-                        Logger.Error(ex, "Processor {ProcessorName} encountered an error", processor.Name);
+                        Logger.Error(
+                            ex,
+                            "Exception in processor {ProcessorName}: {ErrorMessage}",
+                            processor.Name,
+                            ex.Message);
                         textColloxMessage.ErrorMessage = $"Error: {ex.Message}";
                         textColloxMessage.HasProcessingError = true;
-                    };
-                    
-                    Logger.Debug("Starting work for processor: {ProcessorName}", processor.Name);
-                    await processor.Work().ConfigureAwait(false);
-                    Logger.Debug("Completed work for processor: {ProcessorName}", processor.Name);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex, "Exception in processor {ProcessorName}: {ErrorMessage}", processor.Name, ex.Message);
-                    textColloxMessage.ErrorMessage = $"Error: {ex.Message}";
-                    textColloxMessage.HasProcessingError = true;
-                }
-            });
+                    }
+                });
 
             await Task.WhenAll(tasks).ConfigureAwait(true);
             Logger.Info("Completed further processing for all {ProcessorCount} processors", processorCount);
@@ -139,10 +152,13 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         Logger.Debug("Set IsLoading to false for message after further processing");
     }
 
-    private async Task<string> ModifyMessage(TextColloxMessage textColloxMessage, IntelligentProcessor processor, IChatClient client)
+    private async Task<string> ModifyMessage(
+        TextColloxMessage textColloxMessage,
+        IntelligentProcessor processor,
+        IChatClient client)
     {
         Logger.Info("Modifying message with processor: {ProcessorName}", processor.Name);
-        
+
         var originalText = textColloxMessage.Text;
         textColloxMessage.Text = string.Empty;
 
@@ -152,9 +168,11 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             {
                 textColloxMessage.Text += update.Text;
             }
-            
-            Logger.Debug("Message modification completed. Original length: {OriginalLength}, New length: {NewLength}", 
-                originalText.Length, textColloxMessage.Text.Length);
+
+            Logger.Debug(
+                "Message modification completed. Original length: {OriginalLength}, New length: {NewLength}",
+                originalText.Length,
+                textColloxMessage.Text.Length);
         }
         catch (Exception ex)
         {
@@ -169,7 +187,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     private async Task AddTextMessage()
     {
         Logger.Info("Adding new text message. Input length: {InputLength}", InputMessage.Length);
-        
+
         var textMessage = new TextColloxMessage
         {
             Text = InputMessage,
@@ -186,20 +204,6 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
         CharacterCount = Math.Min(KeyStrokesCount, CharacterCount + textMessage.Text.Length);
         Logger.Debug("Updated CharacterCount to {CharacterCount}", CharacterCount);
-
-        await Task.Run(() =>
-        {
-            try
-            {
-                var lc = DetectLanguage(textMessage.Text);
-                Logger.Info("Detected language for message '{MessageText}': {Language}", 
-                    textMessage.Text, lc.Name);
-            }
-            catch (Exception ex)
-            {
-                Logger.Warn(ex, "Failed to detect language for message");
-            }
-        }).ConfigureAwait(true);
 
         if (Settings.PersistMessages)
         {
@@ -219,41 +223,130 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         WeakReferenceMessenger.Default.Send(new TextSubmittedMessage(textMessage));
         Logger.Debug("Sent TextSubmittedMessage");
 
+        // Execute beep and speak operations asynchronously and concurrently
+        var audioTasks = new List<Task>();
+
         if (IsBeeping)
         {
-            Logger.Debug("Playing beep sound");
-            PlayBeepSound();
+            Logger.Debug("Playing beep sound asynchronously");
+            audioTasks.Add(PlayBeepSoundAsync());
         }
 
         if (IsSpeaking)
         {
             Logger.Debug("Reading text with voice: {VoiceName}", SelectedVoice?.Name ?? "Default");
-            ReadText(textMessage.Text, SelectedVoice?.Name);
+            audioTasks.Add(ReadTextAsync(textMessage.Text, SelectedVoice?.Name));
+        }
+
+        if (audioTasks.Count > 0)
+        {
+            try
+            {
+                await Task.WhenAll(audioTasks).ConfigureAwait(true);
+                Logger.Debug("Completed all audio operations");
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn(ex, "One or more audio operations failed");
+            }
         }
 
         await AddMore(textMessage).ConfigureAwait(false);
         Logger.Info("Completed adding text message");
     }
 
-    private static async Task<string> CreateComment(TextColloxMessage textColloxMessage, IntelligentProcessor processor,
+    private static async Task PlayBeepSoundAsync()
+    {
+        try
+        {
+            await Task.Run(() =>
+            {
+                var installedPath = Package.Current.InstalledLocation.Path;
+                var sp = new SoundPlayer(Path.Combine(installedPath, "Assets", "notify.wav"));
+                sp.PlaySync(); // Use PlaySync for proper awaiting
+            }).ConfigureAwait(false);
+            Logger.Debug("Beep sound played successfully");
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn(ex, "Failed to play beep sound");
+        }
+    }
+
+    internal static async Task ReadTextAsync(string text, string voice = null)
+    {
+        Logger.Debug("Reading text with voice: {Voice}, TextLength: {Length}", voice ?? "Default", text.Length);
+
+        try
+        {
+            await Task.Run(() =>
+            {
+                using var speechSynthesizer = new SpeechSynthesizer();
+                speechSynthesizer.SetOutputToDefaultAudioDevice();
+
+                if (voice == null)
+                {
+                    speechSynthesizer.SelectVoiceByHints(VoiceGender.Male, VoiceAge.Adult);
+                }
+                else
+                {
+                    speechSynthesizer.SelectVoice(voice);
+                }
+
+                speechSynthesizer.Speak(text); // Use synchronous Speak for proper awaiting
+            }).ConfigureAwait(false);
+            Logger.Debug("Text reading completed successfully");
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Failed to read text with voice: {Voice}", voice);
+            Debug.WriteLine(ex);
+        }
+    }
+
+    [RelayCommand]
+    public async Task SpeakLastAsync()
+    {
+        Logger.Debug("SpeakLast command initiated");
+
+        if (Messages.Count > 0)
+        {
+            var lastTextMessage = Messages.OfType<TextColloxMessage>().LastOrDefault();
+            if (lastTextMessage != null)
+            {
+                var textToSpeak = StripMd(lastTextMessage.Text);
+                await ReadTextAsync(textToSpeak, SelectedVoice?.Name).ConfigureAwait(false);
+                Logger.Debug("Speaking last message with length: {Length}", textToSpeak.Length);
+            }
+            else
+            {
+                Logger.Debug("No text messages found to speak");
+            }
+        }
+        else
+        {
+            Logger.Debug("No messages available to speak");
+        }
+    }
+
+    private static async Task<string> CreateComment(
+        TextColloxMessage textColloxMessage,
+        IntelligentProcessor processor,
         IChatClient client)
     {
         Logger.Info("Creating comment with processor: {ProcessorName}", processor.Name);
-        
-        var comment = new ColloxMessageComment()
-        {
-            Comment = string.Empty,
-            GeneratorId = processor.Id,
-        };
+
+        var comment = new ColloxMessageComment() { Comment = string.Empty, GeneratorId = processor.Id, };
         textColloxMessage.Comments.Add(comment);
 
         try
         {
-            await foreach (var update in client.GetStreamingResponseAsync(string.Format(processor.Prompt, textColloxMessage.Text)))
+            await foreach (var update in client.GetStreamingResponseAsync(
+                string.Format(processor.Prompt, textColloxMessage.Text)))
             {
                 comment.Comment += update.Text;
             }
-            
+
             Logger.Debug("Comment created successfully. Length: {CommentLength}", comment.Comment.Length);
         }
         catch (Exception ex)
@@ -265,10 +358,13 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         return comment.Comment;
     }
 
-    private async Task<string> CreateMessage(IEnumerable<TextColloxMessage> messages, IntelligentProcessor processor, IChatClient client)
+    private async Task<string> CreateMessage(
+        IEnumerable<TextColloxMessage> messages,
+        IntelligentProcessor processor,
+        IChatClient client)
     {
         Logger.Info("Creating chat message with processor: {ProcessorName}", processor.Name);
-        
+
         var textColloxMessage = new TextColloxMessage
         {
             Text = string.Empty,
@@ -280,12 +376,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         };
         Messages.Add(textColloxMessage);
 
-        var chatMessages = new List<ChatMessage>
-        {
-            new(ChatRole.System, processor.Prompt)
-        };
-        
-        var messageCount = 0;
+        var chatMessages = new List<ChatMessage> { new(ChatRole.System, processor.SystemPrompt) };
+
         foreach (var message in messages)
         {
             if (message.IsGenerated)
@@ -293,7 +385,6 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 if (message.GeneratorId == processor.Id)
                 {
                     chatMessages.Add(new ChatMessage(ChatRole.Assistant, message.Text));
-                    messageCount++;
                 }
             }
             else
@@ -301,12 +392,14 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 if (!string.IsNullOrWhiteSpace(message.Text))
                 {
                     chatMessages.Add(new ChatMessage(ChatRole.User, message.Text));
-                    messageCount++;
                 }
             }
         }
-        
-        Logger.Debug("Built chat context with {MessageCount} messages for processor {ProcessorName}", messageCount, processor.Name);
+
+        Logger.Debug(
+            "Built chat context with {MessageCount} messages for processor {ProcessorName}",
+            chatMessages.Count,
+            processor.Name);
 
         try
         {
@@ -314,7 +407,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             {
                 textColloxMessage.Text += update.Text;
             }
-            
+
             Logger.Debug("Chat message generation completed. Length: {MessageLength}", textColloxMessage.Text.Length);
         }
         catch (Exception ex)
@@ -327,20 +420,17 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         return textColloxMessage.Text;
     }
 
-    private async Task<string> CreateTask(TextColloxMessage textColloxMessage, string prompt, IChatClient client)
+    private async Task<string> CreateTask(TextColloxMessage textColloxMessage, IntelligentProcessor processor, IChatClient client)
     {
         Logger.Info("Creating task from message");
-        
+
         try
         {
-            var response = await client.GetResponseAsync(string.Format(prompt, textColloxMessage.Text)).ConfigureAwait(true);
-            
-            Tasks.Add(new TaskViewModel
-            {
-                Name = response.Text,
-                IsDone = false
-            });
-            
+            var response = await client.GetResponseAsync(string.Format(processor.Prompt, textColloxMessage.Text))
+                .ConfigureAwait(true);
+
+            Tasks.Add(new TaskViewModel { Name = response.Text, IsDone = false });
+
             Logger.Debug("Task created: {TaskName}", response.Text);
             return response.Text;
         }
@@ -369,36 +459,21 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         // always scroll to the selected message
         WeakReferenceMessenger.Default.Send(new MessageSelectedMessage(value));
     }
-    
+
     partial void OnSelectedVoiceChanged(VoiceInfo value)
     {
         Logger.Debug("SelectedVoice changed to {VoiceName}", value?.Name ?? "null");
         Settings.Voice = value.Name;
     }
 
-    private static void PlayBeepSound()
-    {
-        try
-        {
-            var installedPath = Package.Current.InstalledLocation.Path;
-            var sp = new SoundPlayer(Path.Combine(installedPath, "Assets", "notify.wav"));
-            sp.Play();
-            Logger.Debug("Beep sound played successfully");
-        }
-        catch (Exception ex)
-        {
-            Logger.Warn(ex, "Failed to play beep sound");
-        }
-    }
-
     private async Task ProcessCommand()
     {
         var msg = InputMessage;
         Logger.Info("Processing command: {Command}", msg);
-        
+
         InputMessage = string.Empty;
         var tok = msg.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        
+
         switch (tok)
         {
             case ["clear", ..]:
@@ -413,15 +488,12 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
             case ["speak", ..]:
                 Logger.Debug("Executing speak command");
-                SpeakLast();
+                await SpeakLastAsync();
                 return;
 
             case ["time", ..]:
                 Logger.Debug("Executing time command");
-                var timestampMessage = new TimeColloxMessage
-                {
-                    Time = DateTime.Now.TimeOfDay
-                };
+                var timestampMessage = new TimeColloxMessage { Time = DateTime.Now.TimeOfDay };
                 Messages.Add(timestampMessage);
                 return;
 
@@ -444,13 +516,13 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 };
                 Messages.Add(helpMessage);
                 return;
-                
+
             case ["task", .. var taskName]:
                 var taskNameStr = string.Join(" ", taskName);
                 Logger.Debug("Executing task command: {TaskName}", taskNameStr);
                 Tasks.Add(new TaskViewModel { Name = taskNameStr, IsDone = false });
                 return;
-                
+
             default:
                 Logger.Warn("Unknown command: {Command}", msg);
                 break;
@@ -461,7 +533,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     private async Task SaveNow()
     {
         Logger.Info("Save command initiated");
-        
+
         try
         {
             await storeService.SaveNow().ConfigureAwait(false);
@@ -495,8 +567,10 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             return;
         }
 
-        Logger.Info("Submit command initiated. Mode: {Mode}, InputLength: {Length}", 
-            SubmitModeIcon, InputMessage.Length);
+        Logger.Info(
+            "Submit command initiated. Mode: {Mode}, InputLength: {Length}",
+            SubmitModeIcon,
+            InputMessage.Length);
 
         ConversationContext.IsEditing = false;
 
@@ -523,38 +597,10 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         }
     }
 
-    internal static void ReadText(string text, string voice = null)
-    {
-        Logger.Debug("Reading text with voice: {Voice}, TextLength: {Length}", voice ?? "Default", text.Length);
-        
-        try
-        {
-            var speechSynthesizer = new SpeechSynthesizer();
-            speechSynthesizer.SetOutputToDefaultAudioDevice();
-
-            if (voice == null)
-            {
-                speechSynthesizer.SelectVoiceByHints(VoiceGender.Male, VoiceAge.Adult);
-            }
-            else
-            {
-                speechSynthesizer.SelectVoice(voice);
-            }
-
-            speechSynthesizer.SpeakAsync(text);
-            Logger.Debug("Text reading initiated successfully");
-        }
-        catch (Exception ex)
-        {
-            Logger.Error(ex, "Failed to read text with voice: {Voice}", voice);
-            Debug.WriteLine(ex);
-        }
-    }
-
     private static CultureInfo DetectLanguage(string text)
     {
         Logger.Debug("Detecting language for text of length: {Length}", text.Length);
-        
+
         try
         {
             var inputModel = new LanguageDetection.ModelInput() { Text = text };
@@ -587,7 +633,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 "greek" => "el-GR",
                 _ => "en-US"
             };
-            
+
             var culture = CultureInfo.GetCultureInfoByIetfLanguageTag(le);
             Logger.Debug("Language detected: {Language} -> {Culture}", ll, culture.Name);
             return culture;
@@ -617,7 +663,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     public async Task Clear()
     {
         Logger.Info("Clear command initiated. Current message count: {MessageCount}", Messages.Count);
-        
+
         try
         {
             Messages.Clear();
@@ -633,7 +679,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
         Logger.Debug("AutoSuggestBox query submitted: {Query}", args.QueryText);
-        
+
         var message = Messages
             .OfType<TextColloxMessage>()
             .FirstOrDefault(p => p.Text == args.QueryText);
@@ -651,7 +697,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     public void OnAutoSuggestBoxTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
         Logger.Debug("AutoSuggestBox text changed: {Text}", sender.Text);
-        
+
         try
         {
             var suggestions = Messages
@@ -659,8 +705,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 .Where(p => p.Text.Contains(sender.Text))
                 .Select(p => p.Text)
                 .ToArray();
-                
-            AutoSuggestBoxHelper.LoadSuggestions(sender, args, [..suggestions]);
+
+            AutoSuggestBoxHelper.LoadSuggestions(sender, args, [.. suggestions]);
             Logger.Debug("Loaded {SuggestionCount} suggestions", suggestions.Length);
         }
         catch (Exception ex)
@@ -668,7 +714,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             Logger.Warn(ex, "Failed to load suggestions for AutoSuggestBox");
         }
     }
-    
+
     public void Receive(TaskDoneMessage message)
     {
         Logger.Debug("Received TaskDoneMessage for task: {TaskName}", message.Value.Name);
@@ -677,35 +723,10 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     }
 
     [RelayCommand]
-    public void SpeakLast()
-    {
-        Logger.Debug("SpeakLast command initiated");
-        
-        if (Messages.Count > 0)
-        {
-            var lastTextMessage = Messages.OfType<TextColloxMessage>().LastOrDefault();
-            if (lastTextMessage != null)
-            {
-                var textToSpeak = StripMd(lastTextMessage.Text);
-                ReadText(textToSpeak, SelectedVoice?.Name);
-                Logger.Debug("Speaking last message with length: {Length}", textToSpeak.Length);
-            }
-            else
-            {
-                Logger.Debug("No text messages found to speak");
-            }
-        }
-        else
-        {
-            Logger.Debug("No messages available to speak");
-        }
-    }
-
-    [RelayCommand]
     public void SwitchMode()
     {
         Logger.Debug("SwitchMode command initiated. Current mode: {Mode}", SubmitModeIcon);
-        
+
         if (SubmitModeIcon == Symbol.Send)
         {
             ChangeModeToCmd();
@@ -714,21 +735,29 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         {
             ChangeModeToWrite();
         }
-        
+
         Logger.Debug("Mode switched to: {Mode}", SubmitModeIcon);
     }
 
     public List<IntelligentProcessorViewModel> AvailableProcessors { get; init; } = [];
+
     [ObservableProperty] public partial int CharacterCount { get; set; }
 
     [ObservableProperty] public partial bool ClockShown { get; set; }
+
     [ObservableProperty] public partial TabData ConversationContext { get; set; }
 
-    public ObservableGroupedCollection<string, EmojiRecord> Emojis { get; init; }
+    public ObservableGroupedCollection<string, EmojiRecord> Emojis
+    {
+        get;
+        init;
+    }
         = new ObservableGroupedCollection<string, EmojiRecord>(Emoji.All.GroupBy(e => e.Category));
 
     [ObservableProperty] public partial string Filename { get; set; }
+
     [ObservableProperty] public partial string InputMessage { get; set; } = string.Empty;
+
     public ICollection<VoiceInfo> InstalledVoices => _voiceInfos.Value;
 
     [ObservableProperty] public partial bool IsBeeping { get; set; } = Settings.AutoBeep;
@@ -736,15 +765,22 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     [ObservableProperty] public partial bool IsSpeaking { get; set; } = Settings.AutoRead;
 
     [ObservableProperty] public partial int KeyStrokesCount { get; set; }
+
     [ObservableProperty] public partial ObservableCollection<ColloxMessage> Messages { get; set; } = [];
 
     [ObservableProperty] public partial ColloxMessage SelectedMessage { get; set; }
 
     [ObservableProperty]
-    public partial VoiceInfo SelectedVoice { get; set; }
+    public partial VoiceInfo SelectedVoice
+    {
+        get;
+        set;
+    }
         = _voiceInfos.Value.FirstOrDefault(vi => vi.Name == Settings.Voice);
 
     [ObservableProperty] public partial bool ShowTasks { get; set; }
+
     [ObservableProperty] public partial Symbol SubmitModeIcon { get; set; } = Symbol.Send;
+
     [ObservableProperty] public partial ObservableCollection<TaskViewModel> Tasks { get; set; } = [];
 }

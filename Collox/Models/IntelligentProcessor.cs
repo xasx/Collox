@@ -20,6 +20,8 @@ public partial class IntelligentProcessor
 
     public string Prompt { get; set; }
 
+    public string SystemPrompt { get; set; }
+
     public string ModelId { get; set; }
 
     [JsonConverter(typeof(StringEnumConverter))]

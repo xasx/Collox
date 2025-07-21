@@ -125,11 +125,20 @@
 
                                 <dev:SettingsCard x:Uid="PromptCard"
                                                   Description="The prompt to pass on to the AI Provider."
-                                                  Header="Prompt">
+                                                  Header="User Prompt">
                                     <TextBox MinWidth="320"
                                              MaxWidth="560"
                                              AcceptsReturn="True"
                                              Text="{x:Bind Prompt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             TextWrapping="Wrap" />
+                                </dev:SettingsCard>
+                                <dev:SettingsCard x:Uid="SystemPromptCard"
+                                                  Description="The systen prompt to pass on to the AI Provider."
+                                                  Header="System Prompt">
+                                    <TextBox MinWidth="320"
+                                             MaxWidth="560"
+                                             AcceptsReturn="True"
+                                             Text="{x:Bind SystemPrompt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              TextWrapping="Wrap" />
                                 </dev:SettingsCard>
                                 <dev:SettingsCard x:Uid="SourceCard"

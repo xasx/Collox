@@ -35,7 +35,7 @@ public partial class TextColloxMessage : ColloxMessage
     public string Context { get; init; }
 
     [RelayCommand]
-    public void Read() { WriteViewModel.ReadText(Text, Settings.Voice); }
+    public async Task ReadAsync() { await WriteViewModel.ReadTextAsync(Text, Settings.Voice); }
 }
 
 public partial class TimeColloxMessage : ColloxMessage
@@ -43,7 +43,7 @@ public partial class TimeColloxMessage : ColloxMessage
     public TimeSpan Time { get; init; }
 }
 
-public partial class InternalColloxMessage : ColloxMessage
+public partial class InternalColloxMessage : ColloxMessage 
 {
     public string Message { get; set; }
 
@@ -55,4 +55,8 @@ public partial class ColloxMessageComment : ObservableObject
     [ObservableProperty] public partial string Comment { get; set; }
 
     [ObservableProperty] public partial Guid GeneratorId { get; set; }
+
+
+    [RelayCommand]
+    public async Task ReadAsync() { await WriteViewModel.ReadTextAsync(Comment, Settings.Voice); }
 }

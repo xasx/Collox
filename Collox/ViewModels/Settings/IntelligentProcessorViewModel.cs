@@ -36,6 +36,8 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
 
     [ObservableProperty] public partial string Prompt { get; set; }
 
+    [ObservableProperty] public partial string SystemPrompt { get; set; }
+
     [ObservableProperty] public partial SourceProvider Source { get; set; }
 
     [ObservableProperty] public partial ProcessorTarget Target { get; set; }
@@ -51,6 +53,7 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
         Name = model.Name;
         ModelId = model.ModelId;
         Prompt = model.Prompt;
+        SystemPrompt = model.SystemPrompt;
         Source = model.Provider switch
         {
             AIProvider.Ollama => SourceProvider.Ollama,
@@ -112,6 +115,12 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
     partial void OnPromptChanged(string value)
     {
         Model.Prompt = value;
+        SaveModel();
+    }
+
+    partial void OnSystemPromptChanged(string value)
+    {
+        Model.SystemPrompt = value;
         SaveModel();
     }
 

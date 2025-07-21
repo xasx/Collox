@@ -250,20 +250,29 @@
                 </Button>
                 <ItemsRepeater x:Name="CommentsItemsRepeater"
                                ItemsSource="{x:Bind Comments, Mode=OneWay}"
+                               RelativePanel.AlignLeftWithPanel="True"
+                               RelativePanel.AlignRightWithPanel="True"
                                RelativePanel.Below="TimeHeader">
 
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="vm:ColloxMessageComment">
-                            <Border Margin="8,4,4,4"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefault}"
-                                    BorderThickness="1">
+                            <RelativePanel Margin="8,4,4,4"
+                                           HorizontalAlignment="Stretch"
+                                           BorderBrush="{ThemeResource CardStrokeColorDefault}"
+                                           BorderThickness="1">
                                 <TextBlock HorizontalAlignment="Stretch"
                                            FontSize="16"
                                            Foreground="{ThemeResource AccentTextFillColorSecondaryBrush}"
                                            Text="{x:Bind Comment, Mode=OneWay}"
                                            TextWrapping="WrapWholeWords" />
 
-                            </Border>
+
+                                <Button x:Name="ReadButton"
+                                        Command="{x:Bind ReadCommand}"
+                                        RelativePanel.AlignRightWithPanel="True">
+                                    <SymbolIcon Symbol="Volume" />
+                                </Button>
+                            </RelativePanel>
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>
                 </ItemsRepeater>
