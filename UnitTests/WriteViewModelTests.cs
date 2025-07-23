@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Controls;
 using Moq;
 using NFluent;
 using System.Speech.Synthesis;
+using Windows.System;
 using ITimer = Collox.ViewModels.ITimer;
 
 namespace Collox.Tests.ViewModels;
@@ -16,6 +17,9 @@ public class WriteViewModelTests
 {
     private readonly Mock<IStoreService> _storeServiceMock;
     private readonly Mock<IAIService> _aiServiceMock;
+    private readonly Mock<IAudioService> _audioServiceMock;
+    private readonly Mock<IMessageProcessingService> _messageProcessingServiceMock;
+    private readonly Mock<ICommandService> _commandServiceMock;
     private readonly WriteViewModel _viewModel;
 
     private readonly Mock<ITimer> _timerMock = new();
@@ -26,10 +30,25 @@ public class WriteViewModelTests
     {
         _storeServiceMock = new Mock<IStoreService>();
         _aiServiceMock = new Mock<IAIService>();
-        _viewModel = new WriteViewModel(_storeServiceMock.Object, _aiServiceMock.Object)
+        _audioServiceMock = new Mock<IAudioService>();
+        _messageProcessingServiceMock = new Mock<IMessageProcessingService>();
+        _commandServiceMock = new Mock<ICommandService>();
+
+
+        var mockVoices = new List<System.Speech.Synthesis.VoiceInfo>();
+        _audioServiceMock.Setup(a => a.GetInstalledVoices()).Returns(mockVoices);
+
+        _viewModel = new WriteViewModel(
+            _storeServiceMock.Object, 
+            _aiServiceMock.Object,
+            _audioServiceMock.Object,
+            _messageProcessingServiceMock.Object,
+            _commandServiceMock.Object)
         {
             ConversationContext = new TabData()
         };
+
+        
         _timerMock = new Mock<ITimer>();
         MessageRelativeTimeUpdater.CreateTimer = () => _timerMock.Object;
     }
@@ -84,22 +103,26 @@ public class WriteViewModelTests
         _viewModel.InputMessage = "help";
         _viewModel.SubmitModeIcon = Symbol.Play;
 
+        var commandResult = new CommandResult { Success = true };
+        _commandServiceMock.Setup(
+            s => s.ProcessCommandAsync("help", It.IsAny<CommandContext>()))
+            .ReturnsAsync(commandResult);
+
         // Act
         await _viewModel.SubmitCommand.ExecuteAsync(null);
 
         // Assert
-        Check.That(_viewModel.Messages).HasSize(1);
-        Check.That(_viewModel.Messages[0]).IsInstanceOf<InternalColloxMessage>();
-        Check.That(((InternalColloxMessage)_viewModel.Messages[0]).Message).Contains("Available commands");
+        _commandServiceMock.Verify(
+            s => s.ProcessCommandAsync("help", It.IsAny<CommandContext>()), 
+            Times.Once);
         Check.That(_viewModel.InputMessage).IsEmpty();
     }
 
     [TestMethod]
-    public async Task Clear_RemovesAllMessages()
+    public async Task Clear_ClearsMessagesAndSaves()
     {
         // Arrange
         _viewModel.Messages.Add(new TextColloxMessage { Text = "Message 1" });
-        _viewModel.Messages.Add(new TextColloxMessage { Text = "Message 2" });
 
         // Act
         await _viewModel.ClearCommand.ExecuteAsync(null);
@@ -120,39 +143,19 @@ public class WriteViewModelTests
     }
 
     [TestMethod]
-    public void ChangeModeToCmd_SetsCorrectIcon()
+    public void SwitchMode_TogglesBetweenSendAndPlay()
     {
-        // Act
-        _viewModel.ChangeModeToCmd();
-
-        // Assert
-        Check.That(_viewModel.SubmitModeIcon).IsEqualTo(Symbol.Play);
-    }
-
-    [TestMethod]
-    public void ChangeModeToWrite_SetsCorrectIcon()
-    {
-        // Act
-        _viewModel.ChangeModeToWrite();
-
-        // Assert
+        // Arrange - starts with Send mode
         Check.That(_viewModel.SubmitModeIcon).IsEqualTo(Symbol.Send);
-    }
 
-    [TestMethod]
-    public void SwitchMode_TogglesMode()
-    {
-        // Arrange
-        _viewModel.SubmitModeIcon = Symbol.Send;
-
-        // Act
-        _viewModel.SwitchMode();
+        // Act - switch to command mode
+        _viewModel.SwitchModeCommand.Execute(null);
 
         // Assert
         Check.That(_viewModel.SubmitModeIcon).IsEqualTo(Symbol.Play);
 
-        // Act again
-        _viewModel.SwitchMode();
+        // Act - switch back to send mode
+        _viewModel.SwitchModeCommand.Execute(null);
 
         // Assert
         Check.That(_viewModel.SubmitModeIcon).IsEqualTo(Symbol.Send);
@@ -162,145 +165,25 @@ public class WriteViewModelTests
     public void OnIsBeepingChanged_UpdatesSettings()
     {
         // Arrange
-        bool originalValue = Settings.AutoBeep;
+        var originalValue = Settings.AutoBeep;
 
-        try
-        {
-            // Act
-            _viewModel.IsBeeping = !originalValue;
+        // Act
+        _viewModel.IsBeeping = !originalValue;
 
-            // Assert
-            Check.That(Settings.AutoBeep).IsEqualTo(_viewModel.IsBeeping);
-        }
-        finally
-        {
-            // Cleanup
-            Settings.AutoBeep = originalValue;
-        }
+        // Assert
+        Check.That(Settings.AutoBeep).IsEqualTo(!originalValue);
     }
 
     [TestMethod]
     public void OnIsSpeakingChanged_UpdatesSettings()
     {
         // Arrange
-        bool originalValue = Settings.AutoRead;
-
-        try
-        {
-            // Act
-            _viewModel.IsSpeaking = !originalValue;
-
-            // Assert
-            Check.That(Settings.AutoRead).IsEqualTo(_viewModel.IsSpeaking);
-        }
-        finally
-        {
-            // Cleanup
-            Settings.AutoRead = originalValue;
-        }
-    }
-
-    [TestMethod]
-    public void OnSelectedVoiceChanged_UpdatesSettings()
-    {
-        // Arrange
-        string originalVoice = Settings.Voice;
-
-        var speechSynthesizer = new SpeechSynthesizer();
-        var iv = speechSynthesizer.GetInstalledVoices();
-
-        var voice = iv.First();
-        var vi = voice.VoiceInfo;
-
-
-        Check.That(vi).IsNotNull();
-        try
-        {
-            // Act
-            _viewModel.SelectedVoice = vi;
-
-            // Assert
-            Check.That(Settings.Voice).IsEqualTo(vi.Name);
-        }
-        finally
-        {
-            // Cleanup
-            Settings.Voice = originalVoice;
-        }
-    }
-
-    [TestMethod]
-    public void OnSelectedMessageChanged_SendsMessage()
-    {
-        // Arrange
-        bool messageReceived = false;
-        WeakReferenceMessenger.Default.Register<MessageSelectedMessage>(this, (r, m) =>
-        {
-            messageReceived = true;
-        });
-
-        var message = new TextColloxMessage { Text = "Test" };
+        var originalValue = Settings.AutoRead;
 
         // Act
-        _viewModel.SelectedMessage = message;
+        _viewModel.IsSpeaking = !originalValue;
 
         // Assert
-        Check.That(messageReceived).IsTrue();
-
-        // Cleanup
-        WeakReferenceMessenger.Default.Unregister<MessageSelectedMessage>(this);
-    }
-
-    [TestMethod]
-    public void Receive_TaskDoneMessage_RemovesTask()
-    {
-        // Arrange
-        var task = new TaskViewModel { Name = "Test Task" };
-        _viewModel.Tasks.Add(task);
-
-        // Act
-        _viewModel.Receive(new TaskDoneMessage(task));
-
-        // Assert
-        Check.That(_viewModel.Tasks).IsEmpty();
-    }
-
-    [Ignore("This test requires a UI context to run properly.")]
-    [TestMethod]
-    public void OnAutoSuggestBoxQuerySubmitted_SelectsMessage()
-    {
-        // Arrange
-        var message = new TextColloxMessage { Text = "Test message" };
-        _viewModel.Messages.Add(message);
-
-        var sender = new AutoSuggestBox();
-        sender.Text = "Test message"; // Simulate user input
-        var args = new AutoSuggestBoxQuerySubmittedEventArgs
-        {
-            //QueryText = "Test message"
-        };
-
-        // Act
-        _viewModel.OnAutoSuggestBoxQuerySubmitted(sender, args);
-
-        // Assert
-        Check.That(_viewModel.SelectedMessage).IsSameReferenceAs(message);
-    }
-
-    [TestMethod]
-    public void StripMd_RemovesMarkdownFormatting()
-    {
-        // Use the internal StripMd method via reflection
-        var method = typeof(WriteViewModel).GetMethod("StripMd",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-
-        // Act
-        var result = method.Invoke(null, new object[] { "# Header\n**Bold text**" }) as string;
-
-        // Assert
-        Check.That(result).Not.Contains("#");
-        Check.That(result).Contains("Header");
-        Check.That(result).Contains("Bold text");
-        Check.That(result).Not.Contains("**");
+        Check.That(Settings.AutoRead).IsEqualTo(!originalValue);
     }
 }

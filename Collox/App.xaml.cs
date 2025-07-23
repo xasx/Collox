@@ -94,6 +94,9 @@ public partial class App : Application
             services.AddSingleton<ITabContextService, TabContextService>();
             services.AddSingleton<AIApis>();
             services.AddSingleton<IAIService, AIService>();
+            services.AddSingleton<ICommandService, CommandService>();
+            services.AddSingleton<IMessageProcessingService, MessageProcessingService>();
+            services.AddSingleton<IAudioService, AudioService>();
 
             Logger.Trace("Registering transient view models");
             services.AddTransient<MainViewModel>();
