@@ -1,4 +1,6 @@
 ﻿using System.Runtime.InteropServices;
+using Collox.ViewModels.Messages;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -137,5 +139,10 @@ public sealed partial class MainPage : Page
             throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
         }
         PInvoke.CloseHandle(tokenHandle);
+    }
+
+    private void FocusInputButton_Click(object sender, RoutedEventArgs e)
+    {
+        WeakReferenceMessenger.Default.Send(new FocusInputMessage());
     }
 }

@@ -172,6 +172,15 @@
             <TitleBar.RightHeader>
                 <StackPanel HorizontalAlignment="Right"
                             Orientation="Horizontal">
+                    <Button x:Name="FocusInputButton"
+                            x:Uid="FocusInputButton"
+                            Height="36"
+                            Margin="0,0,4,0"
+                            Click="FocusInputButton_Click"
+                            Content="{dev:FontIcon GlyphCode=E70F,
+                                                   FontSize=20}"
+                            Style="{ThemeResource SubtleButtonStyle}"
+                            ToolTipService.ToolTip="Focus Input" />
                     <Button x:Name="ThemeButton"
                             x:Uid="ToggleThemeButton"
                             Height="36"

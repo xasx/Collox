@@ -1,12 +1,11 @@
-﻿using Collox.ViewModels.Messages;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Collox.ViewModels.Messages;
 using CommunityToolkit.Mvvm.Messaging;
 using Cottle;
 using EmojiToolkit;
 using Microsoft.UI.Input;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using Windows.Foundation;
 using Windows.System;
 using Windows.UI.Core;
 
@@ -28,8 +27,17 @@ public sealed partial class WritePage : Page
         WeakReferenceMessenger.Default.Register<MessageSelectedMessage>(this,
             (s, e) => MessageListView.ScrollIntoView(e.Value));
 
+        WeakReferenceMessenger.Default.Register<FocusInputMessage>(this,
+            (s, e) => FocusInputBox());
+
         // Add this line to get the ScrollViewer after the control is loaded
         Loaded += WritePage_Loaded;
+    }
+
+    private void FocusInputBox()
+    {
+        InputTextBox.Focus(FocusState.Programmatic);
+        InputTextBox.Select(InputTextBox.Text.Length, 0);
     }
 
     private void WritePage_Loaded(object sender, RoutedEventArgs e)
