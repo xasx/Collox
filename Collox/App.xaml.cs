@@ -18,7 +18,8 @@ public partial class App : Application
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
     public static Window MainWindow;
-    public static Window MirrorWindow;
+    private static readonly Lazy<Window> _lazyMirrorWindow = new(() => CreateMirrorWindow());
+    public static Window MirrorWindow => _lazyMirrorWindow.Value;
 
     public App()
     {
@@ -58,8 +59,6 @@ public partial class App : Application
 
     public static T GetService<T>() where T : class
     {
-        Logger.Trace("Requesting service of type: {ServiceType}", typeof(T).Name);
-
         try
         {
             if (Current!.Services.GetService(typeof(T)) is not T service)
@@ -142,10 +141,10 @@ public partial class App : Application
 
             if (activationKind != ExtendedActivationKind.AppNotification)
             {
-                Logger.Info("Standard activation - setting up main window and mirror window");
+                Logger.Info("Standard activation - setting up main window");
                 SetupMainWindow();
-                SetupMirrorWindow();
-                Logger.Info("Application windows setup completed");
+                // Don't setup mirror window immediately - create on demand
+                Logger.Info("Main window setup completed");
             }
             else
             {
@@ -160,66 +159,63 @@ public partial class App : Application
         }
     }
 
-    private void SetupMirrorWindow()
+    private static Window CreateMirrorWindow()
     {
-        Logger.Debug("Setting up mirror window");
+        Logger.Debug("Creating mirror window via lazy initialization");
 
         try
         {
-            if (MirrorWindow == null)
+            Logger.Trace("Creating new ModernWindow for mirror");
+            var mirrorWindow = new ModernWindow()
             {
-                Logger.Trace("Creating new ModernWindow for mirror");
-                MirrorWindow = new ModernWindow()
-                {
-                    BackdropType = BackdropType.AcrylicThin,
-                    HasTitleBar = false,
-                    UseModernSystemMenu = true,
-                    SystemBackdrop = new DevWinUI.AcrylicSystemBackdrop(DesktopAcrylicKind.Thin)
-                };
-                Logger.Debug("Mirror window instance created");
-            }
+                BackdropType = BackdropType.AcrylicThin,
+                HasTitleBar = false,
+                UseModernSystemMenu = true,
+                SystemBackdrop = new DevWinUI.AcrylicSystemBackdrop(DesktopAcrylicKind.Thin)
+            };
+            Logger.Debug("Mirror window instance created");
 
-            if (MirrorWindow.Content is not Frame rootFrame)
-            {
-                Logger.Trace("Creating root frame for mirror window");
-                MirrorWindow.Content = rootFrame = new Frame();
-            }
+            Logger.Trace("Creating root frame for mirror window");
+            var rootFrame = new Frame();
+            mirrorWindow.Content = rootFrame;
 
             Logger.Trace("Initializing theme service for mirror window");
-            GetThemeService?.AutoInitialize(MirrorWindow);
+            Current.GetThemeService?.AutoInitialize(mirrorWindow);
 
             Logger.Trace("Navigating to MirrorPage");
             rootFrame.Navigate(typeof(MirrorPage));
+            mirrorWindow.ExtendsContentIntoTitleBar = true;
 
-            MirrorWindow.SystemBackdrop = new DevWinUI.AcrylicSystemBackdrop(DesktopAcrylicKind.Thin);
-            MirrorWindow.Title = MirrorWindow.AppWindow.Title = $"{ProcessInfoHelper.ProductName} - Mirror";
-            MirrorWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
+            mirrorWindow.SystemBackdrop = new DevWinUI.AcrylicSystemBackdrop(DesktopAcrylicKind.Thin);
+            mirrorWindow.Title = mirrorWindow.AppWindow.Title = $"{ProcessInfoHelper.ProductName} - Mirror";
+            mirrorWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
 
             Logger.Debug("Setting extended window styles for mirror window");
-            MirrorWindow.SetExtendedWindowStyle(ExtendedWindowStyle.Transparent | ExtendedWindowStyle.TopMost |
-                                                ExtendedWindowStyle.NoInheritLayout);
+            mirrorWindow.SetExtendedWindowStyle(ExtendedWindowStyle.Transparent | ExtendedWindowStyle.TopMost |
+                                               ExtendedWindowStyle.NoInheritLayout);
 
-            MirrorWindow.Closed += (sender, args) =>
+            mirrorWindow.Closed += (sender, args) =>
             {
-                Logger.Debug("Mirror window close event triggered. IsClosing: {IsClosing}", isClosing);
-                if (isClosing) return;
+                Logger.Debug("Mirror window close event triggered. IsClosing: {IsClosing}", Current.isClosing);
+                if (Current.isClosing) return;
                 Logger.Info("Hiding mirror window instead of closing");
-                MirrorWindow.Hide();
+                mirrorWindow.Hide();
                 args.Handled = true;
             };
 
             Logger.Trace("Configuring mirror window properties");
-            MirrorWindow.SetIsAlwaysOnTop(true);
-            MirrorWindow.SetIsMaximizable(false);
-            MirrorWindow.SetIsMinimizable(false);
-            MirrorWindow.SetIsResizable(false);
-            MirrorWindow.SetIsShownInSwitchers(false);
+            mirrorWindow.SetIsAlwaysOnTop(true);
+            mirrorWindow.SetIsMaximizable(false);
+            mirrorWindow.SetIsMinimizable(false);
+            mirrorWindow.SetIsResizable(false);
+            mirrorWindow.SetIsShownInSwitchers(false);
 
-            Logger.Info("Mirror window setup completed successfully");
+            Logger.Info("Mirror window lazy initialization completed successfully");
+            return mirrorWindow;
         }
         catch (Exception ex)
         {
-            Logger.Error(ex, "Failed to setup mirror window");
+            Logger.Error(ex, "Failed to create mirror window via lazy initialization");
             throw;
         }
     }
@@ -316,7 +312,7 @@ public partial class App : Application
             if (!args.Visible)
             {
                 Logger.Info("Main window hidden, showing mirror window");
-                MirrorWindow.Show();
+                MirrorWindow.Show(); // Lazy initialization happens here automatically
             }
         }
         catch (Exception ex)
@@ -338,8 +334,11 @@ public partial class App : Application
             Logger.Debug("Setting application closing flag");
             Interlocked.Exchange(ref isClosing, true);
 
-            Logger.Debug("Closing mirror window");
-            MirrorWindow.Close();
+            Logger.Debug("Closing mirror window if initialized");
+            if (_lazyMirrorWindow.IsValueCreated)
+            {
+                MirrorWindow.Close();
+            }
 
             Logger.Info("Application shutdown sequence completed");
         }

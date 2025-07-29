@@ -12,8 +12,6 @@ public sealed partial class MirrorPage : Page
     {
         InitializeComponent();
         DataContext = App.GetService<MirrorViewModel>();
-
-        App.MirrorWindow.ExtendsContentIntoTitleBar = true;
     }
 
     private void Page_Loaded(object sender, RoutedEventArgs e)

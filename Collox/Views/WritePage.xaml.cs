@@ -218,18 +218,26 @@ public sealed partial class WritePage : Page
     {
         var aiSettings = App.GetService<AISettingsViewModel>();
         ViewModel.AvailableProcessors.Clear();
-        var actives = ViewModel.ConversationContext.ActiveProcessors.Select(p => p.Id);
+        
+        // Use HashSet for O(1) lookup instead of LINQ Contains
+        var activesSet = new HashSet<Guid>(ViewModel.ConversationContext.ActiveProcessors.Select(p => p.Id));
         var selection = new List<IntelligentProcessorViewModel>();
+        
         foreach (var processor in aiSettings.Enhancers)
         {
             ViewModel.AvailableProcessors.Add(processor);
-            if (actives.Contains(processor.Id))
+            if (activesSet.Contains(processor.Id))
             {
                 selection.Add(processor);
             }
         }
 
-        ProcessorsListView.SelectedItems.AddRange(selection);
+        // Batch selection update
+        ProcessorsListView.SelectedItems.Clear();
+        foreach (var item in selection)
+        {
+            ProcessorsListView.SelectedItems.Add(item);
+        }
     }
 
     private void ProcessorFlyout_Closed(object sender, object e)

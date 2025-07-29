@@ -9,72 +9,14 @@ namespace Collox.ViewModels;
 
 public partial class AISettingsViewModel : ObservableObject
 {
-    [ObservableProperty] public partial ObservableCollection<string> AvailableOllamaModelIds { get; set; } = [];
-
-    [ObservableProperty] public partial string SelectedOllamaModelId { get; set; } = Settings.OllamaModelId;
-
-    [ObservableProperty] public partial string OllamaAddress { get; set; } = Settings.OllamaEndpoint;
-
-    [ObservableProperty] public partial bool IsOllamaEnabled { get; set; } = Settings.IsOllamaEnabled;
-
-    [ObservableProperty]
-    public partial ObservableCollection<string> AvailableOpenAIModelIds
-    {
-        get;
-        set;
-    } =
-        new ObservableCollection<string>();
-
-    [ObservableProperty] public partial string SelectedOpenAIModelId { get; set; } = Settings.OpenAIModelId;
-
-    [ObservableProperty] public partial string OpenAIAddress { get; set; } = Settings.OpenAIEndpoint;
-
-    [ObservableProperty] public partial string OpenAIApiKey { get; set; } = Settings.OpenAIApiKey;
-
-    [ObservableProperty] public partial bool IsOpenAIEnabled { get; set; } = Settings.IsOpenAIEnabled;
-
-    [ObservableProperty]
-    public partial ObservableCollection<IntelligentProcessorViewModel> Enhancers { get; set; } = [];
-
+    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     private readonly IAIService aiService;
+    private bool _initialized;
 
     public AISettingsViewModel(IAIService aIService)
     {
         aiService = aIService;
-        aiService.Init();
-        var processors = aiService.GetAll().ToList();
-        if (processors.Count == 0)
-        {
-            var prompt = ResourceManager.Current.MainResourceMap.GetValue("DefaultValues/SynonymsPrompt").ValueAsString;
-            var SynonymsEnhancerProcessor = new IntelligentProcessor()
-            {
-                Id = Guid.NewGuid(),
-                IsEnabled = true,
-                ModelId = Settings.OllamaModelId,
-                Prompt = prompt,
-                Provider = AIProvider.Ollama,
-                Target = Target.Comment,
-                FallbackId = Guid.NewGuid(),
-                Name = "Synonyms",
-                GetClient = aiService.GetChatClient,
-            };
-            aiService.Add(SynonymsEnhancerProcessor);
-            aiService.Save();
-
-            var synonymsProcessorViewModel = new IntelligentProcessorViewModel(SynonymsEnhancerProcessor)
-            {
-                NamePresentation = "Display"
-            };
-            Enhancers.Add(synonymsProcessorViewModel);
-        }
-        else
-        {
-            foreach (var processor in processors)
-            {
-                var vm = new IntelligentProcessorViewModel(processor) { NamePresentation = "Display" };
-                Enhancers.Add(vm);
-            }
-        }
+        // Don't initialize immediately - wait for first access
 
         WeakReferenceMessenger.Default
             .Register<ProcessorDeletedMessage>(
@@ -88,16 +30,103 @@ public partial class AISettingsViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public async Task InitializeAsync()
+    {
+        if (_initialized) return;
+
+        try
+        {
+            aiService.Init();
+            var processors = aiService.GetAll().ToList();
+
+            if (processors.Count == 0)
+            {
+                await CreateDefaultProcessor();
+            }
+            else
+            {
+                foreach (var processor in processors)
+                {
+                    var vm = new IntelligentProcessorViewModel(processor) { NamePresentation = "Display" };
+                    Enhancers.Add(vm);
+                }
+            }
+
+            _initialized = true;
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Failed to initialize AI settings");
+        }
+    }
+
+    private async Task CreateDefaultProcessor()
+    {
+        var prompt = ResourceManager.Current.MainResourceMap.GetValue("DefaultValues/SynonymsPrompt").ValueAsString;
+        var synonymsEnhancerProcessor = new IntelligentProcessor()
+        {
+            Id = Guid.NewGuid(),
+            IsEnabled = true,
+            ModelId = Settings.OllamaModelId,
+            Prompt = prompt,
+            Provider = AIProvider.Ollama,
+            Target = Target.Comment,
+            FallbackId = Guid.NewGuid(),
+            Name = "Synonyms",
+            GetClient = aiService.GetChatClient,
+        };
+
+        aiService.Add(synonymsEnhancerProcessor);
+        aiService.Save();
+
+        var synonymsProcessorViewModel = new IntelligentProcessorViewModel(synonymsEnhancerProcessor)
+        {
+            NamePresentation = "Display"
+        };
+        Enhancers.Add(synonymsProcessorViewModel);
+    }
+
+    [ObservableProperty] public partial ObservableCollection<string> AvailableOllamaModelIds { get; set; } = [];
+
+    [ObservableProperty] public partial string SelectedOllamaModelId { get; set; } = Settings.OllamaModelId;
+
+    [ObservableProperty] public partial string OllamaAddress { get; set; } = Settings.OllamaEndpoint;
+
+    [ObservableProperty] public partial bool IsOllamaEnabled { get; set; } = Settings.IsOllamaEnabled;
+
+    [ObservableProperty]
+    public partial ObservableCollection<string> AvailableOpenAIModelIds { get; set; } = new ObservableCollection<string>();
+
+    [ObservableProperty] public partial string SelectedOpenAIModelId { get; set; } = Settings.OpenAIModelId;
+
+    [ObservableProperty] public partial string OpenAIAddress { get; set; } = Settings.OpenAIEndpoint;
+
+    [ObservableProperty] public partial string OpenAIApiKey { get; set; } = Settings.OpenAIApiKey;
+
+    [ObservableProperty] public partial bool IsOpenAIEnabled { get; set; } = Settings.IsOpenAIEnabled;
+
+    [ObservableProperty]
+    public partial ObservableCollection<IntelligentProcessorViewModel> Enhancers { get; set; } = [];
+
+    [RelayCommand]
     public async Task LoadOllamaModels()
     {
         AvailableOllamaModelIds.Clear();
 
         try
         {
-            AvailableOllamaModelIds.AddRange(await AIModelHelpers.GetOllamaModels().ConfigureAwait(false));
+            var models = await AIModelHelpers.GetOllamaModels().ConfigureAwait(false);
+
+            // Batch update instead of AddRange to reduce UI notifications
+            foreach (var model in models)
+            {
+                AvailableOllamaModelIds.Add(model);
+            }
         }
         catch (Exception ex)
         {
+            // Log the exception instead of silent catch
+            Logger.Error(ex, "Failed to load Ollama models");
         }
     }
 
@@ -108,10 +137,18 @@ public partial class AISettingsViewModel : ObservableObject
 
         try
         {
-            AvailableOpenAIModelIds.AddRange(await AIModelHelpers.GetOpenAIModels().ConfigureAwait(false));
+            var models = await AIModelHelpers.GetOpenAIModels().ConfigureAwait(false);
+
+            // Batch update instead of AddRange to reduce UI notifications
+            foreach (var model in models)
+            {
+                AvailableOpenAIModelIds.Add(model);
+            }
         }
         catch (Exception ex)
         {
+            // Log the exception instead of silent catch
+            Logger.Error(ex, "Failed to load OpenAI models");
         }
     }
 

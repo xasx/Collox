@@ -7,9 +7,17 @@
       xmlns:dev="using:DevWinUI"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="using:CommunityToolkit.WinUI.Controls"
-      xmlns:vm="using:Collox.ViewModels"
+      xmlns:vm="using:Collox.ViewModels" xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
       dev:BreadcrumbNavigator.IsHeaderVisible="True"
       mc:Ignorable="d">
+
+
+    <interactivity:Interaction.Behaviors>
+        <interactivity:EventTriggerBehavior EventName="Loaded">
+            <interactivity:InvokeCommandAction Command="{x:Bind ViewModel.InitializeCommand}" />
+        </interactivity:EventTriggerBehavior>
+    </interactivity:Interaction.Behaviors>
+
     <ScrollView Margin="{ThemeResource ContentPageMargin}"
                 VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="10"

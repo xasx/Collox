@@ -31,8 +31,8 @@
         <converters:StringVisibilityConverter x:Key="StringVisibilityConverter" />
 
         <converters:BoolToObjectConverter x:Key="BoolToObjectConverter"
-                                          FalseValue="Left"
-                                          TrueValue="Right" />
+                                          FalseValue="Right"
+                                          TrueValue="Left" />
 
         <Flyout x:Name="ProcessorFlyout"
                 AreOpenCloseAnimationsEnabled="True"
