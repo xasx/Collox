@@ -21,14 +21,13 @@ public sealed partial class WritePage : Page
         DataContext = App.GetService<WriteViewModel>();
         InitializeComponent();
 
-        WeakReferenceMessenger.Default.Register<TextSubmittedMessage>(this,
-            (s, e) => InputTextBox.Focus(FocusState.Programmatic));
+        WeakReferenceMessenger.Default
+            .Register<TextSubmittedMessage>(this, (s, e) => InputTextBox.Focus(FocusState.Programmatic));
 
-        WeakReferenceMessenger.Default.Register<MessageSelectedMessage>(this,
-            (s, e) => MessageListView.ScrollIntoView(e.Value));
+        WeakReferenceMessenger.Default
+            .Register<MessageSelectedMessage>(this, (s, e) => MessageListView.ScrollIntoView(e.Value));
 
-        WeakReferenceMessenger.Default.Register<FocusInputMessage>(this,
-            (s, e) => FocusInputBox());
+        WeakReferenceMessenger.Default.Register<FocusInputMessage>(this, (s, e) => FocusInputBox());
 
         // Add this line to get the ScrollViewer after the control is loaded
         Loaded += WritePage_Loaded;
@@ -59,8 +58,7 @@ public sealed partial class WritePage : Page
         }
 
         // Check if scrolled to bottom
-        var isAtBottom = _messageScrollViewer.VerticalOffset >=
-                        _messageScrollViewer.ScrollableHeight - 50; // 50px threshold
+        var isAtBottom = _messageScrollViewer.VerticalOffset >= _messageScrollViewer.ScrollableHeight - 50; // 50px threshold
 
         // Show popup only when not at bottom
         ScrollPopup.IsOpen = !isAtBottom;
@@ -68,15 +66,18 @@ public sealed partial class WritePage : Page
 
     private static T FindChildOfType<T>(DependencyObject root) where T : DependencyObject
     {
-        if (root == null) return null;
-        if (root is T typed) return typed;
+        if (root == null)
+            return null;
+        if (root is T typed)
+            return typed;
 
         int childCount = VisualTreeHelper.GetChildrenCount(root);
         for (int i = 0; i < childCount; i++)
         {
             var child = VisualTreeHelper.GetChild(root, i);
             var result = FindChildOfType<T>(child);
-            if (result != null) return result;
+            if (result != null)
+                return result;
         }
 
         return null;
@@ -99,11 +100,9 @@ public sealed partial class WritePage : Page
         ViewModel.KeyStrokesCount++;
         if (e.Key == VirtualKey.Enter)
         {
-            // todo does not always work
-            if (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift)
-                == CoreVirtualKeyStates.Down ||
+            if (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down) ||
                 InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.CapitalLock)
-                == CoreVirtualKeyStates.Down)
+                    .HasFlag(CoreVirtualKeyStates.Down))
             {
                 e.Handled = false;
             }
@@ -120,10 +119,7 @@ public sealed partial class WritePage : Page
         }
     }
 
-    private void InputBox_Loaded(object sender, RoutedEventArgs e)
-    {
-        InputTextBox.Focus(FocusState.Programmatic);
-    }
+    private void InputBox_Loaded(object sender, RoutedEventArgs e) { InputTextBox.Focus(FocusState.Programmatic); }
 
     private async void TemplatesFlyout_Opening(object sender, object e)
     {
@@ -131,8 +127,7 @@ public sealed partial class WritePage : Page
         {
             var vm = App.GetService<TemplatesViewModel>();
             await vm.LoadTemplates();
-            var gfi = TemplatesFlyout.Items
-                .Where(item => (string)item.Tag != predefined).ToList();
+            var gfi = TemplatesFlyout.Items.Where(item => (string)item.Tag != predefined).ToList();
 
             foreach (var item in gfi)
             {
@@ -141,14 +136,15 @@ public sealed partial class WritePage : Page
 
             foreach (var templateItem in vm.Templates)
             {
-                TemplatesFlyout.Items.Add(
-                    new MenuFlyoutItem
-                    {
-                        Text = templateItem.Name,
-                        Icon = new SymbolIcon(Symbol.Document),
-                        Tag = templateItem.Content,
-                        Command = new RelayCommand(() => ApplyTemplate(templateItem))
-                    });
+                TemplatesFlyout.Items
+                    .Add(
+                        new MenuFlyoutItem
+                        {
+                            Text = templateItem.Name,
+                            Icon = new SymbolIcon(Symbol.Document),
+                            Tag = templateItem.Content,
+                            Command = new RelayCommand(() => ApplyTemplate(templateItem))
+                        });
             }
         }
         catch (Exception ex)
@@ -162,17 +158,17 @@ public sealed partial class WritePage : Page
     {
         var doc = Document.CreateDefault(templateItem.Content).DocumentOrThrow;
 
-        var cc = Context.CreateCustom((value) =>
-        {
-            return value.AsString switch
+        var cc = Context.CreateCustom(
+            (value) =>
             {
-                "now" => Value.FromString(DateTime.Now.ToString("F")),
-                "random_emoji_nature" => Value.FromString(
-                    Emoji.All.Where(e => e.Category == "nature")
-                        .OrderBy(e => Random.Shared.Next()).First().Raw),
-                _ => Value.Undefined
-            };
-        });
+                return value.AsString switch
+                {
+                    "now" => Value.FromString(DateTime.Now.ToString("F")),
+                    "random_emoji_nature" => Value.FromString(
+                        Emoji.All.Where(e => e.Category == "nature").OrderBy(e => Random.Shared.Next()).First().Raw),
+                    _ => Value.Undefined
+                };
+            });
         var tti = doc.Render(Context.CreateBuiltin(cc));
         ViewModel.InputMessage += tti;
     }
@@ -202,12 +198,10 @@ public sealed partial class WritePage : Page
         }
     }
 
-    private void GridView_ItemClick(object sender, ItemClickEventArgs e)
-    {
-        VoiceSettingsFlyout.Hide();
-    }
+    private void GridView_ItemClick(object sender, ItemClickEventArgs e) { VoiceSettingsFlyout.Hide(); }
 
-    private void ChangeModeKeyboardAccelerator_Invoked(KeyboardAccelerator sender,
+    private void ChangeModeKeyboardAccelerator_Invoked(
+        KeyboardAccelerator sender,
         KeyboardAcceleratorInvokedEventArgs args)
     {
         ViewModel.SwitchModeCommand.Execute(null);
@@ -218,11 +212,11 @@ public sealed partial class WritePage : Page
     {
         var aiSettings = App.GetService<AISettingsViewModel>();
         ViewModel.AvailableProcessors.Clear();
-        
+
         // Use HashSet for O(1) lookup instead of LINQ Contains
         var activesSet = new HashSet<Guid>(ViewModel.ConversationContext.ActiveProcessors.Select(p => p.Id));
         var selection = new List<IntelligentProcessorViewModel>();
-        
+
         foreach (var processor in aiSettings.Enhancers)
         {
             ViewModel.AvailableProcessors.Add(processor);
@@ -243,15 +237,12 @@ public sealed partial class WritePage : Page
     private void ProcessorFlyout_Closed(object sender, object e)
     {
         ViewModel.ConversationContext.ActiveProcessors.Clear();
-        ViewModel.ConversationContext.ActiveProcessors.AddRange(
-            [.. ProcessorsListView.SelectedItems.Cast<IntelligentProcessorViewModel>().Select(p => p.Model)]);
+        ViewModel.ConversationContext.ActiveProcessors
+            .AddRange([.. ProcessorsListView.SelectedItems.Cast<IntelligentProcessorViewModel>().Select(p => p.Model)]);
         WeakReferenceMessenger.Default.Send(new UpdateTabMessage(ViewModel.ConversationContext));
     }
 
-    private void DismissButton_Click(object sender, RoutedEventArgs e)
-    {
-        ProcessorFlyout.Hide();
-    }
+    private void DismissButton_Click(object sender, RoutedEventArgs e) { ProcessorFlyout.Hide(); }
 
     private void ScrollToBottomButton_Click(object sender, RoutedEventArgs e)
     {

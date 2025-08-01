@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Media;
+﻿using CommunityToolkit.WinUI.Helpers;
+using Microsoft.UI.Xaml.Media;
 
 namespace Collox.Views;
 
@@ -15,21 +16,17 @@ public sealed partial class ThemeSettingPage : Page
         App.Current.GetThemeService.SetBackdropTintColor(args.NewColor);
     }
 
-    private void OnColorPaletteItemClick(object sender, ItemClickEventArgs e)
+    private void ColorPalette_ColorChanged(object sender, ColorPaletteColorChangedEventArgs e)
     {
-        var color = e.ClickedItem as ColorPaletteItem;
-        if (color != null)
+        if (e.Color.Equals(Colors.Black) || e.Color.Equals(Colors.Transparent))
         {
-            if (color.Hex.Contains("#000000"))
-            {
-                App.Current.GetThemeService.ResetBackdropProperties();
-            }
-            else
-            {
-                App.Current.GetThemeService.SetBackdropTintColor(color.Color);
-            }
-
-            TintBox.Fill = new SolidColorBrush(color.Color);
+            App.Current.GetThemeService.ResetBackdropProperties();
         }
+        else
+        {
+            App.Current.GetThemeService.SetBackdropTintColor(e.Color);
+        }
+
+        TintBox.Fill = new SolidColorBrush(e.Color);
     }
 }
