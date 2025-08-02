@@ -15,6 +15,18 @@ public sealed partial class WritePage : Page
 {
     private const string predefined = "predefined";
     private ScrollViewer _messageScrollViewer;
+    //lazy context creation
+    private Lazy<IContext> _context = new(() => Context.CreateBuiltin(Context.CreateCustom(
+            (value) =>
+            {
+                return value.AsString switch
+                {
+                    "now" => Value.FromString(DateTime.Now.ToString("F")),
+                    "random_emoji_nature" => Value.FromString(
+                        Emoji.All.Where(e => e.Category == "nature").OrderBy(e => Random.Shared.Next()).First().Raw),
+                    _ => Value.Undefined
+                };
+            })));
 
     public WritePage()
     {
@@ -158,18 +170,7 @@ public sealed partial class WritePage : Page
     {
         var doc = Document.CreateDefault(templateItem.Content).DocumentOrThrow;
 
-        var cc = Context.CreateCustom(
-            (value) =>
-            {
-                return value.AsString switch
-                {
-                    "now" => Value.FromString(DateTime.Now.ToString("F")),
-                    "random_emoji_nature" => Value.FromString(
-                        Emoji.All.Where(e => e.Category == "nature").OrderBy(e => Random.Shared.Next()).First().Raw),
-                    _ => Value.Undefined
-                };
-            });
-        var tti = doc.Render(Context.CreateBuiltin(cc));
+        var tti = doc.Render(_context.Value);
         ViewModel.InputMessage += tti;
     }
 
