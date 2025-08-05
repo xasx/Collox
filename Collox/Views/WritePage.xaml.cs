@@ -212,6 +212,7 @@ public sealed partial class WritePage : Page
     private void ProcessorFlyout_Opening(object sender, object e)
     {
         var aiSettings = App.GetService<AISettingsViewModel>();
+        aiSettings.InitializeAsync().Wait();
         ViewModel.AvailableProcessors.Clear();
 
         // Use HashSet for O(1) lookup instead of LINQ Contains

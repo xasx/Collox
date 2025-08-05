@@ -3,6 +3,7 @@ using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Dispatching;
 using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.AppNotifications;
+using Microsoft.Windows.AppNotifications.Builder;
 using NLog;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -21,15 +22,17 @@ public partial class App : Application
     private static readonly Lazy<Window> _lazyMirrorWindow = new(() => CreateMirrorWindow());
     public static Window MirrorWindow => _lazyMirrorWindow.Value;
 
+    // Lazy service provider for better startup performance
+    private readonly Lazy<IServiceProvider> _lazyServices;
+
     public App()
     {
         Logger.Info("Initializing Collox application");
 
         try
         {
-            Logger.Debug("Configuring dependency injection services");
-            Services = ConfigureServices();
-            Logger.Info("Dependency injection services configured successfully");
+            // Defer service configuration until first access
+            _lazyServices = new Lazy<IServiceProvider>(ConfigureServices);
 
             Logger.Debug("Subscribing to unhandled exception events");
             UnhandledException += Application_UnhandledException;
@@ -37,9 +40,13 @@ public partial class App : Application
             Logger.Debug("Initializing XAML components");
             InitializeComponent();
 
-            Logger.Debug("Setting up profile optimization with root path: {RootPath}", Constants.RootDirectoryPath);
-            System.Runtime.ProfileOptimization.SetProfileRoot(Constants.RootDirectoryPath);
-            System.Runtime.ProfileOptimization.StartProfile("Startup.Profile");
+            // Move profile optimization to background thread
+            _ = Task.Run(() =>
+            {
+                Logger.Debug("Setting up profile optimization with root path: {RootPath}", Constants.RootDirectoryPath);
+                System.Runtime.ProfileOptimization.SetProfileRoot(Constants.RootDirectoryPath);
+                System.Runtime.ProfileOptimization.StartProfile("Startup.Profile");
+            });
 
             Logger.Info("Collox application initialization completed successfully");
         }
@@ -50,7 +57,7 @@ public partial class App : Application
         }
     }
 
-    public IServiceProvider Services { get; }
+    public IServiceProvider Services => _lazyServices.Value;
     public new static App Current => (App)Application.Current;
     public IJsonNavigationService GetNavService => GetService<IJsonNavigationService>();
     public IThemeService GetThemeService => GetService<IThemeService>();
@@ -67,7 +74,6 @@ public partial class App : Application
                 throw new ArgumentException($"{typeof(T)} needs to be registered in ConfigureServices within App.xaml.cs.");
             }
 
-            Logger.Trace("Successfully resolved service: {ServiceType}", typeof(T).Name);
             return service;
         }
         catch (Exception ex)
@@ -84,20 +90,27 @@ public partial class App : Application
 
         try
         {
-            Logger.Trace("Registering singleton services");
+            // Register core services first (these are needed immediately)
             services.AddSingleton<IThemeService, ThemeService>();
             services.AddSingleton<IJsonNavigationService, JsonNavigationService>();
             services.AddSingleton<IStoreService, StoreService>();
+
+            // Register heavy services as lazy singletons
+            services.AddSingleton<Lazy<AIApis>>(provider => new Lazy<AIApis>(() => new AIApis()));
+            services.AddSingleton<AIApis>(provider => provider.GetRequiredService<Lazy<AIApis>>().Value);
+            
+            services.AddSingleton<Lazy<IAIService>>(provider => new Lazy<IAIService>(() => new AIService(provider.GetRequiredService<AIApis>())));
+            services.AddSingleton<IAIService>(provider => provider.GetRequiredService<Lazy<IAIService>>().Value);
+
+            // Other services that can be deferred
             services.AddSingleton<ITemplateService, TemplateService>();
             services.AddSingleton<IUserNotificationService, UserNotificationService>();
             services.AddSingleton<ITabContextService, TabContextService>();
-            services.AddSingleton<AIApis>();
-            services.AddSingleton<IAIService, AIService>();
             services.AddSingleton<ICommandService, CommandService>();
             services.AddSingleton<IMessageProcessingService, MessageProcessingService>();
             services.AddSingleton<IAudioService, AudioService>();
 
-            Logger.Trace("Registering transient view models");
+            // Register view models as transient (created when needed)
             services.AddTransient<MainViewModel>();
             services.AddTransient<GeneralSettingViewModel>();
             services.AddTransient<AppUpdateSettingViewModel>();
@@ -126,14 +139,26 @@ public partial class App : Application
 
         try
         {
+            // Create main window immediately but defer heavy setup
             Logger.Debug("Creating main window instance");
             MainWindow = new Window();
 
-            Logger.Debug("Setting up notification manager");
-            var notificationManager = AppNotificationManager.Default;
-            notificationManager.NotificationInvoked += NotificationManager_NotificationInvoked;
-            notificationManager.Register();
-            Logger.Info("Notification manager registered successfully");
+            // Setup notification manager on background thread
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    Logger.Debug("Setting up notification manager");
+                    var notificationManager = AppNotificationManager.Default;
+                    notificationManager.NotificationInvoked += NotificationManager_NotificationInvoked;
+                    notificationManager.Register();
+                    Logger.Info("Notification manager registered successfully");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, "Failed to setup notification manager");
+                }
+            });
 
             var activatedArgs = AppInstance.GetCurrent().GetActivatedEventArgs();
             var activationKind = activatedArgs.Kind;
@@ -143,7 +168,6 @@ public partial class App : Application
             {
                 Logger.Info("Standard activation - setting up main window");
                 SetupMainWindow();
-                // Don't setup mirror window immediately - create on demand
                 Logger.Info("Main window setup completed");
             }
             else
@@ -165,7 +189,6 @@ public partial class App : Application
 
         try
         {
-            Logger.Trace("Creating new ModernWindow for mirror");
             var mirrorWindow = new ModernWindow()
             {
                 BackdropType = BackdropType.AcrylicThin,
@@ -173,16 +196,11 @@ public partial class App : Application
                 UseModernSystemMenu = true,
                 SystemBackdrop = new DevWinUI.AcrylicSystemBackdrop(DesktopAcrylicKind.Thin)
             };
-            Logger.Debug("Mirror window instance created");
 
-            Logger.Trace("Creating root frame for mirror window");
             var rootFrame = new Frame();
             mirrorWindow.Content = rootFrame;
 
-            Logger.Trace("Initializing theme service for mirror window");
             Current.GetThemeService?.AutoInitialize(mirrorWindow);
-
-            Logger.Trace("Navigating to MirrorPage");
             rootFrame.Navigate(typeof(MirrorPage));
             mirrorWindow.ExtendsContentIntoTitleBar = true;
 
@@ -190,25 +208,38 @@ public partial class App : Application
             mirrorWindow.Title = mirrorWindow.AppWindow.Title = $"{ProcessInfoHelper.ProductName} - Mirror";
             mirrorWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
 
-            Logger.Debug("Setting extended window styles for mirror window");
             mirrorWindow.SetExtendedWindowStyle(ExtendedWindowStyle.Transparent | ExtendedWindowStyle.TopMost |
                                                ExtendedWindowStyle.NoInheritLayout);
 
             mirrorWindow.Closed += (sender, args) =>
             {
-                Logger.Debug("Mirror window close event triggered. IsClosing: {IsClosing}", Current.isClosing);
                 if (Current.isClosing) return;
                 Logger.Info("Hiding mirror window instead of closing");
                 mirrorWindow.Hide();
                 args.Handled = true;
             };
 
-            Logger.Trace("Configuring mirror window properties");
             mirrorWindow.SetIsAlwaysOnTop(true);
             mirrorWindow.SetIsMaximizable(false);
             mirrorWindow.SetIsMinimizable(false);
             mirrorWindow.SetIsResizable(false);
             mirrorWindow.SetIsShownInSwitchers(false);
+
+            var appNotification = new AppNotificationBuilder()
+                .AddArgument("action", "ToastClick")
+                //.AddArgument(Common.scenarioTag, ScenarioId.ToString())
+                .SetAppLogoOverride(new System.Uri("ms-appx:///Assets/Fluent/Collox.png"),
+                AppNotificationImageCrop.Default)
+                //.AddText(ScenarioName)
+                .AddText("Showing mirror windowwhile in the background.")
+                .AddText("Click to open main window.")
+                .AddButton(new AppNotificationButton("Open Main Window")
+                    .AddArgument("action", "OpenApp")
+                    //.AddArgument(Common.scenarioTag, ScenarioId.ToString())
+                    )
+                .BuildNotification();
+
+            AppNotificationManager.Default.Show(appNotification);
 
             Logger.Info("Mirror window lazy initialization completed successfully");
             return mirrorWindow;
@@ -234,10 +265,23 @@ public partial class App : Application
         try
         {
             var dispatcherQueue = MainWindow?.DispatcherQueue ?? DispatcherQueue.GetForCurrentThread();
-            Logger.Trace("Using dispatcher queue for notification handling");
 
             dispatcherQueue.TryEnqueue(async delegate
             {
+                if (data.Arguments["action"] == "OpenApp")
+                {
+                    Logger.Info("Opening main window from notification");
+                    if (MainWindow == null)
+                    {
+                        SetupMainWindow();
+                    }
+                    WindowHelper.ShowWindow(MainWindow);
+                }
+                else if (data.Arguments["action"] == "ToastClick")
+                {
+                    Logger.Info("Notification toast clicked, showing mirror window");
+                    MirrorWindow.Show();
+                }
                 Logger.Trace("Executing notification handler on UI thread");
                 await Task.CompletedTask;
                 Logger.Debug("Notification handling completed");
@@ -257,34 +301,26 @@ public partial class App : Application
         {
             if (MainWindow == null)
             {
-                Logger.Trace("Creating new main window instance");
                 MainWindow = new Window();
             }
 
             if (MainWindow.Content is not Frame rootFrame)
             {
-                Logger.Trace("Creating root frame for main window");
                 MainWindow.Content = rootFrame = new Frame();
             }
 
-            Logger.Trace("Initializing theme service for main window");
             GetThemeService?.AutoInitialize(MainWindow);
-
-            Logger.Trace("Navigating to MainPage");
             rootFrame.Navigate(typeof(MainPage));
 
             MainWindow.Title = MainWindow.AppWindow.Title = ProcessInfoHelper.ProductNameAndVersion;
             MainWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
 
-            Logger.Trace("Creating modern system menu");
             var msm = new ModernSystemMenu(MainWindow);
 
-            Logger.Debug("Activating and showing main window");
             MainWindow.Activate();
             MainWindow.SetForegroundWindow();
             MainWindow.Show();
 
-            Logger.Trace("Subscribing to main window events");
             MainWindow.Closed += MainWindow_Closed;
             MainWindow.VisibilityChanged += MainWindow_VisibilityChanged;
 
@@ -301,7 +337,6 @@ public partial class App : Application
     {
         if (isClosing)
         {
-            Logger.Debug("Main window visibility change ignored due to closing state");
             return;
         }
 
@@ -312,7 +347,7 @@ public partial class App : Application
             if (!args.Visible)
             {
                 Logger.Info("Main window hidden, showing mirror window");
-                MirrorWindow.Show(); // Lazy initialization happens here automatically
+                MirrorWindow.Show();
             }
         }
         catch (Exception ex)
@@ -354,7 +389,6 @@ public partial class App : Application
 
         try
         {
-            Logger.Debug("Creating error window for unhandled exception");
             var errorWindow = new ErrorWindow
             {
                 ReportedException = e.Exception
@@ -375,10 +409,7 @@ internal static class WindowHelper
     public static void ShowWindow(Window window)
     {
         var hwnd = new HWND(WindowNative.GetWindowHandle(window));
-
         PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_RESTORE);
-
         PInvoke.SetForegroundWindow(hwnd);
-
     }
 }
