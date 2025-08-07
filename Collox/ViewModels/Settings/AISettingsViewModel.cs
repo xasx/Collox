@@ -23,7 +23,7 @@ public partial class AISettingsViewModel : ObservableObject
                 this,
                 (r, m) =>
                 {
-                    Enhancers.Remove(m.Value);
+                    Processors.Remove(m.Value);
                     aiService.Remove(m.Value.Model);
                     aiService.Save();
                 });
@@ -48,7 +48,7 @@ public partial class AISettingsViewModel : ObservableObject
                 foreach (var processor in processors)
                 {
                     var vm = new IntelligentProcessorViewModel(processor) { NamePresentation = "Display" };
-                    Enhancers.Add(vm);
+                    Processors.Add(vm);
                 }
             }
 
@@ -83,7 +83,7 @@ public partial class AISettingsViewModel : ObservableObject
         {
             NamePresentation = "Display"
         };
-        Enhancers.Add(synonymsProcessorViewModel);
+        Processors.Add(synonymsProcessorViewModel);
     }
 
     [ObservableProperty] public partial ObservableCollection<string> AvailableOllamaModelIds { get; set; } = [];
@@ -106,7 +106,7 @@ public partial class AISettingsViewModel : ObservableObject
     [ObservableProperty] public partial bool IsOpenAIEnabled { get; set; } = Settings.IsOpenAIEnabled;
 
     [ObservableProperty]
-    public partial ObservableCollection<IntelligentProcessorViewModel> Enhancers { get; set; } = [];
+    public partial ObservableCollection<IntelligentProcessorViewModel> Processors { get; set; } = [];
 
     [RelayCommand]
     public async Task LoadOllamaModels()
@@ -160,7 +160,7 @@ public partial class AISettingsViewModel : ObservableObject
         aiService.Add(ip);
         aiService.Save();
         var vm = new IntelligentProcessorViewModel(ip);
-        Enhancers.Add(vm);
+        Processors.Add(vm);
     }
 
     partial void OnIsOllamaEnabledChanged(bool value) { Settings.IsOllamaEnabled = value; }

@@ -209,30 +209,47 @@ public sealed partial class WritePage : Page
         args.Handled = true;
     }
 
-    private void ProcessorFlyout_Opening(object sender, object e)
+    private async void ProcessorFlyout_Opening(object sender, object e)
     {
-        var aiSettings = App.GetService<AISettingsViewModel>();
-        aiSettings.InitializeAsync().Wait();
-        ViewModel.AvailableProcessors.Clear();
-
-        // Use HashSet for O(1) lookup instead of LINQ Contains
-        var activesSet = new HashSet<Guid>(ViewModel.ConversationContext.ActiveProcessors.Select(p => p.Id));
-        var selection = new List<IntelligentProcessorViewModel>();
-
-        foreach (var processor in aiSettings.Enhancers)
+        try
         {
-            ViewModel.AvailableProcessors.Add(processor);
-            if (activesSet.Contains(processor.Id))
+            // Show progress indicator
+            InitializationProgressBar.Visibility = Visibility.Visible;
+            InitializationProgressBar.IsIndeterminate = true;
+
+            var aiSettings = App.GetService<AISettingsViewModel>();
+            await aiSettings.InitializeAsync();
+
+            ViewModel.AvailableProcessors.Clear();
+
+            // Use HashSet for O(1) lookup instead of LINQ Contains
+            var activesSet = new HashSet<Guid>(ViewModel.ConversationContext.ActiveProcessors.Select(p => p.Id));
+            var selection = new List<IntelligentProcessorViewModel>();
+
+            foreach (var processor in aiSettings.Processors)
             {
-                selection.Add(processor);
+                ViewModel.AvailableProcessors.Add(processor);
+                if (activesSet.Contains(processor.Id))
+                {
+                    selection.Add(processor);
+                }
+            }
+
+            // Batch selection update
+            ProcessorsListView.SelectedItems.Clear();
+            foreach (var item in selection)
+            {
+                ProcessorsListView.SelectedItems.Add(item);
             }
         }
-
-        // Batch selection update
-        ProcessorsListView.SelectedItems.Clear();
-        foreach (var item in selection)
+        catch (Exception ex)
         {
-            ProcessorsListView.SelectedItems.Add(item);
+            Debug.WriteLine($"Error in ProcessorFlyout_Opening: {ex.Message}");
+        }
+        finally
+        {
+            // Hide progress indicator
+            InitializationProgressBar.Visibility = Visibility.Collapsed;
         }
     }
 
@@ -250,5 +267,10 @@ public sealed partial class WritePage : Page
     {
         _messageScrollViewer?.ChangeView(null, _messageScrollViewer.ScrollableHeight, null, true);
         ScrollPopup.IsOpen = false;
+    }
+
+    private void ProcessorFlyout_Opened(object sender, object e)
+    {
+
     }
 }

@@ -38,7 +38,8 @@
                 AreOpenCloseAnimationsEnabled="True"
                 Closed="ProcessorFlyout_Closed"
                 LightDismissOverlayMode="On"
-                Opening="ProcessorFlyout_Opening">
+                Opening="ProcessorFlyout_Opening"
+              Opened="ProcessorFlyout_Opened">
             <Flyout.FlyoutPresenterStyle>
                 <Style TargetType="FlyoutPresenter">
                     <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled" />
@@ -48,6 +49,8 @@
                 </Style>
             </Flyout.FlyoutPresenterStyle>
             <StackPanel Spacing="8">
+                <ProgressBar x:Name="InitializationProgressBar"
+                             HorizontalAlignment="Stretch" />
                 <ListView x:Name="ProcessorsListView"
                           ItemsSource="{x:Bind ViewModel.AvailableProcessors, Mode=OneWay}"
                           SelectionMode="Multiple">
@@ -477,7 +480,7 @@
         <Popup x:Name="TaskPopup"
                Grid.Row="1"
                Grid.RowSpan="2"
-               HorizontalOffset="720"
+               HorizontalOffset="16"
                IsOpen="{x:Bind ViewModel.ShowTasks, Mode=OneWay}"
                VerticalOffset="16">
             <Popup.Child>

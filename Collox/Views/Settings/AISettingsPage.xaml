@@ -5,9 +5,10 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:dev="using:DevWinUI"
+      xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="using:CommunityToolkit.WinUI.Controls"
-      xmlns:vm="using:Collox.ViewModels" xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+      xmlns:vm="using:Collox.ViewModels"
       dev:BreadcrumbNavigator.IsHeaderVisible="True"
       mc:Ignorable="d">
 
@@ -101,7 +102,7 @@
                                   Header="AI Fx"
                                   HeaderIcon="{dev:FontIcon GlyphName=Robot}"
                                   IsExpanded="True"
-                                  ItemsSource="{x:Bind ViewModel.Enhancers}">
+                                  ItemsSource="{x:Bind ViewModel.Processors}">
                 <StackPanel Orientation="Horizontal">
                     <Button Command="{x:Bind ViewModel.AddProcessorCommand}">
                         <FontIcon Glyph="&#xE710;" />
