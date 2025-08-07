@@ -16,7 +16,7 @@ public sealed partial class WritePage : Page
     private const string predefined = "predefined";
     private ScrollViewer _messageScrollViewer;
     //lazy context creation
-    private Lazy<IContext> _context = new(() => Context.CreateBuiltin(Context.CreateCustom(
+    private readonly Lazy<IContext> _context = new(() => Context.CreateBuiltin(Context.CreateCustom(
             (value) =>
             {
                 return value.AsString switch

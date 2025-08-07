@@ -72,10 +72,11 @@ public class MessageProcessingService : IMessageProcessingService
 
         try
         {
-            await foreach (var update in client.GetStreamingResponseAsync(string.Format(processor.Prompt, textColloxMessage.Text)))
-            {
-                comment.Comment += update.Text;
-            }
+            await StreamResponseAsync(
+                client,
+                processor,
+                textColloxMessage.Text,
+                text => comment.Comment += text);
 
             Logger.Debug("Comment created successfully. Length: {CommentLength}", comment.Comment.Length);
         }
@@ -94,10 +95,10 @@ public class MessageProcessingService : IMessageProcessingService
 
         try
         {
-            var response = await client.GetResponseAsync(string.Format(processor.Prompt, textColloxMessage.Text)).ConfigureAwait(true);
-            tasks.Add(new TaskViewModel { Name = response.Text, IsDone = false });
-            Logger.Debug("Task created: {TaskName}", response.Text);
-            return response.Text;
+            var response = await GetSingleResponseAsync(client, processor, textColloxMessage.Text);
+            tasks.Add(new TaskViewModel { Name = response, IsDone = false });
+            Logger.Debug("Task created: {TaskName}", response);
+            return response;
         }
         catch (Exception ex)
         {
@@ -115,10 +116,11 @@ public class MessageProcessingService : IMessageProcessingService
 
         try
         {
-            await foreach (var update in client.GetStreamingResponseAsync(string.Format(processor.Prompt, originalText)))
-            {
-                textColloxMessage.Text += update.Text;
-            }
+            await StreamResponseAsync(
+                client,
+                processor,
+                originalText,
+                text => textColloxMessage.Text += text);
 
             Logger.Debug("Message modification completed. Original length: {OriginalLength}, New length: {NewLength}",
                 originalText.Length, textColloxMessage.Text.Length);
@@ -148,7 +150,69 @@ public class MessageProcessingService : IMessageProcessingService
         };
         messagesCollection.Add(textColloxMessage);
 
-        var chatMessages = new List<ChatMessage> { new(ChatRole.System, processor.SystemPrompt) };
+        var chatMessages = BuildChatContext(messages, processor);
+
+        try
+        {
+            await foreach (var update in client.GetStreamingResponseAsync(chatMessages))
+            {
+                textColloxMessage.Text += update.Text;
+            }
+
+            Logger.Debug("Chat message generation completed. Length: {MessageLength}", textColloxMessage.Text.Length);
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Error generating chat message with processor {ProcessorName}", processor.Name);
+            throw;
+        }
+
+        textColloxMessage.IsLoading = false;
+        return textColloxMessage.Text;
+    }
+
+    private async Task StreamResponseAsync(IChatClient client, IntelligentProcessor processor, string inputText, Action<string> onTextReceived)
+    {
+        var chatMessages = new List<ChatMessage>();
+        
+        if (!string.IsNullOrWhiteSpace(processor.SystemPrompt))
+        {
+            chatMessages.Add(new ChatMessage(ChatRole.System, processor.SystemPrompt));
+        }
+        
+        var userMessage = new ChatMessage(ChatRole.User, string.Format(processor.Prompt, inputText));
+        chatMessages.Add(userMessage);
+        
+        await foreach (var update in client.GetStreamingResponseAsync(chatMessages))
+        {
+            onTextReceived(update.Text);
+        }
+    }
+
+    private async Task<string> GetSingleResponseAsync(IChatClient client, IntelligentProcessor processor, string inputText)
+    {
+        var chatMessages = new List<ChatMessage>();
+        
+        if (!string.IsNullOrWhiteSpace(processor.SystemPrompt))
+        {
+            chatMessages.Add(new ChatMessage(ChatRole.System, processor.SystemPrompt));
+        }
+        
+        var userMessage = new ChatMessage(ChatRole.User, string.Format(processor.Prompt, inputText));
+        chatMessages.Add(userMessage);
+        
+        var response = await client.GetResponseAsync(chatMessages).ConfigureAwait(true);
+        return response.Text;
+    }
+
+    private List<ChatMessage> BuildChatContext(IEnumerable<TextColloxMessage> messages, IntelligentProcessor processor)
+    {
+        var chatMessages = new List<ChatMessage>();
+        
+        if (!string.IsNullOrWhiteSpace(processor.SystemPrompt))
+        {
+            chatMessages.Add(new ChatMessage(ChatRole.System, processor.SystemPrompt));
+        }
 
         var messageCount = 0;
         foreach (var message in messages)
@@ -172,23 +236,6 @@ public class MessageProcessingService : IMessageProcessingService
         }
 
         Logger.Debug("Built chat context with {MessageCount} messages for processor {ProcessorName}", messageCount, processor.Name);
-
-        try
-        {
-            await foreach (var update in client.GetStreamingResponseAsync(chatMessages))
-            {
-                textColloxMessage.Text += update.Text;
-            }
-
-            Logger.Debug("Chat message generation completed. Length: {MessageLength}", textColloxMessage.Text.Length);
-        }
-        catch (Exception ex)
-        {
-            Logger.Error(ex, "Error generating chat message with processor {ProcessorName}", processor.Name);
-            throw;
-        }
-
-        textColloxMessage.IsLoading = false;
-        return textColloxMessage.Text;
+        return chatMessages;
     }
 }
