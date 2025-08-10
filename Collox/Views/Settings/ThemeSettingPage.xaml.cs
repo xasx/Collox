@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.WinUI.Helpers;
-using Microsoft.UI.Xaml.Media;
+﻿using Microsoft.UI.Xaml.Media;
 
 namespace Collox.Views;
 

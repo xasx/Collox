@@ -18,16 +18,42 @@ public class AIService(AIApis apis)
 
     public IChatClient GetChatClient(AIProvider apiType, string modelId)
     {
-        switch (apiType)
+        if (string.IsNullOrWhiteSpace(modelId))
+            throw new ArgumentException("Model ID cannot be null or empty", nameof(modelId));
+
+        try
         {
-            case AIProvider.Ollama:
-                apis.Ollama.SelectedModel = modelId;
-                return apis.Ollama;
-            case AIProvider.OpenAI:
-                return apis.OpenAI.GetChatClient(modelId).AsIChatClient();
-            default:
-                throw new NotSupportedException($"API type {apiType} is not supported.");
+            return apiType switch
+            {
+                AIProvider.Ollama => GetOllamaChatClient(modelId),
+                AIProvider.OpenAI => GetOpenAIChatClient(modelId),
+                _ => throw new NotSupportedException($"API type {apiType} is not supported.")
+            };
         }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Failed to create chat client for {apiType} with model {modelId}", ex);
+        }
+    }
+
+    private IChatClient GetOllamaChatClient(string modelId)
+    {
+        if (!Settings.IsOllamaEnabled)
+            throw new InvalidOperationException("Ollama is not enabled in settings");
+
+        apis.Ollama.SelectedModel = modelId;
+        return apis.Ollama;
+    }
+
+    private IChatClient GetOpenAIChatClient(string modelId)
+    {
+        if (!Settings.IsOpenAIEnabled)
+            throw new InvalidOperationException("OpenAI is not enabled in settings");
+
+        if (string.IsNullOrWhiteSpace(Settings.OpenAIApiKey))
+            throw new InvalidOperationException("OpenAI API key is not configured");
+
+        return apis.OpenAI.GetChatClient(modelId).AsIChatClient();
     }
 
     public void Add(IntelligentProcessor intelligentProcessor)

@@ -1,7 +1,6 @@
-﻿using Collox.Models;
-using Collox.ViewModels;
+﻿using System.Collections.ObjectModel;
+using Collox.Models;
 using Microsoft.Extensions.AI;
-using System.Collections.ObjectModel;
 
 namespace Collox.Services;
 

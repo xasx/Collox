@@ -174,15 +174,15 @@ public class MessageProcessingService : IMessageProcessingService
     private async Task StreamResponseAsync(IChatClient client, IntelligentProcessor processor, string inputText, Action<string> onTextReceived)
     {
         var chatMessages = new List<ChatMessage>();
-        
+
         if (!string.IsNullOrWhiteSpace(processor.SystemPrompt))
         {
             chatMessages.Add(new ChatMessage(ChatRole.System, processor.SystemPrompt));
         }
-        
+
         var userMessage = new ChatMessage(ChatRole.User, string.Format(processor.Prompt, inputText));
         chatMessages.Add(userMessage);
-        
+
         await foreach (var update in client.GetStreamingResponseAsync(chatMessages))
         {
             onTextReceived(update.Text);
@@ -192,15 +192,15 @@ public class MessageProcessingService : IMessageProcessingService
     private async Task<string> GetSingleResponseAsync(IChatClient client, IntelligentProcessor processor, string inputText)
     {
         var chatMessages = new List<ChatMessage>();
-        
+
         if (!string.IsNullOrWhiteSpace(processor.SystemPrompt))
         {
             chatMessages.Add(new ChatMessage(ChatRole.System, processor.SystemPrompt));
         }
-        
+
         var userMessage = new ChatMessage(ChatRole.User, string.Format(processor.Prompt, inputText));
         chatMessages.Add(userMessage);
-        
+
         var response = await client.GetResponseAsync(chatMessages).ConfigureAwait(true);
         return response.Text;
     }
@@ -208,7 +208,7 @@ public class MessageProcessingService : IMessageProcessingService
     private List<ChatMessage> BuildChatContext(IEnumerable<TextColloxMessage> messages, IntelligentProcessor processor)
     {
         var chatMessages = new List<ChatMessage>();
-        
+
         if (!string.IsNullOrWhiteSpace(processor.SystemPrompt))
         {
             chatMessages.Add(new ChatMessage(ChatRole.System, processor.SystemPrompt));
