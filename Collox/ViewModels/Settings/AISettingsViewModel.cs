@@ -1,9 +1,9 @@
 ﻿using System.Collections.ObjectModel;
-using Collox.Services;
-using Windows.ApplicationModel.Resources.Core;
 using Collox.Models;
-using CommunityToolkit.Mvvm.Messaging.Messages;
+using Collox.Services;
 using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
+using Windows.ApplicationModel.Resources.Core;
 
 namespace Collox.ViewModels;
 
@@ -27,17 +27,32 @@ public partial class AISettingsViewModel : ObservableObject
                     aiService.Remove(m.Value.Model);
                     aiService.Save();
                 });
+        WeakReferenceMessenger.Default
+            .Register<ApiProviderDeletedMessage>(
+                this,
+                (r, m) =>
+                {
+                    ApiProviders.Remove(m.Value);
+                    aiService.Remove(m.Value.Model);
+                    aiService.Save();
+                });
     }
 
     [RelayCommand]
     public async Task InitializeAsync()
     {
-        if (_initialized) return;
+        if (_initialized)
+            return;
 
         try
         {
             aiService.Init();
             var processors = aiService.GetAll().ToList();
+            var apiProviders = aiService.GetAllApiProviders()
+                .ToDictionary(p => p.Id, p => new IntelligenceApiProviderViewModel(p) { NamePresentation = "Display" });
+
+            var provis = new ObservableCollection<IntelligenceApiProviderViewModel>(apiProviders.Values);
+            ApiProviders = provis;
 
             if (processors.Count == 0)
             {
@@ -48,6 +63,16 @@ public partial class AISettingsViewModel : ObservableObject
                 foreach (var processor in processors)
                 {
                     var vm = new IntelligentProcessorViewModel(processor) { NamePresentation = "Display" };
+                    var prov = processor.ApiProviderId;
+
+                    if (apiProviders.TryGetValue(prov, out var apiProvider))
+                    {
+                        vm.Provider = apiProvider;
+                    }
+
+                    vm.Providers = provis;
+                    vm.AvailableModelIds.AddRange(await vm.Model.ClientManager.AvailableModels);
+
                     Processors.Add(vm);
                 }
             }
@@ -67,13 +92,11 @@ public partial class AISettingsViewModel : ObservableObject
         {
             Id = Guid.NewGuid(),
             IsEnabled = true,
-            ModelId = Settings.OllamaModelId,
+            ModelId = " default",
             Prompt = prompt,
-            Provider = AIProvider.Ollama,
             Target = Target.Comment,
             FallbackId = Guid.NewGuid(),
-            Name = "Synonyms",
-            GetClient = aiService.GetChatClient,
+            Name = "Synonyms"
         };
 
         aiService.Add(synonymsEnhancerProcessor);
@@ -86,71 +109,12 @@ public partial class AISettingsViewModel : ObservableObject
         Processors.Add(synonymsProcessorViewModel);
     }
 
-    [ObservableProperty] public partial ObservableCollection<string> AvailableOllamaModelIds { get; set; } = [];
-
-    [ObservableProperty] public partial string SelectedOllamaModelId { get; set; } = Settings.OllamaModelId;
-
-    [ObservableProperty] public partial string OllamaAddress { get; set; } = Settings.OllamaEndpoint;
-
-    [ObservableProperty] public partial bool IsOllamaEnabled { get; set; } = Settings.IsOllamaEnabled;
-
-    [ObservableProperty]
-    public partial ObservableCollection<string> AvailableOpenAIModelIds { get; set; } = new ObservableCollection<string>();
-
-    [ObservableProperty] public partial string SelectedOpenAIModelId { get; set; } = Settings.OpenAIModelId;
-
-    [ObservableProperty] public partial string OpenAIAddress { get; set; } = Settings.OpenAIEndpoint;
-
-    [ObservableProperty] public partial string OpenAIApiKey { get; set; } = Settings.OpenAIApiKey;
-
-    [ObservableProperty] public partial bool IsOpenAIEnabled { get; set; } = Settings.IsOpenAIEnabled;
-
     [ObservableProperty]
     public partial ObservableCollection<IntelligentProcessorViewModel> Processors { get; set; } = [];
 
-    [RelayCommand]
-    public async Task LoadOllamaModels()
-    {
-        AvailableOllamaModelIds.Clear();
+    [ObservableProperty]
+    public partial ObservableCollection<IntelligenceApiProviderViewModel> ApiProviders { get; set; } = [];
 
-        try
-        {
-            var models = await AIModelHelpers.GetOllamaModels().ConfigureAwait(false);
-
-            // Batch update instead of AddRange to reduce UI notifications
-            foreach (var model in models)
-            {
-                AvailableOllamaModelIds.Add(model);
-            }
-        }
-        catch (Exception ex)
-        {
-            // Log the exception instead of silent catch
-            Logger.Error(ex, "Failed to load Ollama models");
-        }
-    }
-
-    [RelayCommand]
-    public async Task LoadOpenAIModels()
-    {
-        AvailableOpenAIModelIds.Clear();
-
-        try
-        {
-            var models = await AIModelHelpers.GetOpenAIModels().ConfigureAwait(false);
-
-            // Batch update instead of AddRange to reduce UI notifications
-            foreach (var model in models)
-            {
-                AvailableOpenAIModelIds.Add(model);
-            }
-        }
-        catch (Exception ex)
-        {
-            // Log the exception instead of silent catch
-            Logger.Error(ex, "Failed to load OpenAI models");
-        }
-    }
 
     [RelayCommand]
     public void AddProcessor()
@@ -163,20 +127,20 @@ public partial class AISettingsViewModel : ObservableObject
         Processors.Add(vm);
     }
 
-    partial void OnIsOllamaEnabledChanged(bool value) { Settings.IsOllamaEnabled = value; }
-
-    partial void OnSelectedOllamaModelIdChanged(string value) { Settings.OllamaModelId = value; }
-
-    partial void OnOllamaAddressChanged(string value) { Settings.OllamaEndpoint = value; }
-
-    partial void OnSelectedOpenAIModelIdChanged(string value) { Settings.OpenAIModelId = value; }
-
-    partial void OnOpenAIAddressChanged(string value) { Settings.OpenAIEndpoint = value; }
-
-    partial void OnOpenAIApiKeyChanged(string value) { Settings.OpenAIApiKey = value; }
-
-    partial void OnIsOpenAIEnabledChanged(bool value) { Settings.IsOpenAIEnabled = value; }
+    [RelayCommand]
+    public void AddApiProvider()
+    {
+        var provider = new IntelligenceApiProvider() { Id = Guid.NewGuid() };
+        aiService.Add(provider);
+        aiService.Save();
+        var vm = new IntelligenceApiProviderViewModel(provider);
+        ApiProviders.Add(vm);
+    }
 }
 
 public class ProcessorDeletedMessage(IntelligentProcessorViewModel intelligentProcessorViewModel) : ValueChangedMessage<IntelligentProcessorViewModel>(
     intelligentProcessorViewModel);
+
+
+public class ApiProviderDeletedMessage(IntelligenceApiProviderViewModel intelligenceApiProviderViewModel) : ValueChangedMessage<IntelligenceApiProviderViewModel>(
+    intelligenceApiProviderViewModel);

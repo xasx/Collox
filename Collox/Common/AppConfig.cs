@@ -1,5 +1,4 @@
-﻿using System.Speech.Recognition;
-using Nucs.JsonSettings.Examples;
+﻿using Nucs.JsonSettings.Examples;
 using Nucs.JsonSettings.Modulation;
 
 namespace Collox.Common;
@@ -31,23 +30,6 @@ public partial class AppConfig : NotifiyingJsonSettings, IVersionable
     private bool enableAI { get; set; } = true;
 
     private bool persistMessages { get; set; } = true;
-
-    private bool isOllamaEnabled { get; set; }
-
-    private string ollamaEndpoint { get; set; }
-
-    private string ollamaApiKey { get; set; }
-
-    private string ollamaModelId { get; set; }
-
-    private bool isOpenAIEnabled { get; set; }
-
-    private string openAIEndpoint { get; set; }
-
-    private string openAIApiKey { get; set; }
-
-    private string openAIModelId { get; set; }
-
 
 
     [EnforcedVersion("1.0.0.0")] public Version Version { get; set; } = new(1, 0, 0, 0);

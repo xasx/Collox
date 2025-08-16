@@ -15,8 +15,10 @@ public partial class IntelligentProcessor
 
     public bool IsEnabled { get; set; }
 
-    [JsonConverter(typeof(StringEnumConverter))]
-    public AIProvider Provider { get; set; }
+    public Guid ApiProviderId { get; set; }
+
+    [JsonIgnore]
+    public IChatClientManager ClientManager { get; set; }
 
     public string Prompt { get; set; }
 
@@ -43,20 +45,20 @@ public partial class IntelligentProcessor
 
     public async Task Work()
     {
-        Logger.Info("Starting work for processor '{ProcessorName}' (ID: {ProcessorId}) using {Provider} model '{ModelId}'", 
-            Name, Id, Provider, ModelId);
+        Logger.Info("Starting work for processor '{ProcessorName}' (ID: {ProcessorId}) using {ClientManager} model '{ModelId}'",
+            Name, Id, ClientManager, ModelId);
 
-        var client = GetClient(Provider, ModelId);
+        var client = ClientManager?.GetChatClient(ModelId);
 
         try
         {
             var result = await Process(client);
-            Logger.Info("Successfully completed processing for '{ProcessorName}'. Result length: {ResultLength}", 
+            Logger.Info("Successfully completed processing for '{ProcessorName}'. Result length: {ResultLength}",
                 Name, result?.Length ?? 0);
         }
         catch (Exception ex)
         {
-            Logger.Error(ex, "Error occurred during processing for '{ProcessorName}' (ID: {ProcessorId})", 
+            Logger.Error(ex, "Error occurred during processing for '{ProcessorName}' (ID: {ProcessorId})",
                 Name, Id);
             OnError?.Invoke(ex);
         }

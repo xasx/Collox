@@ -26,6 +26,10 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
 
     [ObservableProperty] public partial ObservableCollection<string> AvailableModelIds { get; set; } = [];
 
+    [ObservableProperty] public partial ObservableCollection<IntelligenceApiProviderViewModel> Providers { get; set; } = [];
+
+    [ObservableProperty] public partial IntelligenceApiProviderViewModel Provider { get; set; }
+
     [ObservableProperty] public partial Guid FallbackId { get; set; }
 
     [ObservableProperty] public partial Guid Id { get; set; }
@@ -38,8 +42,7 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
 
     [ObservableProperty] public partial string SystemPrompt { get; set; }
 
-    [ObservableProperty] public partial SourceProvider Source { get; set; }
-
+    
     [ObservableProperty] public partial ProcessorTarget Target { get; set; }
 
     [ObservableProperty] public partial string NamePresentation { get; set; } = "Edit";
@@ -54,12 +57,6 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
         ModelId = model.ModelId;
         Prompt = model.Prompt;
         SystemPrompt = model.SystemPrompt;
-        Source = model.Provider switch
-        {
-            AIProvider.Ollama => SourceProvider.Ollama,
-            AIProvider.OpenAI => SourceProvider.OpenAI,
-            _ => throw new ArgumentOutOfRangeException(nameof(model), $"Invalid provider: {model.Provider}")
-        };
         Target = model.Target switch
         {
             Models.Target.Comment => ProcessorTarget.Comment,
@@ -75,21 +72,12 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
     [RelayCommand]
     public void Delete() { WeakReferenceMessenger.Default.Send(new ProcessorDeletedMessage(this)); }
 
-    async partial void OnSourceChanged(SourceProvider value)
+    async partial void OnProviderChanged(IntelligenceApiProviderViewModel value)
     {
+        Model.ApiProviderId = value.Id;
+        Model.ClientManager = new ChatClientManager<IntelligenceApiProvider>(value.Model);
         AvailableModelIds.Clear();
-        switch (value)
-        {
-            case SourceProvider.Ollama:
-                AvailableModelIds.AddRange(await AIModelHelpers.GetOllamaModels());
-                Model.Provider = AIProvider.Ollama;
-                break;
-
-            case SourceProvider.OpenAI:
-                AvailableModelIds.AddRange(await AIModelHelpers.GetOpenAIModels());
-                Model.Provider = AIProvider.OpenAI;
-                break;
-        }
+        AvailableModelIds.AddRange(await Model.ClientManager.AvailableModels);
         SaveModel();
     }
 
@@ -133,12 +121,6 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
     partial void OnFallbackIdChanged(Guid value)
     {
         Model.FallbackId = value;
-        SaveModel();
-    }
-
-    partial void OnIdChanged(Guid value)
-    {
-        Model.Id = value;
         SaveModel();
     }
 

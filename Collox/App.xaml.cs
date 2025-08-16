@@ -96,10 +96,7 @@ public partial class App : Application
             services.AddSingleton<IStoreService, StoreService>();
 
             // Register heavy services as lazy singletons
-            services.AddSingleton<Lazy<AIApis>>(provider => new Lazy<AIApis>(() => new AIApis()));
-            services.AddSingleton<AIApis>(provider => provider.GetRequiredService<Lazy<AIApis>>().Value);
-            
-            services.AddSingleton<Lazy<IAIService>>(provider => new Lazy<IAIService>(() => new AIService(provider.GetRequiredService<AIApis>())));
+            services.AddSingleton<Lazy<IAIService>>(provider => new Lazy<IAIService>(() => new AIService()));
             services.AddSingleton<IAIService>(provider => provider.GetRequiredService<Lazy<IAIService>>().Value);
 
             // Other services that can be deferred
@@ -144,7 +141,7 @@ public partial class App : Application
             MainWindow = new Window();
 
             // Setup notification manager on background thread
-            _ = Task.Run(async () =>
+            _ = Task.Run(() =>
             {
                 try
                 {

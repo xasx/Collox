@@ -1,0 +1,8 @@
+﻿<linker>
+  <assembly fullname="System.Speech" preserve="all" />
+  <assembly fullname="Collox" preserve="all" />
+  <type fullname="System.Speech.Synthesis.VoiceInfo" preserve="all" />
+  <type fullname="EmojiToolkit.EmojiRecord" preserve="all" />
+  <namespace fullname="Collox.ViewModels" preserve="all" />
+  <namespace fullname="Collox.Common.Converters" preserve="all" />
+</linker>

@@ -38,8 +38,8 @@
                 AreOpenCloseAnimationsEnabled="True"
                 Closed="ProcessorFlyout_Closed"
                 LightDismissOverlayMode="On"
-                Opening="ProcessorFlyout_Opening"
-              Opened="ProcessorFlyout_Opened">
+                Opened="ProcessorFlyout_Opened"
+                Opening="ProcessorFlyout_Opening">
             <Flyout.FlyoutPresenterStyle>
                 <Style TargetType="FlyoutPresenter">
                     <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled" />
@@ -66,7 +66,7 @@
                                 <TextBlock Margin="4,0,0,8"
                                            FontWeight="Light"
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                    <Run Text="{x:Bind Source}" />
+                                    <Run Text="{x:Bind Provider.Name}" />
                                     <Run Text="@" />
                                     <Run Text="{x:Bind ModelId}" />
                                     <Run Text="&#x2192;" />

@@ -25,78 +25,68 @@
                     dev:PanelAttach.ChildrenTransitions="Default"
                     Spacing="5">
 
-            <dev:SettingsExpander x:Uid="OllamaSettingsCard"
-                                  Description="Configure the Ollama integration"
-                                  Header="Ollama"
-                                  HeaderIcon="{dev:BitmapIcon Source=Assets/Fluent/Ollama.png}"
-                                  IsExpanded="False">
-                <ToggleSwitch IsOn="{x:Bind ViewModel.IsOllamaEnabled, Mode=TwoWay}" />
-                <dev:SettingsExpander.Items>
-                    <dev:SettingsCard x:Uid="OllamaAddressCard"
-                                      Description="The host address of the Ollama Server"
-                                      Header="Address">
-                        <TextBox x:Uid="OllamaAddressTextBox"
-                                 MinWidth="320"
-                                 PlaceholderText="Ollama server address"
-                                 Text="{x:Bind ViewModel.OllamaAddress, Mode=TwoWay}" />
-                    </dev:SettingsCard>
-                    <dev:SettingsCard x:Uid="OllamaModelCard"
-                                      Description="Select the model to use"
-                                      Header="AI Model">
-                        <StackPanel Orientation="Horizontal"
-                                    Spacing="4">
-                            <Button Command="{x:Bind ViewModel.LoadOllamaModelsCommand}"
-                                    Content="{dev:FontIcon GlyphName=Refresh}" />
-                            <ComboBox IsEditable="True"
-                                      ItemsSource="{x:Bind ViewModel.AvailableOllamaModelIds, Mode=OneWay}"
-                                      SelectedItem="{x:Bind ViewModel.SelectedOllamaModelId, Mode=TwoWay}">
-                            </ComboBox>
-                        </StackPanel>
-                    </dev:SettingsCard>
-                </dev:SettingsExpander.Items>
+            <dev:SettingsExpander x:Uid="AiProviderSettings"
+                                  Header="AI Providers"
+                                  HeaderIcon="{dev:FontIcon GlyphName=Robot}"
+                                  IsExpanded="True"
+                                  ItemsSource="{x:Bind ViewModel.ApiProviders, Mode=OneWay}">
+                <StackPanel Orientation="Horizontal">
+                    <Button Command="{x:Bind ViewModel.AddApiProviderCommand}">
+                        <FontIcon Glyph="&#xE710;" />
+                    </Button>
+                </StackPanel>
+                <dev:SettingsExpander.ItemTemplate>
+                    <DataTemplate x:DataType="vm:IntelligenceApiProviderViewModel">
+                        <dev:SettingsExpander Description="{x:Bind Id, Mode=OneWay}"
+                                              HeaderIcon="{dev:FontIcon GlyphCode=E950}">
+                            <dev:SettingsExpander.Header>
+                                <dev:SwitchPresenter Value="{x:Bind NamePresentation, Mode=OneWay}">
+                                    <dev:Case Value="Display">
+                                        <TextBlock Text="{x:Bind Name, Mode=OneWay}" />
+                                    </dev:Case>
+                                    <dev:Case Value="Edit">
+                                        <TextBox KeyDown="TextBox_KeyDown_1"
+                                                 Tag="{x:Bind}"
+                                                 Text="{x:Bind Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </dev:Case>
+                                </dev:SwitchPresenter>
+                            </dev:SettingsExpander.Header>
+                            <StackPanel Orientation="Horizontal"
+                                        Spacing="8">
+                                <Button Command="{x:Bind DeleteCommand}">
+                                    <FontIcon Glyph="&#xE74D;" />
+                                </Button>
+                            </StackPanel>
+                            <dev:SettingsExpander.Items>
+                                <dev:SettingsCard x:Uid="AddressCard"
+                                                  Description="The host address of the Server"
+                                                  Header="Address">
+                                    <TextBox x:Uid="AddressTextBox"
+                                             MinWidth="320"
+                                             PlaceholderText="Server address"
+                                             Text="{x:Bind Endpoint, Mode=TwoWay}" />
+                                </dev:SettingsCard>
+                                <dev:SettingsCard x:Uid="ApiKeyCard"
+                                                  Description="The API Key for access"
+                                                  Header="API Key">
+                                    <TextBox x:Uid="ApiKeyTextBox"
+                                             MinWidth="320"
+                                             MaxWidth="560"
+                                             PlaceholderText=" API Key"
+                                             Text="{x:Bind ApiKey, Mode=TwoWay}"
+                                             TextWrapping="Wrap" />
+                                </dev:SettingsCard>
+                                <dev:SettingsCard x:Uid="ApiTypeCard"
+                                                  Description="The type of API to use"
+                                                  Header="API Type">
+                                    <ComboBox ItemsSource="{dev:EnumValues Type=vm:SourceProvider}"
+                                              SelectedItem="{x:Bind ApiType, Mode=TwoWay}" />
+                                </dev:SettingsCard>
+                            </dev:SettingsExpander.Items>
+                        </dev:SettingsExpander>
+                    </DataTemplate>
+                </dev:SettingsExpander.ItemTemplate>
             </dev:SettingsExpander>
-            <dev:SettingsExpander x:Uid="OpenAISettingsCard"
-                                  Description="Configure the OpenAI integration"
-                                  Header="OpenAI"
-                                  IsExpanded="False">
-                <dev:SettingsExpander.HeaderIcon>
-                    <BitmapIcon UriSource="ms-appx:///Assets/Fluent/OpenAI.png" />
-                </dev:SettingsExpander.HeaderIcon>
-                <ToggleSwitch IsOn="{x:Bind ViewModel.IsOpenAIEnabled, Mode=TwoWay}" />
-                <dev:SettingsExpander.Items>
-                    <dev:SettingsCard x:Uid="OpenAIAddressCard"
-                                      Description="The host address of the OpenAI Server"
-                                      Header="Address">
-                        <TextBox x:Uid="OpenAIAddressTextBox"
-                                 MinWidth="320"
-                                 PlaceholderText="OpenAI server address"
-                                 Text="{x:Bind ViewModel.OpenAIAddress, Mode=TwoWay}" />
-                    </dev:SettingsCard>
-                    <dev:SettingsCard x:Uid="OpenAIApiKeyCard"
-                                      Description="The API Key for accessing OpenAI"
-                                      Header="API Key">
-                        <TextBox x:Uid="OpenAIApiKeyTextBox"
-                                 MinWidth="320"
-                                 MaxWidth="560"
-                                 PlaceholderText="OpenAI API Key"
-                                 Text="{x:Bind ViewModel.OpenAIApiKey, Mode=TwoWay}"
-                                 TextWrapping="Wrap" />
-                    </dev:SettingsCard>
-                    <dev:SettingsCard x:Uid="OpenAIModelCard"
-                                      Description="Select the model to use"
-                                      Header="AI Model">
-                        <StackPanel Orientation="Horizontal"
-                                    Spacing="4">
-                            <Button Command="{x:Bind ViewModel.LoadOpenAIModelsCommand}"
-                                    Content="{dev:FontIcon GlyphName=Refresh}" />
-                            <ComboBox ItemsSource="{x:Bind ViewModel.AvailableOpenAIModelIds, Mode=OneWay}"
-                                      SelectedItem="{x:Bind ViewModel.SelectedOpenAIModelId, Mode=TwoWay}">
-                            </ComboBox>
-                        </StackPanel>
-                    </dev:SettingsCard>
-                </dev:SettingsExpander.Items>
-            </dev:SettingsExpander>
-
 
             <dev:SettingsExpander x:Uid="AiFxSettings"
                                   Header="AI Fx"
@@ -150,12 +140,7 @@
                                              Text="{x:Bind SystemPrompt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              TextWrapping="Wrap" />
                                 </dev:SettingsCard>
-                                <dev:SettingsCard x:Uid="SourceCard"
-                                                  Description="Source of the enhancement, Provider configured above."
-                                                  Header="Source">
-                                    <ComboBox ItemsSource="{dev:EnumValues Type=vm:SourceProvider}"
-                                              SelectedItem="{x:Bind Source, Mode=TwoWay}" />
-                                </dev:SettingsCard>
+                                
                                 <dev:SettingsCard x:Uid="TargetCard"
                                                   Description="Target of the enhancement, location to put the response to."
                                                   Header="Target">
@@ -168,6 +153,19 @@
                                                   Header="Model Id">
                                     <ComboBox ItemsSource="{x:Bind AvailableModelIds, Mode=TwoWay}"
                                               SelectedItem="{x:Bind ModelId, Mode=TwoWay}" />
+                                </dev:SettingsCard>
+
+                                <dev:SettingsCard x:Uid="ProviderCard"
+                                                  Description="the Provider to use"
+                                                  Header="Provider">
+                                    <ComboBox ItemsSource="{x:Bind Providers, Mode=TwoWay}"
+                                              SelectedItem="{x:Bind Provider, Mode=TwoWay}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:IntelligenceApiProviderViewModel">
+                                                <TextBlock Text="{x:Bind Name}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
                                 </dev:SettingsCard>
 
                             </dev:SettingsExpander.Items>

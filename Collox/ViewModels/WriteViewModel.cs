@@ -85,7 +85,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     }
 
     // Properties
-    public List<IntelligentProcessorViewModel> AvailableProcessors { get; init; } = [];
+    [ObservableProperty] public partial ObservableCollection<IntelligentProcessorViewModel> AvailableProcessors { get; set; } = new();
     [ObservableProperty] public partial int CharacterCount { get; set; }
     [ObservableProperty] public partial bool ClockShown { get; set; }
     [ObservableProperty] public partial TabData ConversationContext { get; set; }
