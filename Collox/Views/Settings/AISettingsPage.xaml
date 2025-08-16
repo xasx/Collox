@@ -12,6 +12,17 @@
       dev:BreadcrumbNavigator.IsHeaderVisible="True"
       mc:Ignorable="d">
 
+    <Page.Resources>
+        <dev:SwitchConverter x:Key="SwitchConverter"
+                             TargetType="vm:SourceProvider">
+            <dev:Case Value="OpenAI">
+                <BitmapIcon UriSource="ms-appx:///Assets/Fluent/OpenAI.png" />
+            </dev:Case>
+            <dev:Case Value="Ollama">
+                <BitmapIcon UriSource="ms-appx:///Assets/Fluent/Ollama.png" />
+            </dev:Case>
+        </dev:SwitchConverter>
+    </Page.Resources>
 
     <interactivity:Interaction.Behaviors>
         <interactivity:EventTriggerBehavior EventName="Loaded">
@@ -27,7 +38,7 @@
 
             <dev:SettingsExpander x:Uid="AiProviderSettings"
                                   Header="AI Providers"
-                                  HeaderIcon="{dev:FontIcon GlyphName=Robot}"
+                                  HeaderIcon="{dev:FontIcon GlyphName=Connected}"
                                   IsExpanded="True"
                                   ItemsSource="{x:Bind ViewModel.ApiProviders, Mode=OneWay}">
                 <StackPanel Orientation="Horizontal">
@@ -38,7 +49,8 @@
                 <dev:SettingsExpander.ItemTemplate>
                     <DataTemplate x:DataType="vm:IntelligenceApiProviderViewModel">
                         <dev:SettingsExpander Description="{x:Bind Id, Mode=OneWay}"
-                                              HeaderIcon="{dev:FontIcon GlyphCode=E950}">
+                                              HeaderIcon="{x:Bind ApiType, Mode=OneWay, Converter={StaticResource SwitchConverter}}">
+
                             <dev:SettingsExpander.Header>
                                 <dev:SwitchPresenter Value="{x:Bind NamePresentation, Mode=OneWay}">
                                     <dev:Case Value="Display">
@@ -58,6 +70,13 @@
                                 </Button>
                             </StackPanel>
                             <dev:SettingsExpander.Items>
+                                <dev:SettingsCard x:Uid="ApiTypeCard"
+                                                  Description="The type of API to use"
+                                                  Header="API Type">
+                                    <ComboBox ItemsSource="{dev:EnumValues Type=vm:SourceProvider}"
+                                              SelectedItem="{x:Bind ApiType, Mode=TwoWay}" />
+                                </dev:SettingsCard>
+
                                 <dev:SettingsCard x:Uid="AddressCard"
                                                   Description="The host address of the Server"
                                                   Header="Address">
@@ -66,6 +85,7 @@
                                              PlaceholderText="Server address"
                                              Text="{x:Bind Endpoint, Mode=TwoWay}" />
                                 </dev:SettingsCard>
+
                                 <dev:SettingsCard x:Uid="ApiKeyCard"
                                                   Description="The API Key for access"
                                                   Header="API Key">
@@ -76,12 +96,7 @@
                                              Text="{x:Bind ApiKey, Mode=TwoWay}"
                                              TextWrapping="Wrap" />
                                 </dev:SettingsCard>
-                                <dev:SettingsCard x:Uid="ApiTypeCard"
-                                                  Description="The type of API to use"
-                                                  Header="API Type">
-                                    <ComboBox ItemsSource="{dev:EnumValues Type=vm:SourceProvider}"
-                                              SelectedItem="{x:Bind ApiType, Mode=TwoWay}" />
-                                </dev:SettingsCard>
+
                             </dev:SettingsExpander.Items>
                         </dev:SettingsExpander>
                     </DataTemplate>
@@ -140,7 +155,7 @@
                                              Text="{x:Bind SystemPrompt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              TextWrapping="Wrap" />
                                 </dev:SettingsCard>
-                                
+
                                 <dev:SettingsCard x:Uid="TargetCard"
                                                   Description="Target of the enhancement, location to put the response to."
                                                   Header="Target">
@@ -148,12 +163,6 @@
                                               SelectedItem="{x:Bind Target, Mode=TwoWay}" />
                                 </dev:SettingsCard>
 
-                                <dev:SettingsCard x:Uid="ModelIdCard"
-                                                  Description="The Id of the model to use."
-                                                  Header="Model Id">
-                                    <ComboBox ItemsSource="{x:Bind AvailableModelIds, Mode=TwoWay}"
-                                              SelectedItem="{x:Bind ModelId, Mode=TwoWay}" />
-                                </dev:SettingsCard>
 
                                 <dev:SettingsCard x:Uid="ProviderCard"
                                                   Description="the Provider to use"
@@ -166,6 +175,13 @@
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
+                                </dev:SettingsCard>
+
+                                <dev:SettingsCard x:Uid="ModelIdCard"
+                                                  Description="The Id of the model to use."
+                                                  Header="Model Id">
+                                    <ComboBox ItemsSource="{x:Bind AvailableModelIds, Mode=OneWay}"
+                                              SelectedItem="{x:Bind ModelId, Mode=TwoWay}" />
                                 </dev:SettingsCard>
 
                             </dev:SettingsExpander.Items>

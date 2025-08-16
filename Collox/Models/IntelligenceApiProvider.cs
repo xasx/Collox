@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.AI;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using NLog;
 using OllamaSharp;
 using OpenAI;
@@ -30,6 +31,7 @@ public partial class IntelligenceApiProvider : IChatClientFactory, INotifyProper
         }
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public AIProvider ApiType
     {
         get;
