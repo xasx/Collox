@@ -9,11 +9,9 @@ public partial class IntelligentProcessor
 {
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
     public string Name { get; set; }
-
-    public bool IsEnabled { get; set; }
 
     public Guid ApiProviderId { get; set; }
 

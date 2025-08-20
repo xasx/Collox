@@ -7,7 +7,7 @@ using Nucs.JsonSettings.Modulation.Recovery;
 
 namespace Collox.Services;
 
-public class AIService() : IAIService
+public class AIService: IAIService
 {
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
@@ -58,9 +58,9 @@ public class AIService() : IAIService
 
     public IEnumerable<IntelligentProcessor> Get(Func<IntelligentProcessor, bool> filter)
     {
-        var processors = Config.Processors.Where(filter);
+        var processors = Config.Processors.Where(filter).ToList();
         InitializeProcessors(processors);
-        Logger.Debug("Retrieved {ProcessorCount} processors matching filter", processors.Count());
+        Logger.Debug("Retrieved {ProcessorCount} processors matching filter", processors.Count);
         return processors;
     }
 
@@ -93,7 +93,7 @@ public class AIService() : IAIService
     // get all API providers
     public IEnumerable<IntelligenceApiProvider> GetAllApiProviders()
     {
-        var providers = Config.ApiProviders.ToList() ?? [];
+        var providers = Config.ApiProviders.ToList();
         Logger.Debug("Retrieved all {ProviderCount} API providers", providers.Count);
         return providers;
     }

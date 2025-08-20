@@ -1,6 +1,4 @@
-﻿using Windows.Foundation;
-
-namespace Collox.ViewModels;
+﻿namespace Collox.ViewModels;
 
 public sealed class MessageRelativeTimeUpdater
 {

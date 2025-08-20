@@ -68,7 +68,7 @@ public partial class IntelligenceApiProvider : IChatClientFactory, INotifyProper
         }
     }
 
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
     public string Name { get; set; }
 
@@ -114,11 +114,11 @@ public partial class IntelligenceApiProvider : IChatClientFactory, INotifyProper
             Logger.Debug("Fetching Ollama models from {Endpoint}", Endpoint);
 
             using var client = new OllamaApiClient(Endpoint);
-            var models = await client.ListLocalModelsAsync().ConfigureAwait(false);
-            var result = models?.Select(m => m.Name) ?? Enumerable.Empty<string>();
+            var models = await client.ListLocalModelsAsync(cancellationToken).ConfigureAwait(false);
+            var result = models.Select(m => m.Name).ToList();
 
             if (Logger.IsInfoEnabled)
-                Logger.Info("Retrieved {ModelCount} Ollama models", result.Count());
+                Logger.Info("Retrieved {ModelCount} Ollama models", result.Count);
 
             return result;
         }
@@ -150,10 +150,10 @@ public partial class IntelligenceApiProvider : IChatClientFactory, INotifyProper
 
             var client = new OpenAIModelClient(
                 new ApiKeyCredential(ApiKey),
-                new OpenAI.OpenAIClientOptions() { Endpoint = new Uri(Endpoint) });
+                new OpenAIClientOptions() { Endpoint = new Uri(Endpoint) });
 
             var res = await client.GetModelsAsync(cancellationToken).ConfigureAwait(false);
-            var result = res.Value?.Select(m => m.Id) ?? Enumerable.Empty<string>();
+            var result = res.Value?.Select(m => m.Id).ToList() ?? [];
 
             if (Logger.IsInfoEnabled)
                 Logger.Info("Retrieved {ModelCount} OpenAI models", result.Count());

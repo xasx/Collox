@@ -16,8 +16,13 @@ public sealed partial class AISettingPage : Page
         if (e.Key == Windows.System.VirtualKey.Enter)
         {
             var tb = sender as Microsoft.UI.Xaml.Controls.TextBox;
-            var proc = tb.Tag as IntelligentProcessorViewModel;
-            proc.NamePresentation = "Display";
+            if (tb != null)
+            {
+                if (tb.Tag is IntelligentProcessorViewModel proc)
+                {
+                    proc.NamePresentation = "Display";
+                }
+            }
         }
     }
 
@@ -27,8 +32,13 @@ public sealed partial class AISettingPage : Page
         if (e.Key == Windows.System.VirtualKey.Enter)
         {
             var tb = sender as Microsoft.UI.Xaml.Controls.TextBox;
-            var proc = tb.Tag as IntelligenceApiProviderViewModel;
-            proc.NamePresentation = "Display";
+            if (tb != null)
+            {
+                if (tb.Tag is IntelligenceApiProviderViewModel proc)
+                {
+                    proc.NamePresentation = "Display";
+                }
+            }
         }
     }
 }

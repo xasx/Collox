@@ -19,7 +19,7 @@ public partial class App : Application
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
     public static Window MainWindow;
-    private static readonly Lazy<Window> _lazyMirrorWindow = new(() => CreateMirrorWindow());
+    private static readonly Lazy<Window> _lazyMirrorWindow = new(CreateMirrorWindow);
     public static Window MirrorWindow => _lazyMirrorWindow.Value;
 
     // Lazy service provider for better startup performance

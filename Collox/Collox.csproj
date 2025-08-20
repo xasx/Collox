@@ -147,8 +147,8 @@
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.250402" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.Markdown" Version="7.1.2" />
     <PackageReference Include="Cottle" Version="2.1.0" />
-    <PackageReference Include="DevWinUI" Version="8.9.0" />
-    <PackageReference Include="DevWinUI.Controls" Version="8.9.0" />
+    <PackageReference Include="DevWinUI" Version="8.9.1" />
+    <PackageReference Include="DevWinUI.Controls" Version="8.9.1" />
     <PackageReference Include="EmojiToolkit" Version="15.1.1" />
     <PackageReference Include="Humanizer.Core" Version="3.0.0-beta.96" />
     <PackageReference Include="Markdig" Version="0.41.3" />
@@ -161,14 +161,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250702007-experimental4" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4948" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250814004-preview" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4-beta1" />
     <PackageReference Include="NLog" Version="6.0.3" />
     <PackageReference Include="nucs.JsonSettings" Version="2.0.2" />
     <PackageReference Include="nucs.JsonSettings.AutoSaveGenerator" Version="2.0.4" />
-    <PackageReference Include="OllamaSharp" Version="5.3.4" />
+    <PackageReference Include="OllamaSharp" Version="5.3.5" />
     <PackageReference Include="OpenAI" Version="2.3.0" />
     <PackageReference Include="System.Speech" Version="10.0.0-preview.7.25380.108" />
     <PackageReference Include="System.Windows.Extensions" Version="10.0.0-preview.7.25380.108" />

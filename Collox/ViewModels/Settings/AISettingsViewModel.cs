@@ -91,7 +91,6 @@ public partial class AISettingsViewModel : ObservableObject
         var synonymsEnhancerProcessor = new IntelligentProcessor()
         {
             Id = Guid.NewGuid(),
-            IsEnabled = true,
             ModelId = " default",
             Prompt = prompt,
             Target = Target.Comment,
@@ -119,7 +118,7 @@ public partial class AISettingsViewModel : ObservableObject
     [RelayCommand]
     public void AddProcessor()
     {
-        var ip = new IntelligentProcessor() { Id = Guid.NewGuid(), IsEnabled = true, };
+        var ip = new IntelligentProcessor() { Id = Guid.NewGuid(),  };
 
         aiService.Add(ip);
         aiService.Save();

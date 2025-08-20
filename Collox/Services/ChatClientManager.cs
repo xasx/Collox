@@ -79,7 +79,7 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
         try
         {
             var now = DateTime.UtcNow;
-            if (_cachedAvailableModels == null || (now - _modelsLastCached) > _modelsCacheDuration)
+            if (_cachedAvailableModels == null || now - _modelsLastCached > _modelsCacheDuration)
             {
                 _cachedAvailableModels = await _clientConfig.AvailableModels;
                 _modelsLastCached = now;
@@ -94,16 +94,23 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
 
     private async void OnConfigurationChanged(object sender, PropertyChangedEventArgs e)
     {
-        await _cacheLock.WaitAsync();
         try
         {
-            _clientCache.Clear();
-            _cachedAvailableModels = null;
-            _modelsLastCached = DateTime.MinValue;
+            await _cacheLock.WaitAsync();
+            try
+            {
+                _clientCache.Clear();
+                _cachedAvailableModels = null;
+                _modelsLastCached = DateTime.MinValue;
+            }
+            finally
+            {
+                _cacheLock.Release();
+            }
         }
-        finally
+        catch (Exception exc)
         {
-            _cacheLock.Release();
+
         }
     }
 

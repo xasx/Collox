@@ -1,5 +1,4 @@
 ﻿using Microsoft.UI.Xaml.Data;
-using Microsoft.Windows.ApplicationModel.Resources;
 
 namespace Collox.Common.Converters;
 
