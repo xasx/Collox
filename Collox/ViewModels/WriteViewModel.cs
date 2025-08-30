@@ -18,7 +18,6 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     private static readonly Lazy<MarkdownPipeline> _markdownPipeline = new(
         () => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
-    private readonly IAIService aiService;
     private readonly IStoreService storeService;
     private readonly IAudioService audioService;
     private readonly IMessageProcessingService messageProcessingService;
@@ -26,7 +25,6 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
     public WriteViewModel(
         IStoreService storeService,
-        IAIService aiService,
         IAudioService audioService,
         IMessageProcessingService messageProcessingService,
         ICommandService commandService)
@@ -34,33 +32,16 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         Logger.Info("Initializing WriteViewModel");
 
         this.storeService = storeService;
-        this.aiService = aiService;
         this.audioService = audioService;
         this.messageProcessingService = messageProcessingService;
         this.commandService = commandService;
 
-        InitializeServices();
         SetupEventHandlers();
         ConfigureMessaging();
 
         SelectedVoice = audioService.GetInstalledVoices().FirstOrDefault(vi => vi.Name == Settings.Voice);
 
         Logger.Info("WriteViewModel initialization completed");
-    }
-
-    private void InitializeServices()
-    {
-        try
-        {
-            Logger.Debug("Initializing AI service");
-            aiService.Init();
-            Logger.Info("AI service initialized successfully");
-        }
-        catch (Exception ex)
-        {
-            Logger.Error(ex, "Failed to initialize AI service. Disabling AI.");
-            Settings.EnableAI = false;
-        }
     }
 
     private void SetupEventHandlers()
@@ -85,7 +66,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     }
 
     // Properties
-    [ObservableProperty] public partial ObservableCollection<IntelligentProcessorViewModel> AvailableProcessors { get; set; } =
+    [ObservableProperty]
+    public partial ObservableCollection<IntelligentProcessorViewModel> AvailableProcessors { get; set; } =
         [];
     [ObservableProperty] public partial int CharacterCount { get; set; }
     [ObservableProperty] public partial bool ClockShown { get; set; }

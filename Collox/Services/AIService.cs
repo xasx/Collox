@@ -7,15 +7,10 @@ using Nucs.JsonSettings.Modulation.Recovery;
 
 namespace Collox.Services;
 
-public class AIService: IAIService
+public class AIService : IAIService
 {
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-    public void Init()
-    {
-        Logger.Info("Initializing AI Service");
-        Logger.Info("AI Service initialized successfully");
-    }
 
     private IntelligenceConfig Config
     {

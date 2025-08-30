@@ -1,11 +1,12 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Concurrent;
+using System.ComponentModel;
 using Microsoft.Extensions.AI;
 
 namespace Collox.Services;
 public partial class ChatClientManager<T> : IDisposable, IChatClientManager where T : IChatClientFactory, INotifyPropertyChanged
 {
     private readonly T _clientConfig;
-    private readonly Dictionary<string, IChatClient> _clientCache = [];
+    private readonly ConcurrentDictionary<string, IChatClient> _clientCache = new();
     private readonly SemaphoreSlim _cacheLock = new(1, 1); // Binary semaphore (acts like a mutex)
 
     // Available models caching
@@ -27,17 +28,18 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
             throw new ArgumentException("Model ID cannot be null or empty.", nameof(modelId));
         }
 
+        // Try to get existing client first (no lock needed)
+        if (_clientCache.TryGetValue(modelId, out var cachedClient))
+        {
+            return cachedClient;
+        }
+
+        // Only lock when we need to create a new client
         await _cacheLock.WaitAsync();
         try
         {
-            if (_clientCache.TryGetValue(modelId, out var cachedClient))
-            {
-                return cachedClient;
-            }
-
-            var newClient = _clientConfig.CreateClient(modelId);
-            _clientCache[modelId] = newClient;
-            return newClient;
+            // Double-check pattern - another thread might have created it while we waited
+            return _clientCache.GetOrAdd(modelId, id => _clientConfig.CreateClient(id));
         }
         finally
         {
@@ -75,6 +77,7 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
 
     private async Task<IEnumerable<string>> GetAvailableModelsAsync()
     {
+        // Keep the lock here because _cachedAvailableModels is NOT thread-safe
         await _cacheLock.WaitAsync();
         try
         {
@@ -92,26 +95,37 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
         }
     }
 
-    private async void OnConfigurationChanged(object sender, PropertyChangedEventArgs e)
+    private void OnConfigurationChanged(object sender, PropertyChangedEventArgs e)
     {
-        try
+        _ = Task.Run(async () =>
         {
-            await _cacheLock.WaitAsync();
             try
             {
-                _clientCache.Clear();
-                _cachedAvailableModels = null;
-                _modelsLastCached = DateTime.MinValue;
+                await _cacheLock.WaitAsync();
+                try
+                {
+                    // Clear with proper disposal
+                    foreach (var client in _clientCache.Values)
+                    {
+                        if (client is IDisposable disposableClient)
+                        {
+                            disposableClient.Dispose();
+                        }
+                    }
+                    _clientCache.Clear(); // ConcurrentDictionary.Clear() is thread-safe
+                    _cachedAvailableModels = null;
+                    _modelsLastCached = DateTime.MinValue;
+                }
+                finally
+                {
+                    _cacheLock.Release();
+                }
             }
-            finally
+            catch (Exception ex)
             {
-                _cacheLock.Release();
+                // Add proper logging here
             }
-        }
-        catch (Exception exc)
-        {
-
-        }
+        });
     }
 
     public void Dispose()
@@ -124,6 +138,14 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
         _cacheLock.Wait();
         try
         {
+            // Dispose cached clients before clearing
+            foreach (var client in _clientCache.Values)
+            {
+                if (client is IDisposable disposableClient)
+                {
+                    disposableClient.Dispose();
+                }
+            }
             _clientCache.Clear();
             _cachedAvailableModels = null;
         }

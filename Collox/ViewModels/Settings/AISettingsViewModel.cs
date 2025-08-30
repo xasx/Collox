@@ -46,13 +46,12 @@ public partial class AISettingsViewModel : ObservableObject
 
         try
         {
-            aiService.Init();
             var processors = aiService.GetAll().ToList();
             var apiProviders = aiService.GetAllApiProviders()
                 .ToDictionary(p => p.Id, p => new IntelligenceApiProviderViewModel(p) { NamePresentation = "Display" });
 
-            var provis = new ObservableCollection<IntelligenceApiProviderViewModel>(apiProviders.Values);
-            ApiProviders = provis;
+            var availableApiProviders = new ObservableCollection<IntelligenceApiProviderViewModel>(apiProviders.Values);
+            ApiProviders = availableApiProviders;
 
             if (processors.Count == 0)
             {
@@ -70,7 +69,7 @@ public partial class AISettingsViewModel : ObservableObject
                         vm.Provider = apiProvider;
                     }
 
-                    vm.Providers = provis;
+                    vm.Providers = availableApiProviders;
                     vm.AvailableModelIds.AddRange(await vm.Model.ClientManager.AvailableModels);
 
                     Processors.Add(vm);
@@ -118,7 +117,7 @@ public partial class AISettingsViewModel : ObservableObject
     [RelayCommand]
     public void AddProcessor()
     {
-        var ip = new IntelligentProcessor() { Id = Guid.NewGuid(),  };
+        var ip = new IntelligentProcessor() { Id = Guid.NewGuid(), };
 
         aiService.Add(ip);
         aiService.Save();

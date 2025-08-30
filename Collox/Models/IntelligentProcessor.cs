@@ -29,13 +29,9 @@ public partial class IntelligentProcessor
 
     public Guid FallbackId { get; set; }
 
-    public delegate IChatClient ClientRetriever(AIProvider provider, string modelId);
-
     public delegate Task<string> ProcessMessage(IChatClient chatClient);
 
     public delegate void ErrorHandler(Exception exception);
-
-    [JsonIgnore] public ClientRetriever GetClient { get; set; }
 
     [JsonIgnore] public ProcessMessage Process { get; set; }
 

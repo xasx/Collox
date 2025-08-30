@@ -8,7 +8,6 @@ public interface IAIService
     void Add(IntelligenceApiProvider intelligenceApiProvider);
     IEnumerable<IntelligentProcessor> Get(Func<IntelligentProcessor, bool> filter);
     IEnumerable<IntelligentProcessor> GetAll();
-    void Init();
     void Load();
     void Remove(IntelligentProcessor intelligentProcessor);
     void Remove(IntelligenceApiProvider intelligenceApiProvider);
