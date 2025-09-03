@@ -1,14 +1,14 @@
 ﻿using Collox.Services;
 using Collox.ViewModels.Messages;
 using CommunityToolkit.Mvvm.Messaging;
-using NLog;
+using Serilog;
 using System.Collections.ObjectModel;
 
 namespace Collox.ViewModels;
 
 public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSuggestBoxAware, IRecipient<UpdateTabMessage>
 {
-    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    private static readonly ILogger Logger = Log.ForContext<TabWriteViewModel>();
     private static readonly TabData initialTab = new() { Context = "Default", IsCloseable = false, IsEditing = false };
 
     private readonly Dictionary<TabData, TabContext> tabContexts = new()
@@ -25,7 +25,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
         this.aiService = aiService;
 
         WeakReferenceMessenger.Default.RegisterAll(this);
-        Logger.Info("TabWriteViewModel initialized");
+        Logger.Information("TabWriteViewModel initialized");
     }
 
     [ObservableProperty] public partial TabData SelectedTab { get; set; } = initialTab;
@@ -36,7 +36,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
     public void AddNewTab()
     {
         var context = $"Context {Tabs.Count + 1}";
-        Logger.Info("Creating new tab with context: {Context}", context);
+        Logger.Information("Creating new tab with context: {Context}", context);
 
         var newTabContext = new TabContext { Name = context, IsCloseable = true, ActiveProcessors = [] };
         var newTabData = new TabData { Context = context, IsCloseable = true, IsEditing = true, ActiveProcessors = [] };
@@ -48,7 +48,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
         tabContextService.SaveNewTab(newTabContext);
         tabContexts[newTabData] = newTabContext;
 
-        Logger.Info("New tab created and saved: {Context}", context);
+        Logger.Information("New tab created and saved: {Context}", context);
     }
 
     [RelayCommand]
@@ -56,7 +56,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
     {
         if (Tabs.Count > 1)
         {
-            Logger.Info("Closing selected tab: {Context}", SelectedTab.Context);
+            Logger.Information("Closing selected tab: {Context}", SelectedTab.Context);
             RemoveTab(SelectedTab);
         }
         else
@@ -68,7 +68,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
     [RelayCommand]
     public void LoadTabs()
     {
-        Logger.Info("Loading tabs from service");
+        Logger.Information("Loading tabs from service");
 
         var procs = aiService.GetAll();
         var loadedTabs = tabContextService.GetTabs();
@@ -102,7 +102,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
             Logger.Debug("Loaded tab: {Context}", tabContext.Name);
         }
 
-        Logger.Info("Completed loading {TabCount} tabs", loadedTabs.Count);
+        Logger.Information("Completed loading {TabCount} tabs", loadedTabs.Count);
     }
 
     public void OnAutoSuggestBoxQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
@@ -126,14 +126,14 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
 
     public void RemoveTab(TabData tabData)
     {
-        Logger.Info("Removing tab: {Context}", tabData.Context);
+        Logger.Information("Removing tab: {Context}", tabData.Context);
 
         Tabs.Remove(tabData);
         var tabContext = tabContexts[tabData];
         tabContexts.Remove(tabData);
         tabContextService.RemoveTab(tabContext);
 
-        Logger.Info("Tab removed: {Context}", tabData.Context);
+        Logger.Information("Tab removed: {Context}", tabData.Context);
     }
 
     public void UpdateContext(TabData tabData)

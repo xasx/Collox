@@ -1,22 +1,20 @@
 ﻿using Collox.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Dispatching;
 using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.AppNotifications;
 using Microsoft.Windows.AppNotifications.Builder;
-using NLog;
-using Windows.Win32;
-using Windows.Win32.Foundation;
-using Windows.Win32.UI.WindowsAndMessaging;
-using WinRT.Interop;
+using Serilog;
 using WinUIEx;
+using ILogger = Serilog.ILogger;
 using UnhandledExceptionEventArgs = Microsoft.UI.Xaml.UnhandledExceptionEventArgs;
 
 namespace Collox;
 
 public partial class App : Application
 {
-    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    public static ILogger Logger { get; private set; }
 
     public static Window MainWindow;
     private static readonly Lazy<Window> _lazyMirrorWindow = new(CreateMirrorWindow);
@@ -27,7 +25,10 @@ public partial class App : Application
 
     public App()
     {
-        Logger.Info("Initializing Collox application");
+        // Initialize Serilog first, before any logging calls
+        InitializeSerilog();
+
+        Logger.Information("Initializing Collox application");
 
         try
         {
@@ -48,13 +49,44 @@ public partial class App : Application
                 System.Runtime.ProfileOptimization.StartProfile("Startup.Profile");
             });
 
-            Logger.Info("Collox application initialization completed successfully");
+            Logger.Information("Collox application initialization completed successfully");
         }
         catch (Exception ex)
         {
             Logger.Fatal(ex, "Critical error during application initialization");
             throw;
         }
+    }
+
+    private static void InitializeSerilog()
+    {
+        // Get a proper logs directory
+        var logsPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "Collox",
+            "logs",
+            "collox-.log");
+
+        // Ensure directory exists
+        Directory.CreateDirectory(Path.GetDirectoryName(logsPath));
+
+        // Configure Serilog with programmatic file path
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console(
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
+            .WriteTo.Debug(
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
+            .WriteTo.File(
+                path: logsPath,
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 30,
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
+            .Enrich.FromLogContext()
+            .Enrich.WithProperty("Application", "Collox")
+            .CreateLogger();
+
+        // Create a logger specifically for this class
+        Logger = Log.ForContext<App>();
     }
 
     public IServiceProvider Services => _lazyServices.Value;
@@ -90,14 +122,15 @@ public partial class App : Application
 
         try
         {
+            // Add Serilog as the logging provider
+            services.AddLogging(builder => builder.AddSerilog());
+
             // Register core services first (these are needed immediately)
             services.AddSingleton<IThemeService, ThemeService>();
             services.AddSingleton<IJsonNavigationService, JsonNavigationService>();
             services.AddSingleton<IStoreService, StoreService>();
 
-            // Register heavy services as lazy singletons
-            services.AddSingleton<Lazy<IAIService>>(provider => new Lazy<IAIService>(() => new AIService()));
-            services.AddSingleton<IAIService>(provider => provider.GetRequiredService<Lazy<IAIService>>().Value);
+            services.AddSingleton<IAIService, AIService>();
 
             // Other services that can be deferred
             services.AddSingleton<ITemplateService, TemplateService>();
@@ -120,7 +153,7 @@ public partial class App : Application
             services.AddTransient<MirrorViewModel>();
 
             var serviceProvider = services.BuildServiceProvider();
-            Logger.Info("Service configuration completed. Total services registered: {ServiceCount}", services.Count);
+            Logger.Information("Service configuration completed. Total services registered: {ServiceCount}", services.Count);
             return serviceProvider;
         }
         catch (Exception ex)
@@ -132,7 +165,7 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        Logger.Info("Application launched with arguments: {Arguments}", args.Arguments);
+        Logger.Information("Application launched with arguments: {Arguments}", args.Arguments);
 
         try
         {
@@ -149,7 +182,7 @@ public partial class App : Application
                     var notificationManager = AppNotificationManager.Default;
                     notificationManager.NotificationInvoked += NotificationManager_NotificationInvoked;
                     notificationManager.Register();
-                    Logger.Info("Notification manager registered successfully");
+                    Logger.Information("Notification manager registered successfully");
                 }
                 catch (Exception ex)
                 {
@@ -163,13 +196,13 @@ public partial class App : Application
 
             if (activationKind != ExtendedActivationKind.AppNotification)
             {
-                Logger.Info("Standard activation - setting up main window");
+                Logger.Information("Standard activation - setting up main window");
                 SetupMainWindow();
-                Logger.Info("Main window setup completed");
+                Logger.Information("Main window setup completed");
             }
             else
             {
-                Logger.Info("App notification activation detected");
+                Logger.Information("App notification activation detected");
                 HandleNotification((AppNotificationActivatedEventArgs)activatedArgs.Data);
             }
         }
@@ -211,7 +244,7 @@ public partial class App : Application
             mirrorWindow.Closed += (sender, args) =>
             {
                 if (Current.isClosing) return;
-                Logger.Info("Hiding mirror window instead of closing");
+                Logger.Information("Hiding mirror window instead of closing");
                 mirrorWindow.Hide();
                 args.Handled = true;
             };
@@ -238,7 +271,7 @@ public partial class App : Application
 
             AppNotificationManager.Default.Show(appNotification);
 
-            Logger.Info("Mirror window lazy initialization completed successfully");
+            Logger.Information("Mirror window lazy initialization completed successfully");
             return mirrorWindow;
         }
         catch (Exception ex)
@@ -251,7 +284,7 @@ public partial class App : Application
     private void NotificationManager_NotificationInvoked(AppNotificationManager sender,
         AppNotificationActivatedEventArgs args)
     {
-        Logger.Info("Notification invoked with user input: {UserInput}", args.UserInput?.Count ?? 0);
+        Logger.Information("Notification invoked with user input: {UserInput}", args.UserInput?.Count ?? 0);
         HandleNotification(args);
     }
 
@@ -267,19 +300,18 @@ public partial class App : Application
             {
                 if (data.Arguments["action"] == "OpenApp")
                 {
-                    Logger.Info("Opening main window from notification");
+                    Logger.Information("Opening main window from notification");
                     if (MainWindow == null)
                     {
                         SetupMainWindow();
                     }
-                    WindowHelper.ShowWindow(MainWindow);
                 }
                 else if (data.Arguments["action"] == "ToastClick")
                 {
-                    Logger.Info("Notification toast clicked, showing mirror window");
+                    Logger.Information("Notification toast clicked, showing mirror window");
                     MirrorWindow.Show();
                 }
-                Logger.Trace("Executing notification handler on UI thread");
+                Logger.Verbose("Executing notification handler on UI thread");
                 await Task.CompletedTask;
                 Logger.Debug("Notification handling completed");
             });
@@ -321,7 +353,7 @@ public partial class App : Application
             MainWindow.Closed += MainWindow_Closed;
             MainWindow.VisibilityChanged += MainWindow_VisibilityChanged;
 
-            Logger.Info("Main window setup completed successfully");
+            Logger.Information("Main window setup completed successfully");
         }
         catch (Exception ex)
         {
@@ -343,7 +375,7 @@ public partial class App : Application
         {
             if (!args.Visible)
             {
-                Logger.Info("Main window hidden, showing mirror window");
+                Logger.Information("Main window hidden, showing mirror window");
                 MirrorWindow.Show();
             }
         }
@@ -355,13 +387,13 @@ public partial class App : Application
 
     private void MainWindow_Closed(object sender, WindowEventArgs args)
     {
-        Logger.Info("Main window closing event triggered");
+        Logger.Information("Main window closing event triggered");
 
         try
         {
             Logger.Debug("Saving application state before closing");
             GetService<IStoreService>().SaveNow().Wait();
-            Logger.Info("Application state saved successfully");
+            Logger.Information("Application state saved successfully");
 
             Logger.Debug("Setting application closing flag");
             Interlocked.Exchange(ref isClosing, true);
@@ -372,7 +404,10 @@ public partial class App : Application
                 MirrorWindow.Close();
             }
 
-            Logger.Info("Application shutdown sequence completed");
+            Logger.Information("Application shutdown sequence completed");
+
+            // Close and flush Serilog
+            Log.CloseAndFlush();
         }
         catch (Exception ex)
         {
@@ -392,21 +427,11 @@ public partial class App : Application
             };
             errorWindow.Show();
             e.Handled = true;
-            Logger.Info("Error window displayed for unhandled exception");
+            Logger.Information("Error window displayed for unhandled exception");
         }
         catch (Exception ex)
         {
             Logger.Fatal(ex, "Failed to display error window for unhandled exception");
         }
-    }
-}
-
-internal static class WindowHelper
-{
-    public static void ShowWindow(Window window)
-    {
-        var hwnd = new HWND(WindowNative.GetWindowHandle(window));
-        PInvoke.ShowWindow(hwnd, SHOW_WINDOW_CMD.SW_RESTORE);
-        PInvoke.SetForegroundWindow(hwnd);
     }
 }

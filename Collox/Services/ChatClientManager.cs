@@ -1,10 +1,13 @@
 ﻿using System.Collections.Concurrent;
 using System.ComponentModel;
 using Microsoft.Extensions.AI;
+using Serilog;
 
 namespace Collox.Services;
 public partial class ChatClientManager<T> : IDisposable, IChatClientManager where T : IChatClientFactory, INotifyPropertyChanged
 {
+    private static readonly ILogger Logger = Log.ForContext<ChatClientManager<T>>();
+    
     private readonly T _clientConfig;
     private readonly ConcurrentDictionary<string, IChatClient> _clientCache = new();
     private readonly SemaphoreSlim _cacheLock = new(1, 1); // Binary semaphore (acts like a mutex)
@@ -19,6 +22,7 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
         _clientConfig = clientConfig ?? throw new ArgumentNullException(nameof(clientConfig));
 
         _clientConfig.PropertyChanged += OnConfigurationChanged;
+        Logger.Debug("ChatClientManager initialized for {ClientType}", typeof(T).Name);
     }
 
     public async Task<IChatClient> GetChatClientAsync(string modelId)
@@ -31,6 +35,7 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
         // Try to get existing client first (no lock needed)
         if (_clientCache.TryGetValue(modelId, out var cachedClient))
         {
+            Logger.Debug("Retrieved cached client for model {ModelId}", modelId);
             return cachedClient;
         }
 
@@ -39,7 +44,14 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
         try
         {
             // Double-check pattern - another thread might have created it while we waited
-            return _clientCache.GetOrAdd(modelId, id => _clientConfig.CreateClient(id));
+            var client = _clientCache.GetOrAdd(modelId, id => 
+            {
+                Logger.Debug("Creating new client for model {ModelId}", id);
+                return _clientConfig.CreateClient(id);
+            });
+            
+            Logger.Information("Chat client ready for model {ModelId}", modelId);
+            return client;
         }
         finally
         {
@@ -60,11 +72,14 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
         {
             if (_clientCache.TryGetValue(modelId, out var cachedClient))
             {
+                Logger.Debug("Retrieved cached client for model {ModelId}", modelId);
                 return cachedClient;
             }
 
+            Logger.Debug("Creating new client for model {ModelId}", modelId);
             var newClient = _clientConfig.CreateClient(modelId);
             _clientCache[modelId] = newClient;
+            Logger.Information("Chat client created and cached for model {ModelId}", modelId);
             return newClient;
         }
         finally
@@ -84,8 +99,10 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
             var now = DateTime.UtcNow;
             if (_cachedAvailableModels == null || now - _modelsLastCached > _modelsCacheDuration)
             {
+                Logger.Debug("Refreshing available models cache");
                 _cachedAvailableModels = await _clientConfig.AvailableModels;
                 _modelsLastCached = now;
+                Logger.Information("Available models cache refreshed. Found {ModelCount} models", _cachedAvailableModels?.Count() ?? 0);
             }
             return _cachedAvailableModels;
         }
@@ -97,6 +114,8 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
 
     private void OnConfigurationChanged(object sender, PropertyChangedEventArgs e)
     {
+        Logger.Information("Configuration changed for property {PropertyName}, clearing client cache", e.PropertyName);
+        
         _ = Task.Run(async () =>
         {
             try
@@ -115,6 +134,8 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
                     _clientCache.Clear(); // ConcurrentDictionary.Clear() is thread-safe
                     _cachedAvailableModels = null;
                     _modelsLastCached = DateTime.MinValue;
+                    
+                    Logger.Debug("Client cache cleared successfully");
                 }
                 finally
                 {
@@ -123,13 +144,15 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
             }
             catch (Exception ex)
             {
-                // Add proper logging here
+                Logger.Error(ex, "Error occurred while clearing client cache");
             }
         });
     }
 
     public void Dispose()
     {
+        Logger.Debug("Disposing ChatClientManager");
+        
         if (_clientConfig is INotifyPropertyChanged notifyPropertyChanged)
         {
             notifyPropertyChanged.PropertyChanged -= OnConfigurationChanged;
@@ -148,6 +171,8 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
             }
             _clientCache.Clear();
             _cachedAvailableModels = null;
+            
+            Logger.Debug("ChatClientManager disposed successfully");
         }
         finally
         {

@@ -3,13 +3,13 @@ using System.Collections.Concurrent;
 using Collox.Models;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
-using NLog;
+using Serilog;
 
 namespace Collox.Services;
 
 internal class StoreService : IStoreService
 {
-    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    private static readonly ILogger Logger = Log.ForContext<StoreService>();
 
     private readonly ConcurrentQueue<string> q = new();
     private string currentFilename;

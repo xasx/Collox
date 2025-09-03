@@ -15,7 +15,6 @@ namespace Collox.Tests.ViewModels;
 public class WriteViewModelAITests
 {
     private readonly Mock<IStoreService> _storeServiceMock;
-    private readonly Mock<IAIService> _aiServiceMock;
     private readonly Mock<IAudioService> _audioServiceMock;
     private readonly Mock<IMessageProcessingService> _messageProcessingServiceMock;
     private readonly Mock<ICommandService> _commandServiceMock;
@@ -29,21 +28,16 @@ public class WriteViewModelAITests
     public WriteViewModelAITests()
     {
         _storeServiceMock = new Mock<IStoreService>();
-        _aiServiceMock = new Mock<IAIService>();
         _audioServiceMock = new Mock<IAudioService>();
         _messageProcessingServiceMock = new Mock<IMessageProcessingService>();
         _commandServiceMock = new Mock<ICommandService>();
         _chatClientMock = new Mock<IChatClient>();
 
-        _aiServiceMock.Setup(a => a.GetChatClient(It.IsAny<AIProvider>(), It.IsAny<string>()))
-            .Returns(_chatClientMock.Object);
-    
         var mockVoices = new List<System.Speech.Synthesis.VoiceInfo>();
         _audioServiceMock.Setup(a => a.GetInstalledVoices()).Returns(mockVoices);
 
         _viewModel = new WriteViewModel(
             _storeServiceMock.Object, 
-            _aiServiceMock.Object,
             _audioServiceMock.Object,
             _messageProcessingServiceMock.Object,
             _commandServiceMock.Object);

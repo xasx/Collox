@@ -1,5 +1,5 @@
 ﻿using Collox.Models;
-using NLog;
+using Serilog;
 using Nucs.JsonSettings;
 using Nucs.JsonSettings.Fluent;
 using Nucs.JsonSettings.Modulation;
@@ -9,8 +9,7 @@ namespace Collox.Services;
 
 public class AIService : IAIService
 {
-    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
+    private static readonly ILogger Logger = Log.ForContext<AIService>();
 
     private IntelligenceConfig Config
     {
@@ -32,7 +31,7 @@ public class AIService : IAIService
             Config.ApiProviders.FirstOrDefault(p => p.Id == intelligentProcessor.ApiProviderId));
         Config.Processors.Add(intelligentProcessor);
 
-        Logger.Info("Added intelligent processor: {ProcessorName}", intelligentProcessor.Name);
+        Logger.Information("Added intelligent processor: {ProcessorName}", intelligentProcessor.Name);
     }
 
     public void Add(IntelligenceApiProvider intelligenceApiProvider)
@@ -48,7 +47,7 @@ public class AIService : IAIService
         }
         Config.ApiProviders.Add(intelligenceApiProvider);
 
-        Logger.Info("Added API provider: {ProviderName}", intelligenceApiProvider.Name);
+        Logger.Information("Added API provider: {ProviderName}", intelligenceApiProvider.Name);
     }
 
     public IEnumerable<IntelligentProcessor> Get(Func<IntelligentProcessor, bool> filter)
@@ -70,7 +69,7 @@ public class AIService : IAIService
             }
             else
             {
-                Logger.Warn("API provider {ProviderId} not found for processor {ProcessorName}",
+                Logger.Warning("API provider {ProviderId} not found for processor {ProcessorName}",
                     processor.ApiProviderId, processor.Name);
             }
         }
@@ -100,7 +99,7 @@ public class AIService : IAIService
 
         Config.Processors?.Remove(intelligentProcessor);
 
-        Logger.Info("Removed intelligent processor: {ProcessorName}", intelligentProcessor.Name);
+        Logger.Information("Removed intelligent processor: {ProcessorName}", intelligentProcessor.Name);
     }
 
     public void Remove(IntelligenceApiProvider apiProvider)
@@ -116,14 +115,14 @@ public class AIService : IAIService
         }
         Config.ApiProviders?.Remove(apiProvider);
 
-        Logger.Info("Removed API provider: {ProviderName}", apiProvider.Name);
+        Logger.Information("Removed API provider: {ProviderName}", apiProvider.Name);
     }
 
     public void Save()
     {
         Logger.Debug("Saving AI configuration");
         Config.Save();
-        Logger.Info("AI configuration saved successfully");
+        Logger.Information("AI configuration saved successfully");
     }
 
     public void Load()
@@ -131,7 +130,7 @@ public class AIService : IAIService
         Logger.Debug("Loading AI configuration");
         Config.Load();
         InitializeProcessors(Config.Processors);
-        Logger.Info("AI configuration loaded successfully with {ProcessorCount} processors and {ProviderCount} providers",
+        Logger.Information("AI configuration loaded successfully with {ProcessorCount} processors and {ProviderCount} providers",
             Config.Processors?.Count ?? 0, Config.ApiProviders?.Count ?? 0);
     }
 }

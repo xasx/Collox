@@ -1,17 +1,17 @@
 ﻿using Markdig;
-using NLog;
+using Serilog;
 
 namespace Collox.Services;
 
 public class CommandService : ICommandService
 {
-    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    private static readonly ILogger Logger = Log.ForContext<CommandService>();
     private static readonly Lazy<MarkdownPipeline> _markdownPipeline = new(
         () => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
     public async Task<CommandResult> ProcessCommandAsync(string command, CommandContext context)
     {
-        Logger.Info("Processing command: {Command}", command);
+        Logger.Information("Processing command: {Command}", command);
 
         var tokens = command.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
@@ -55,7 +55,7 @@ public class CommandService : ICommandService
     private async Task<CommandResult> HandleSpeakCommand(CommandContext context)
     {
         Logger.Debug("Executing speak command");
-        
+
         if (context.Messages.Count > 0)
         {
             var lastTextMessage = context.Messages.OfType<TextColloxMessage>().LastOrDefault();
@@ -66,7 +66,7 @@ public class CommandService : ICommandService
                 Logger.Debug("Speaking last message with length: {Length}", textToSpeak.Length);
             }
         }
-        
+
         return new CommandResult { Success = true };
     }
 
@@ -118,7 +118,7 @@ public class CommandService : ICommandService
         }
         catch (Exception ex)
         {
-            Logger.Warn(ex, "Failed to strip markdown from text: {Text}", mdText);
+            Logger.Warning(ex, "Failed to strip markdown from text: {Text}", mdText);
             return mdText;
         }
     }

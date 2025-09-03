@@ -4,16 +4,16 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.AI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using NLog;
 using OllamaSharp;
 using OpenAI;
 using OpenAI.Models;
+using Serilog;
 
 namespace Collox.Models;
 
 public partial class IntelligenceApiProvider : IChatClientFactory, INotifyPropertyChanged
 {
-    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    private static readonly ILogger Logger = Log.ForContext<IntelligenceApiProvider>();
 
     public event PropertyChangedEventHandler PropertyChanged;
 
@@ -25,7 +25,7 @@ public partial class IntelligenceApiProvider : IChatClientFactory, INotifyProper
             if (field != value)
             {
                 field = value;
-                Logger.Info("API key changed for {ProviderId}", Id);
+                Logger.Information("API key changed for {ProviderId}", Id);
                 OnPropertyChanged();
             }
         }
@@ -39,7 +39,7 @@ public partial class IntelligenceApiProvider : IChatClientFactory, INotifyProper
         {
             if (field != value)
             {
-                Logger.Info("API provider type changed from {OldType} to {NewType} for {ProviderId}", field, value, Id);
+                Logger.Information("API provider type changed from {OldType} to {NewType} for {ProviderId}", field, value, Id);
                 field = value;
                 OnPropertyChanged();
             }
@@ -62,12 +62,13 @@ public partial class IntelligenceApiProvider : IChatClientFactory, INotifyProper
             if (field != value)
             {
                 field = value;
-                Logger.Info("Endpoint changed to {Endpoint} for {ProviderId}", field, Id);
+                Logger.Information("Endpoint changed to {Endpoint} for {ProviderId}", field, Id);
                 OnPropertyChanged();
             }
         }
     }
 
+    [JsonProperty(Order = -2)]
     public Guid Id { get; init; }
 
     public string Name { get; set; }
@@ -117,8 +118,7 @@ public partial class IntelligenceApiProvider : IChatClientFactory, INotifyProper
             var models = await client.ListLocalModelsAsync(cancellationToken).ConfigureAwait(false);
             var result = models.Select(m => m.Name).ToList();
 
-            if (Logger.IsInfoEnabled)
-                Logger.Info("Retrieved {ModelCount} Ollama models", result.Count);
+            Logger.Information("Retrieved {ModelCount} Ollama models", result.Count);
 
             return result;
         }
@@ -131,7 +131,7 @@ public partial class IntelligenceApiProvider : IChatClientFactory, INotifyProper
         }
         catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
         {
-            Logger.Warn(ex, "Timeout connecting to Ollama at {Endpoint}", Endpoint);
+            Logger.Warning(ex, "Timeout connecting to Ollama at {Endpoint}", Endpoint);
             throw new TimeoutException($"Timeout connecting to Ollama at {Endpoint}", ex);
         }
     }
@@ -155,8 +155,7 @@ public partial class IntelligenceApiProvider : IChatClientFactory, INotifyProper
             var res = await client.GetModelsAsync(cancellationToken).ConfigureAwait(false);
             var result = res.Value?.Select(m => m.Id).ToList() ?? [];
 
-            if (Logger.IsInfoEnabled)
-                Logger.Info("Retrieved {ModelCount} OpenAI models", result.Count());
+            Logger.Information("Retrieved {ModelCount} OpenAI models", result.Count);
 
             return result;
         }
@@ -167,7 +166,7 @@ public partial class IntelligenceApiProvider : IChatClientFactory, INotifyProper
         }
         catch (ClientResultException ex) when (ex.Status == 429)
         {
-            Logger.Warn(ex, "OpenAI rate limit exceeded for {Endpoint}", Endpoint);
+            Logger.Warning(ex, "OpenAI rate limit exceeded for {Endpoint}", Endpoint);
             throw new InvalidOperationException("OpenAI API rate limit exceeded", ex);
         }
     }

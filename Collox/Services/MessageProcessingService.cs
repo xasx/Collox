@@ -1,17 +1,17 @@
 ﻿using System.Collections.ObjectModel;
 using Collox.Models;
 using Microsoft.Extensions.AI;
-using NLog;
+using Serilog;
 
 namespace Collox.Services;
 
 public class MessageProcessingService : IMessageProcessingService
 {
-    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    private static readonly ILogger Logger = Log.ForContext<MessageProcessingService>();
 
     public async Task ProcessMessageAsync(TextColloxMessage textColloxMessage, IEnumerable<IntelligentProcessor> processors)
     {
-        Logger.Info("Starting further processing for message: {MessageId}", textColloxMessage.GetHashCode());
+        Logger.Information("Starting further processing for message: {MessageId}", textColloxMessage.GetHashCode());
 
         if (!Settings.EnableAI)
         {
@@ -51,7 +51,7 @@ public class MessageProcessingService : IMessageProcessingService
             });
 
             await Task.WhenAll(tasks).ConfigureAwait(true);
-            Logger.Info("Completed further processing for all {ProcessorCount} processors", processorCount);
+            Logger.Information("Completed further processing for all {ProcessorCount} processors", processorCount);
         }
         catch (Exception ex)
         {
@@ -65,7 +65,7 @@ public class MessageProcessingService : IMessageProcessingService
 
     public async Task<string> CreateCommentAsync(TextColloxMessage textColloxMessage, IntelligentProcessor processor, IChatClient client)
     {
-        Logger.Info("Creating comment with processor: {ProcessorName}", processor.Name);
+        Logger.Information("Creating comment with processor: {ProcessorName}", processor.Name);
 
         var comment = new ColloxMessageComment() { Comment = string.Empty, GeneratorId = processor.Id };
         textColloxMessage.Comments.Add(comment);
@@ -91,7 +91,7 @@ public class MessageProcessingService : IMessageProcessingService
 
     public async Task<string> CreateTaskAsync(TextColloxMessage textColloxMessage, IntelligentProcessor processor, IChatClient client, ObservableCollection<TaskViewModel> tasks)
     {
-        Logger.Info("Creating task from message");
+        Logger.Information("Creating task from message");
 
         try
         {
@@ -109,7 +109,7 @@ public class MessageProcessingService : IMessageProcessingService
 
     public async Task<string> ModifyMessageAsync(TextColloxMessage textColloxMessage, IntelligentProcessor processor, IChatClient client)
     {
-        Logger.Info("Modifying message with processor: {ProcessorName}", processor.Name);
+        Logger.Information("Modifying message with processor: {ProcessorName}", processor.Name);
 
         var originalText = textColloxMessage.Text;
         textColloxMessage.Text = string.Empty;
@@ -137,7 +137,7 @@ public class MessageProcessingService : IMessageProcessingService
 
     public async Task<string> CreateChatMessageAsync(IEnumerable<TextColloxMessage> messages, IntelligentProcessor processor, IChatClient client, ObservableCollection<ColloxMessage> messagesCollection, string context)
     {
-        Logger.Info("Creating chat message with processor: {ProcessorName}", processor.Name);
+        Logger.Information("Creating chat message with processor: {ProcessorName}", processor.Name);
 
         var textColloxMessage = new TextColloxMessage
         {

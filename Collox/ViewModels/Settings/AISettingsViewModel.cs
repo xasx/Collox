@@ -4,12 +4,13 @@ using Collox.Services;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Windows.ApplicationModel.Resources.Core;
+using Serilog;
 
 namespace Collox.ViewModels;
 
 public partial class AISettingsViewModel : ObservableObject
 {
-    private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+    private static readonly ILogger Logger = Log.ForContext<AISettingsViewModel>();
     private readonly IAIService aiService;
     private bool _initialized;
 

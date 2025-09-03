@@ -7,14 +7,14 @@ using CommunityToolkit.Mvvm.Collections;
 using CommunityToolkit.Mvvm.Messaging;
 using EmojiToolkit;
 using Markdig;
-using NLog;
+using Serilog;
 using Windows.System;
 
 namespace Collox.ViewModels;
 
 public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware, IRecipient<TaskDoneMessage>
 {
-    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    private static readonly ILogger Logger = Log.ForContext<WriteViewModel>();
     private static readonly Lazy<MarkdownPipeline> _markdownPipeline = new(
         () => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
@@ -29,7 +29,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         IMessageProcessingService messageProcessingService,
         ICommandService commandService)
     {
-        Logger.Info("Initializing WriteViewModel");
+        Logger.Information("Initializing WriteViewModel");
 
         this.storeService = storeService;
         this.audioService = audioService;
@@ -41,7 +41,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
         SelectedVoice = audioService.GetInstalledVoices().FirstOrDefault(vi => vi.Name == Settings.Voice);
 
-        Logger.Info("WriteViewModel initialization completed");
+        Logger.Information("WriteViewModel initialization completed");
     }
 
     private void SetupEventHandlers()
@@ -125,7 +125,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             return;
         }
 
-        Logger.Info("Submit command initiated. Mode: {Mode}, InputLength: {Length}", SubmitModeIcon, InputMessage.Length);
+        Logger.Information("Submit command initiated. Mode: {Mode}, InputLength: {Length}", SubmitModeIcon, InputMessage.Length);
 
         ConversationContext.IsEditing = false;
 
@@ -142,7 +142,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                     await ProcessCommand().ConfigureAwait(false);
                     break;
                 default:
-                    Logger.Warn("Unknown submit mode: {Mode}", SubmitModeIcon);
+                    Logger.Warning("Unknown submit mode: {Mode}", SubmitModeIcon);
                     break;
             }
         }
@@ -197,13 +197,13 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     [RelayCommand]
     public async Task Clear()
     {
-        Logger.Info("Clear command initiated. Current message count: {MessageCount}", Messages.Count);
+        Logger.Information("Clear command initiated. Current message count: {MessageCount}", Messages.Count);
 
         try
         {
             Messages.Clear();
             await storeService.SaveNow().ConfigureAwait(false);
-            Logger.Info("Clear completed successfully");
+            Logger.Information("Clear completed successfully");
         }
         catch (Exception ex)
         {
@@ -214,12 +214,12 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     [RelayCommand]
     private async Task SaveNow()
     {
-        Logger.Info("Save command initiated");
+        Logger.Information("Save command initiated");
 
         try
         {
             await storeService.SaveNow().ConfigureAwait(false);
-            Logger.Info("Save completed successfully");
+            Logger.Information("Save completed successfully");
         }
         catch (Exception ex)
         {
@@ -230,7 +230,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     // Private Methods
     private async Task AddTextMessage()
     {
-        Logger.Info("Adding new text message. Input length: {InputLength}", InputMessage.Length);
+        Logger.Information("Adding new text message. Input length: {InputLength}", InputMessage.Length);
 
         var textMessage = new TextColloxMessage
         {
@@ -253,7 +253,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         await ExecuteAudioOperations(textMessage.Text);
         await ProcessMessageWithAI(textMessage);
 
-        Logger.Info("Completed adding text message");
+        Logger.Information("Completed adding text message");
     }
 
     private async Task PersistMessageIfEnabled(TextColloxMessage textMessage)
@@ -305,7 +305,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             }
             catch (Exception ex)
             {
-                Logger.Warn(ex, "One or more audio operations failed");
+                Logger.Warning(ex, "One or more audio operations failed");
             }
         }
     }
@@ -351,7 +351,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
         if (!result.Success && !string.IsNullOrEmpty(result.ErrorMessage))
         {
-            Logger.Warn("Command failed: {Error}", result.ErrorMessage);
+            Logger.Warning("Command failed: {Error}", result.ErrorMessage);
         }
     }
 
@@ -363,7 +363,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         }
         catch (Exception ex)
         {
-            Logger.Warn(ex, "Failed to strip markdown from text: {Text}", mdText);
+            Logger.Warning(ex, "Failed to strip markdown from text: {Text}", mdText);
             return mdText;
         }
     }
@@ -402,7 +402,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         }
         catch (Exception ex)
         {
-            Logger.Warn(ex, "Failed to load suggestions for AutoSuggestBox");
+            Logger.Warning(ex, "Failed to load suggestions for AutoSuggestBox");
         }
     }
 

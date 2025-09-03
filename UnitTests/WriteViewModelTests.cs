@@ -40,7 +40,6 @@ public class WriteViewModelTests
 
         _viewModel = new WriteViewModel(
             _storeServiceMock.Object, 
-            _aiServiceMock.Object,
             _audioServiceMock.Object,
             _messageProcessingServiceMock.Object,
             _commandServiceMock.Object)

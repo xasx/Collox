@@ -1,13 +1,13 @@
 ﻿using System.Speech.Synthesis;
 using System.Media;
 using Windows.ApplicationModel;
-using NLog;
+using Serilog;
 
 namespace Collox.Services;
 
 public class AudioService : IAudioService
 {
-    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    private static readonly ILogger Logger = Log.ForContext<AudioService>();
     private static readonly Lazy<ICollection<VoiceInfo>> _voiceInfos = new(
         () => [.. new SpeechSynthesizer().GetInstalledVoices().Select(iv => iv.VoiceInfo)]);
 
@@ -27,7 +27,7 @@ public class AudioService : IAudioService
         }
         catch (Exception ex)
         {
-            Logger.Warn(ex, "Failed to play beep sound");
+            Logger.Warning(ex, "Failed to play beep sound");
         }
     }
 

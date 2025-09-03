@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.AI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using NLog;
+using Serilog;
 
 namespace Collox.Models;
 
 public partial class IntelligentProcessor
 {
-    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    private static readonly ILogger Logger = Log.ForContext<IntelligentProcessor>();
 
     public Guid Id { get; init; }
 
@@ -39,7 +39,7 @@ public partial class IntelligentProcessor
 
     public async Task Work()
     {
-        Logger.Info("Starting work for processor '{ProcessorName}' (ID: {ProcessorId}) using {ClientManager} model '{ModelId}'",
+        Logger.Information("Starting work for processor '{ProcessorName}' (ID: {ProcessorId}) using {ClientManager} model '{ModelId}'",
             Name, Id, ClientManager, ModelId);
 
         var client = ClientManager?.GetChatClient(ModelId);
@@ -47,7 +47,7 @@ public partial class IntelligentProcessor
         try
         {
             var result = await Process(client);
-            Logger.Info("Successfully completed processing for '{ProcessorName}'. Result length: {ResultLength}",
+            Logger.Information("Successfully completed processing for '{ProcessorName}'. Result length: {ResultLength}",
                 Name, result?.Length ?? 0);
         }
         catch (Exception ex)
