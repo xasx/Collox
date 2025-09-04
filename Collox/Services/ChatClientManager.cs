@@ -7,7 +7,7 @@ namespace Collox.Services;
 public partial class ChatClientManager<T> : IDisposable, IChatClientManager where T : IChatClientFactory, INotifyPropertyChanged
 {
     private static readonly ILogger Logger = Log.ForContext<ChatClientManager<T>>();
-    
+
     private readonly T _clientConfig;
     private readonly ConcurrentDictionary<string, IChatClient> _clientCache = new();
     private readonly SemaphoreSlim _cacheLock = new(1, 1); // Binary semaphore (acts like a mutex)
@@ -22,7 +22,7 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
         _clientConfig = clientConfig ?? throw new ArgumentNullException(nameof(clientConfig));
 
         _clientConfig.PropertyChanged += OnConfigurationChanged;
-        Logger.Debug("ChatClientManager initialized for {ClientType}", typeof(T).Name);
+        Logger.Debug("ChatClientManager initialized for {ClientConfig}", clientConfig);
     }
 
     public async Task<IChatClient> GetChatClientAsync(string modelId)
@@ -44,12 +44,12 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
         try
         {
             // Double-check pattern - another thread might have created it while we waited
-            var client = _clientCache.GetOrAdd(modelId, id => 
+            var client = _clientCache.GetOrAdd(modelId, id =>
             {
                 Logger.Debug("Creating new client for model {ModelId}", id);
                 return _clientConfig.CreateClient(id);
             });
-            
+
             Logger.Information("Chat client ready for model {ModelId}", modelId);
             return client;
         }
@@ -115,7 +115,7 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
     private void OnConfigurationChanged(object sender, PropertyChangedEventArgs e)
     {
         Logger.Information("Configuration changed for property {PropertyName}, clearing client cache", e.PropertyName);
-        
+
         _ = Task.Run(async () =>
         {
             try
@@ -134,7 +134,7 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
                     _clientCache.Clear(); // ConcurrentDictionary.Clear() is thread-safe
                     _cachedAvailableModels = null;
                     _modelsLastCached = DateTime.MinValue;
-                    
+
                     Logger.Debug("Client cache cleared successfully");
                 }
                 finally
@@ -152,7 +152,7 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
     public void Dispose()
     {
         Logger.Debug("Disposing ChatClientManager");
-        
+
         if (_clientConfig is INotifyPropertyChanged notifyPropertyChanged)
         {
             notifyPropertyChanged.PropertyChanged -= OnConfigurationChanged;
@@ -171,7 +171,7 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
             }
             _clientCache.Clear();
             _cachedAvailableModels = null;
-            
+
             Logger.Debug("ChatClientManager disposed successfully");
         }
         finally

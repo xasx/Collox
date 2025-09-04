@@ -17,6 +17,12 @@ public partial class IntelligenceApiProvider : IChatClientFactory, INotifyProper
 
     public event PropertyChangedEventHandler PropertyChanged;
 
+
+    [JsonProperty(Order = -2)]
+    public Guid Id { get; init; }
+
+    public string Name { get; set; }
+
     public string ApiKey
     {
         get;
@@ -67,11 +73,6 @@ public partial class IntelligenceApiProvider : IChatClientFactory, INotifyProper
             }
         }
     }
-
-    [JsonProperty(Order = -2)]
-    public Guid Id { get; init; }
-
-    public string Name { get; set; }
 
     public IChatClient CreateClient(string modelId)
     {
