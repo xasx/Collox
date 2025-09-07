@@ -183,22 +183,6 @@ public sealed partial class WritePage : Page
         InputTextBox.Select(InputTextBox.Text.Length, 0);
     }
 
-    private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            await ViewModel.SaveNowCommand.ExecuteAsync(null);
-            var navService = App.GetService<IJsonNavigationService>() as JsonNavigationService;
-            Debug.Assert(navService != null, nameof(navService) + " != null");
-            navService.Navigate(typeof(TemplatesPage));
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error in MenuFlyoutItem_Click: {ex.Message}");
-            // Optionally, handle the exception (e.g., show a message to the user)
-        }
-    }
-
     private void GridView_ItemClick(object sender, ItemClickEventArgs e) { VoiceSettingsFlyout.Hide(); }
 
     private void ChangeModeKeyboardAccelerator_Invoked(

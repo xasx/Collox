@@ -11,9 +11,11 @@
       xmlns:ctrls="using:CommunityToolkit.WinUI.Controls"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:dev="using:DevWinUI"
+      xmlns:local="using:Collox"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:media="using:CommunityToolkit.WinUI.Media"
       xmlns:uictrls="using:CommunityToolkit.WinUI.UI.Controls"
+      xmlns:views="using:Collox.Views"
       xmlns:vm="using:Collox.ViewModels"
       xmlns:winUi="using:CommunityToolkit.WinUI"
       d:DataContext="{d:DesignInstance Type=vm:WriteViewModel}"
@@ -399,7 +401,9 @@
                     <MenuFlyout x:Name="TemplatesFlyout"
                                 Opening="TemplatesFlyout_Opening">
                         <MenuFlyoutItem x:Uid="ManageTemplatesMenuItem"
-                                        Click="MenuFlyoutItem_Click"
+                                        Command="{x:Bind local:App.Current.GetNavService.NavigateToCommand}"
+                                        CommandParameter="{dev:NavigationParameter PageType=views:TemplatesPage,
+                                                                                   BreadCrumbHeader='Templates'}"
                                         Icon="Edit"
                                         Tag="predefined"
                                         Text="Manage" />

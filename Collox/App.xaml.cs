@@ -1,5 +1,4 @@
 ﻿using Collox.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Dispatching;
 using Microsoft.Windows.AppLifecycle;
@@ -91,7 +90,7 @@ public partial class App : Application
 
     public IServiceProvider Services => _lazyServices.Value;
     public new static App Current => (App)Application.Current;
-    public IJsonNavigationService GetNavService => GetService<IJsonNavigationService>();
+    public INavigationServiceEx GetNavService => GetService<INavigationServiceEx>();
     public IThemeService GetThemeService => GetService<IThemeService>();
 
     private bool isClosing;
@@ -127,7 +126,7 @@ public partial class App : Application
 
             // Register core services first (these are needed immediately)
             services.AddSingleton<IThemeService, ThemeService>();
-            services.AddSingleton<IJsonNavigationService, JsonNavigationService>();
+            services.AddSingleton<INavigationServiceEx, NavigationServiceEx>();
             services.AddSingleton<IStoreService, StoreService>();
 
             services.AddSingleton<IAIService, AIService>();

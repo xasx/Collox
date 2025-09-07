@@ -84,9 +84,6 @@
   <data name="HideButton.Label" xml:space="preserve">
     <value>Ausblenden</value>
   </data>
-  <data name="HistoryPage.Title" xml:space="preserve">
-    <value>Historie</value>
-  </data>
   <data name="InputTextBox.PlaceholderText" xml:space="preserve">
     <value>Nachricht eingeben</value>
   </data>
@@ -141,9 +138,6 @@
   <data name="SpeakToggleButton.Label" xml:space="preserve">
     <value>Laut vorlesen</value>
   </data>
-  <data name="TabWritePage.Title" xml:space="preserve">
-    <value>Schreiben</value>
-  </data>
   <data name="TemplateContentTextBox.Header" xml:space="preserve">
     <value>Inhalt</value>
   </data>
@@ -155,9 +149,6 @@
   </data>
   <data name="TemplateNameTextBox.PlaceholderText" xml:space="preserve">
     <value>Der Name der Vorlage</value>
-  </data>
-  <data name="TemplatesPage.Title" xml:space="preserve">
-    <value>Vorlagen</value>
   </data>
   <data name="ThemeButton.Label" xml:space="preserve">
     <value>Thema umschalten</value>
@@ -272,5 +263,17 @@
   </data>
   <data name="AISettingsCard.Description" xml:space="preserve">
     <value>KI-Einstellungen ändern</value>
+  </data>
+  <data name="ModelIdCard.Header" xml:space="preserve">
+    <value>Modell</value>
+  </data>
+  <data name="HistoryPage.Content" xml:space="preserve">
+    <value>Historie</value>
+  </data>
+  <data name="TabWritePage.Content" xml:space="preserve">
+    <value>Schreiben</value>
+  </data>
+  <data name="TemplatesPage.Content" xml:space="preserve">
+    <value>Vorlagen</value>
   </data>
 </root>

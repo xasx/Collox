@@ -1,12 +1,12 @@
-﻿using Collox.Services;
+﻿using System.Collections.ObjectModel;
+using Collox.Services;
 using Collox.ViewModels.Messages;
 using CommunityToolkit.Mvvm.Messaging;
 using Serilog;
-using System.Collections.ObjectModel;
 
 namespace Collox.ViewModels;
 
-public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSuggestBoxAware, IRecipient<UpdateTabMessage>
+public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSuggestBoxAware, IRecipient<UpdateTabMessage>, INavigationAwareEx
 {
     private static readonly ILogger Logger = Log.ForContext<TabWriteViewModel>();
     private static readonly TabData initialTab = new() { Context = "Default", IsCloseable = false, IsEditing = false };
@@ -116,6 +116,15 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
         // find tabframe in the tab.
         var frame = WeakReferenceMessenger.Default.Send<GetFrameRequestMessage>();
         AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxTextChangedEvent(sender, args, frame);
+    }
+
+    public void OnNavigatedFrom()
+    {
+        App.GetService<IStoreService>().SaveNow();
+    }
+
+    public void OnNavigatedTo(object parameter)
+    {
     }
 
     public void Receive(UpdateTabMessage message)

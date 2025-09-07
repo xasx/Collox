@@ -12,6 +12,7 @@
       xmlns:marquee="using:CommunityToolkit.Labs.WinUI.MarqueeTextRns"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:notifications="using:Windows.UI.Notifications"
+      xmlns:views="using:Collox.Views"
       mc:Ignorable="d">
 
     <interactivity:Interaction.Behaviors>
@@ -241,6 +242,24 @@
                     </dev:Shield>
                 </StackPanel>
             </NavigationView.PaneFooter>
+            <NavigationView.MenuItems>
+
+                <NavigationViewItem dev:NavigationServiceEx.NavigateTo="views:HomeLandingPage"
+                                    Content="Collox"
+                                    Icon="{dev:FontIcon GlyphName=Home}" />
+                <NavigationViewItem x:Uid="TabWritePage"
+                                    dev:NavigationServiceEx.NavigateTo="views:TabWritePage"
+                                    Content="Write"
+                                    Icon="{dev:FontIcon GlyphName=Edit}" />
+                <NavigationViewItem x:Uid="TemplatesPage"
+                                    dev:NavigationServiceEx.NavigateTo="views:TemplatesPage"
+                                    Content="Templates"
+                                    Icon="{dev:FontIcon GlyphName=Page}" />
+                <NavigationViewItem x:Uid="HistoryPage"
+                                    dev:NavigationServiceEx.NavigateTo="views:HistoryPage"
+                                    Content="History"
+                                    Icon="{dev:FontIcon GlyphName=History}" />
+            </NavigationView.MenuItems>
             <Frame x:Name="NavFrame" />
         </NavigationView>
     </Grid>

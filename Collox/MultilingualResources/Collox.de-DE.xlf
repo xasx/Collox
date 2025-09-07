@@ -102,10 +102,6 @@
           <source>Hide</source>
           <target state="translated">Ausblenden</target>
         </trans-unit>
-        <trans-unit id="HistoryPage.Title" translate="yes" xml:space="preserve">
-          <source>History</source>
-          <target state="translated">Historie</target>
-        </trans-unit>
         <trans-unit id="InputTextBox.PlaceholderText" translate="yes" xml:space="preserve">
           <source>Type your message</source>
           <target state="translated">Nachricht eingeben</target>
@@ -178,10 +174,6 @@
           <source>Read aloud</source>
           <target state="translated">Laut vorlesen</target>
         </trans-unit>
-        <trans-unit id="TabWritePage.Title" translate="yes" xml:space="preserve">
-          <source>Write</source>
-          <target state="translated">Schreiben</target>
-        </trans-unit>
         <trans-unit id="TemplateContentTextBox.Header" translate="yes" xml:space="preserve">
           <source>Content</source>
           <target state="translated">Inhalt</target>
@@ -197,10 +189,6 @@
         <trans-unit id="TemplateNameTextBox.PlaceholderText" translate="yes" xml:space="preserve">
           <source>Type the name of the template</source>
           <target state="translated">Der Name der Vorlage</target>
-        </trans-unit>
-        <trans-unit id="TemplatesPage.Title" translate="yes" xml:space="preserve">
-          <source>Templates</source>
-          <target state="translated">Vorlagen</target>
         </trans-unit>
         <trans-unit id="ThemeButton.Label" translate="yes" xml:space="preserve">
           <source>Toggle Theme</source>
@@ -388,11 +376,23 @@
         </trans-unit>
         <trans-unit id="ModelIdCard.Header" translate="yes" xml:space="preserve">
           <source>Model Id</source>
-          <target state="new">Model Id</target>
+          <target state="translated">Modell</target>
         </trans-unit>
         <trans-unit id="ModelIdCard.Description" translate="yes" xml:space="preserve">
           <source>The Id of the model to use.</source>
           <target state="new">The Id of the model to use.</target>
+        </trans-unit>
+        <trans-unit id="HistoryPage.Content" translate="yes" xml:space="preserve">
+          <source>History</source>
+          <target state="translated">Historie</target>
+        </trans-unit>
+        <trans-unit id="TabWritePage.Content" translate="yes" xml:space="preserve">
+          <source>Write</source>
+          <target state="translated">Schreiben</target>
+        </trans-unit>
+        <trans-unit id="TemplatesPage.Content" translate="yes" xml:space="preserve">
+          <source>Templates</source>
+          <target state="translated">Vorlagen</target>
         </trans-unit>
       </group>
     </body>

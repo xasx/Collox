@@ -201,7 +201,7 @@
   <data name="HideButton.Label" xml:space="preserve">
     <value>Hide</value>
   </data>
-  <data name="HistoryPage.Title" xml:space="preserve">
+  <data name="HistoryPage.Content" xml:space="preserve">
     <value>History</value>
   </data>
   <data name="InputTextBox.PlaceholderText" xml:space="preserve">
@@ -267,7 +267,7 @@
   <data name="SpeakToggleButton.Label" xml:space="preserve">
     <value>Read aloud</value>
   </data>
-  <data name="TabWritePage.Title" xml:space="preserve">
+  <data name="TabWritePage.Content" xml:space="preserve">
     <value>Write</value>
   </data>
   <data name="TemplateContentTextBox.Header" xml:space="preserve">
@@ -282,7 +282,7 @@
   <data name="TemplateNameTextBox.PlaceholderText" xml:space="preserve">
     <value>Type the name of the template</value>
   </data>
-  <data name="TemplatesPage.Title" xml:space="preserve">
+  <data name="TemplatesPage.Content" xml:space="preserve">
     <value>Templates</value>
   </data>
   <data name="ThemeButton.Label" xml:space="preserve">
