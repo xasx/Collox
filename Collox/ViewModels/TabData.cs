@@ -12,4 +12,11 @@ public partial class TabData : ObservableObject
     [ObservableProperty] public partial bool IsCloseable { get; set; }
 
     [ObservableProperty] public partial bool IsEditing { get; set; }
+
+    [ObservableProperty] public partial bool IsBeeping { get; set; }
+
+    [ObservableProperty] public partial bool IsSpeaking { get; set; }
+
+    [ObservableProperty] public partial string SelectedVoice { get; set; }
+
 }

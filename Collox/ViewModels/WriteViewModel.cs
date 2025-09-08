@@ -39,7 +39,6 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         SetupEventHandlers();
         ConfigureMessaging();
 
-        SelectedVoice = audioService.GetInstalledVoices().FirstOrDefault(vi => vi.Name == Settings.Voice);
 
         Logger.Information("WriteViewModel initialization completed");
     }
@@ -77,8 +76,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     [ObservableProperty] public partial string Filename { get; set; }
     [ObservableProperty] public partial string InputMessage { get; set; } = string.Empty;
     public ICollection<VoiceInfo> InstalledVoices => audioService.GetInstalledVoices();
-    [ObservableProperty] public partial bool IsBeeping { get; set; } = Settings.AutoBeep;
-    [ObservableProperty] public partial bool IsSpeaking { get; set; } = Settings.AutoRead;
+    [ObservableProperty] public partial bool IsBeeping { get; set; }
+    [ObservableProperty] public partial bool IsSpeaking { get; set; }
     [ObservableProperty] public partial int KeyStrokesCount { get; set; }
     [ObservableProperty] public partial ObservableCollection<ColloxMessage> Messages { get; set; } = [];
     [ObservableProperty] public partial ColloxMessage SelectedMessage { get; set; }
@@ -88,19 +87,27 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     [ObservableProperty] public partial ObservableCollection<TaskViewModel> Tasks { get; set; } = [];
 
     // Property Change Handlers
-    partial void OnConversationContextChanged(TabData value) =>
+    partial void OnConversationContextChanged(TabData value)
+    {
+        IsBeeping = value.IsBeeping;
+        IsSpeaking = value.IsSpeaking;
+        SelectedVoice = audioService.GetInstalledVoices().FirstOrDefault(vi => vi.Name == value.SelectedVoice);
+
         Logger.Debug("ConversationContext changed to {ContextName}", value?.Context ?? "unknown");
+    }
 
     partial void OnIsBeepingChanged(bool value)
     {
         Logger.Debug("IsBeeping changed to {Value}", value);
-        Settings.AutoBeep = value;
+        ConversationContext.IsBeeping = value;
+        WeakReferenceMessenger.Default.Send(new UpdateTabMessage(ConversationContext));
     }
 
     partial void OnIsSpeakingChanged(bool value)
     {
         Logger.Debug("IsSpeaking changed to {Value}", value);
-        Settings.AutoRead = value;
+        ConversationContext.IsSpeaking = value;
+        WeakReferenceMessenger.Default.Send(new UpdateTabMessage(ConversationContext));
     }
 
     partial void OnSelectedMessageChanged(ColloxMessage value)
@@ -112,7 +119,11 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     partial void OnSelectedVoiceChanged(VoiceInfo value)
     {
         Logger.Debug("SelectedVoice changed to {VoiceName}", value?.Name ?? "null");
-        if (value != null) Settings.Voice = value.Name;
+        if (value != null)
+        {
+            ConversationContext.SelectedVoice = value.Name;
+            WeakReferenceMessenger.Default.Send(new UpdateTabMessage(ConversationContext));
+        }
     }
 
     // Commands

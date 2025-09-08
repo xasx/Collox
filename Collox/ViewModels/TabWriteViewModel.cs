@@ -30,7 +30,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
 
     [ObservableProperty] public partial TabData SelectedTab { get; set; } = initialTab;
 
-    [ObservableProperty] public partial ObservableCollection<TabData> Tabs { get; set; } = [initialTab];
+    [ObservableProperty] public partial ObservableCollection<TabData> Tabs { get; set; } = [];
 
     [RelayCommand]
     public void AddNewTab()
@@ -38,8 +38,8 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
         var context = $"Context {Tabs.Count + 1}";
         Logger.Information("Creating new tab with context: {Context}", context);
 
-        var newTabContext = new TabContext { Name = context, IsCloseable = true, ActiveProcessors = [] };
-        var newTabData = new TabData { Context = context, IsCloseable = true, IsEditing = true, ActiveProcessors = [] };
+        var newTabContext = new TabContext { Name = context, IsCloseable = true, ActiveProcessors = [], IsBeeping = false, IsSpeaking = false };
+        var newTabData = new TabData { Context = context, IsCloseable = true, IsEditing = true, ActiveProcessors = [], IsBeeping = false, IsSpeaking = false };
 
         Tabs.Add(newTabData);
         SelectedTab = newTabData;
@@ -83,7 +83,11 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
                 initialTab.ActiveProcessors.Clear();
                 initialTab.ActiveProcessors.AddRange(
                     tabContext.ActiveProcessors.ConvertAll(x => procs.FirstOrDefault(p => p.Id == x)));
+                initialTab.IsBeeping = tabContext.IsBeeping;
+                initialTab.IsSpeaking = tabContext.IsSpeaking;
+                initialTab.SelectedVoice = tabContext.SelectedVoice;
                 tabContexts[initialTab] = tabContext;
+                Tabs.Add(initialTab);
                 continue;
             }
 
@@ -91,6 +95,9 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
             {
                 Context = tabContext.Name,
                 IsCloseable = tabContext.IsCloseable,
+                IsBeeping = tabContext.IsBeeping,
+                IsSpeaking = tabContext.IsSpeaking,
+                SelectedVoice = tabContext.SelectedVoice,
                 IsEditing = false
             };
             tabData.ActiveProcessors.AddRange(
@@ -152,6 +159,9 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
         var tabContext = tabContexts[tabData];
         tabContext.Name = tabData.Context;
         tabContext.IsCloseable = tabData.IsCloseable;
+        tabContext.IsBeeping = tabData.IsBeeping;
+        tabContext.IsSpeaking = tabData.IsSpeaking;
+        tabContext.SelectedVoice = tabData.SelectedVoice;
         tabContext.ActiveProcessors.Clear();
         tabContext.ActiveProcessors.AddRange(tabData.ActiveProcessors.Select(x => x.Id));
         tabContextService.NotifyTabUpdate(tabContext);

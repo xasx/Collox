@@ -1,4 +1,4 @@
-﻿using Windows.Data.Json;
+﻿using Newtonsoft.Json;
 
 namespace Collox.Services;
 
@@ -55,57 +55,25 @@ public class TabContextService : ITabContextService
 
         _tabs.Clear();
 
-        // Load tabs from disk
-        var jsonString = File.ReadAllText(_tabsFilePath);
-        // Parse the string to a JsonArray
-        var tabs = JsonArray.Parse(jsonString);
-        // Deserialize the JsonArray to a list of TabContext
-        foreach (var tab in tabs)
+        try
         {
-            if (tab.GetObject() == null)
+            var jsonString = File.ReadAllText(_tabsFilePath);
+            var loadedTabs = JsonConvert.DeserializeObject<List<TabContext>>(jsonString);
+            
+            if (loadedTabs != null)
             {
-                continue;
+                _tabs.AddRange(loadedTabs);
             }
-            if (!tab.GetObject().ContainsKey("Name") ||
-                !tab.GetObject().ContainsKey("IsCloseable"))
-            {
-                continue;
-            }
-            var activeProcessors = tab.GetObject().ContainsKey("ActiveProcessors")
-                ? tab.GetObject()["ActiveProcessors"].GetArray().Select(x => Guid.Parse(x.GetString())).ToList()
-                : [];
-
-            _tabs.Add(new TabContext
-            {
-                Name = tab.GetObject()["Name"].GetString(),
-                IsCloseable = tab.GetObject()["IsCloseable"].GetBoolean(),
-                ActiveProcessors = activeProcessors,
-            });
+        }
+        catch (JsonException)
+        {
+            // Handle JSON parsing errors gracefully
         }
     }
 
     private void SaveTabs()
     {
-        var tabs = new JsonArray();
-        foreach (var tab in _tabs)
-        {
-            var activeProcessorsArray = new JsonArray();
-            foreach (var processor in tab.ActiveProcessors)
-            {
-                activeProcessorsArray.Add(JsonValue.CreateStringValue(processor.ToString()));
-            }
-            var tabObject = new JsonObject
-            {
-                ["Name"] = JsonValue.CreateStringValue(tab.Name),
-                ["IsCloseable"] = JsonValue.CreateBooleanValue(tab.IsCloseable),
-                ["ActiveProcessors"] = activeProcessorsArray
-            };
-            tabs.Add(tabObject);
-        }
-        // Serialize the JsonArray to a string
-        var jsonString = tabs.Stringify();
-
-        // Save the string to a file (example path)
+        var jsonString = JsonConvert.SerializeObject(_tabs, Formatting.Indented);
         File.WriteAllText(_tabsFilePath, jsonString);
     }
 }

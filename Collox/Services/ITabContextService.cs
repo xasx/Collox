@@ -19,5 +19,11 @@ public class TabContext
 
     public bool IsCloseable { get; set; }
 
+    public bool IsBeeping { get; set; }
+
+    public bool IsSpeaking { get; set; }
+
+    public string SelectedVoice { get; set; }
+
     public List<Guid> ActiveProcessors { get; set; } = new List<Guid>();
 }
