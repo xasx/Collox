@@ -74,20 +74,19 @@
                 <ItemsView.ItemTemplate>
                     <DataTemplate x:DataType="notifications:UserNotification">
                         <ItemContainer Width="320"
-                                       Margin="0,4"
-                                       Padding="4">
+                                       Margin="0,4">
 
                             <StackPanel Margin="4">
-                                <dev:Divider HorizontalContentAlignment="Left"
-                                             ContentPadding="0">
-                                    <TextBlock FontWeight="Bold">
-                                        <Run Text="{x:Bind AppInfo.DisplayInfo.DisplayName}" />
-                                        <LineBreak />
-                                        <Run Text="{x:Bind CreationTime}" />
-                                    </TextBlock>
-                                </dev:Divider>
-                                <TextBlock Text="{x:Bind Notification.Visual, Converter={StaticResource VisualToSummaryStringConverter}}"
-                                           TextWrapping="WrapWholeWords" />
+                                <dev:Card Title="{x:Bind AppInfo.DisplayInfo.DisplayName}"
+                                          HorizontalContentAlignment="Left">
+                                    <dev:Card.TitleContent>
+                                        <TextBlock Margin="4"
+                                                   Text="{x:Bind CreationTime}" />
+                                    </dev:Card.TitleContent>
+
+                                    <TextBlock Text="{x:Bind Notification.Visual, Converter={StaticResource VisualToSummaryStringConverter}}"
+                                               TextWrapping="WrapWholeWords" />
+                                </dev:Card>
                             </StackPanel>
 
                         </ItemContainer>

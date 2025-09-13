@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 
 <Page x:Class="Collox.Views.HomeLandingPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -9,18 +9,87 @@
       mc:Ignorable="d">
 
     <Grid>
-        <dev:Particle Density="16"
-                      IsPointerEnable="True"
-                      LineColor="PaleTurquoise"
-                      ParticleColor="MediumTurquoise" />
-        <dev:HeaderTile Title="Collox"
-                        Description="Your app to write with TTS support. Best used with an eyetracker."
-                        FontSize="14">
-            <dev:HeaderTile.Source>
-                <FontIcon Glyph="&#xE8F2;" />
-            </dev:HeaderTile.Source>
-        </dev:HeaderTile>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <dev:OverviewPageHeader Title="Collox"
+                                Grid.Row="0"
+                                Background="{ThemeResource CardGradient2Brush}"
+                                Description="Communicate again.">
+            <dev:OverviewPageHeader.ActionContent>
+                <Button AutomationProperties.Name="c">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="8">
+                            <FontIcon FontSize="16"
+                                      Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                      Glyph="&#xE7C3;" />
+                            <TextBlock Text="c" />
+                        </StackPanel>
+                    </Button.Content>
 
+                </Button>
+            </dev:OverviewPageHeader.ActionContent>
+            <dev:OverviewPageHeader.ImageContent>
+                <Grid Margin="24,8,24,16">
+                    <Grid Margin="0,62,0,0"
+                          Padding="16"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Top"
+                          Style="{StaticResource GlassAcrylicGridStyle}">
+                        <Image Width="56"
+                               Source="ms-appx:///Assets/Store/StoreLogo.scale-400.png" />
+                    </Grid>
+
+                    <Grid Margin="48,166,0,0"
+                          Padding="8"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Top"
+                          Style="{StaticResource GlassAcrylicGridStyle}">
+                        <FontIcon FontSize="24"
+                                  Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                  Glyph="&#xE8F2;" />
+                    </Grid>
+
+                    <Grid Margin="104,96,0,0"
+                          Padding="16"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Top"
+                          Style="{StaticResource GlassAcrylicGridStyle}">
+                        <FontIcon FontSize="48"
+                                  Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                  Glyph="&#xE99A;" />
+                    </Grid>
+                    <Grid Margin="104,12,0,0"
+                          Padding="16"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Top"
+                          Style="{StaticResource GlassAcrylicGridStyle}">
+                        <FontIcon FontSize="36"
+                                  Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                  Glyph="&#xE92E;" />
+                    </Grid>
+                    <Grid Margin="54,14,0,0"
+                          Padding="8"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Top"
+                          Style="{StaticResource GlassAcrylicGridStyle}">
+                        <FontIcon FontSize="18"
+                                  Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                  Glyph="&#xEFA9;" />
+                    </Grid>
+                </Grid>
+            </dev:OverviewPageHeader.ImageContent>
+        </dev:OverviewPageHeader>
+
+        <StackPanel Grid.Row="1"
+                    Margin="8"
+                    Spacing="12">
+            <dev:Card Title="Welcome">
+                <TextBlock Text="Welcome to Collox!" />
+            </dev:Card>
+        </StackPanel>
     </Grid>
 
 </Page>

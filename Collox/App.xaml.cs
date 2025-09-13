@@ -218,18 +218,17 @@ public partial class App : Application
 
         try
         {
-            var mirrorWindow = new ModernWindow()
+            var mirrorWindow = new Window()
             {
-                BackdropType = BackdropType.AcrylicThin,
-                HasTitleBar = false,
-                UseModernSystemMenu = true,
+                
                 SystemBackdrop = new DevWinUI.AcrylicSystemBackdrop(DesktopAcrylicKind.Thin)
             };
 
             var rootFrame = new Frame();
             mirrorWindow.Content = rootFrame;
 
-            Current.GetThemeService?.AutoInitialize(mirrorWindow);
+            // Current.GetThemeService?.Initialize(mirrorWindow);
+            WindowHelper.TrackWindow(mirrorWindow);
             rootFrame.Navigate(typeof(MirrorPage));
             mirrorWindow.ExtendsContentIntoTitleBar = true;
 
@@ -253,6 +252,8 @@ public partial class App : Application
             mirrorWindow.SetIsMinimizable(false);
             mirrorWindow.SetIsResizable(false);
             mirrorWindow.SetIsShownInSwitchers(false);
+
+            WindowHelper.RemoveWindowBorderAndTitleBar(mirrorWindow);
 
             var appNotification = new AppNotificationBuilder()
                 .AddArgument("action", "ToastClick")
@@ -337,7 +338,7 @@ public partial class App : Application
                 MainWindow.Content = rootFrame = new Frame();
             }
 
-            GetThemeService?.AutoInitialize(MainWindow);
+            GetThemeService?.Initialize(MainWindow);
             rootFrame.Navigate(typeof(MainPage));
 
             MainWindow.Title = MainWindow.AppWindow.Title = ProcessInfoHelper.ProductNameAndVersion;

@@ -35,7 +35,7 @@ public partial class TimeSpanToFriendlyConverter : IValueConverter
 
         // Use if-else chain instead of switch expression to avoid pattern matching overhead
         if (totalSeconds < 60)
-            return string.Format(null, GetSecondsFormat(), timeSpan.Seconds);
+            return string.Format(null, GetSecondsFormat(), (int)totalSeconds);
 
         if (totalMinutes < 60)
             return string.Format(null, GetMinutesFormat(), (int)totalMinutes);
@@ -44,7 +44,7 @@ public partial class TimeSpanToFriendlyConverter : IValueConverter
             return string.Format(null, GetHoursFormat(), (int)totalHours);
 
         if (totalDays < 7)
-            return string.Format(null, GetDaysFormat(), timeSpan.Days);
+            return string.Format(null, GetDaysFormat(), (int)totalDays);
 
         if (totalDays < 30)
             return string.Format(null, GetWeeksFormat(), (int)(totalDays / 7));

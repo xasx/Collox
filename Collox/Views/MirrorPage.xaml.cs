@@ -27,7 +27,7 @@ public sealed partial class MirrorPage : Page
 
     private void ThemeButton_Click(object sender, RoutedEventArgs e)
     {
-        ThemeService.ChangeThemeWithoutSave(App.MirrorWindow);
+        App.Current.GetThemeService.SetElementThemeWithoutSaveAsync();
     }
 
     private void HideButton_Click(object sender, RoutedEventArgs e)
