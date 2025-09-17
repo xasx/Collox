@@ -337,7 +337,7 @@
                                     TimeTemplate="{StaticResource TimeTemplate}" />
     </Page.Resources>
 
-    <Grid>
+    <Grid dev:PanelAttach.ChildrenTransitions="Default">
         <Grid.RowDefinitions>
             <RowDefinition Height="48" />
             <RowDefinition Height="*" />

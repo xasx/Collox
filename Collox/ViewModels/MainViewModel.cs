@@ -1,11 +1,11 @@
 ﻿using System.Collections.ObjectModel;
-using Windows.System;
-using Windows.UI.Notifications;
 using Collox.Services;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
-using NetworkHelper = CommunityToolkit.WinUI.Helpers.NetworkHelper;
 using Windows.Storage;
+using Windows.System;
+using Windows.UI.Notifications;
+using NetworkHelper = CommunityToolkit.WinUI.Helpers.NetworkHelper;
 
 namespace Collox.ViewModels;
 
@@ -31,6 +31,8 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
     [ObservableProperty] public partial InternetState InternetState { get; set; } = new();
 
     [ObservableProperty] public partial ObservableCollection<UserNotification> UserNotifications { get; set; } = [];
+
+    [ObservableProperty] public partial bool UserNotificationsEmpty { get; set; } = true;
 
     [ObservableProperty] public partial string DocumentFilename { get; set; }
 
@@ -59,7 +61,7 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
     }
 
     [RelayCommand]
-    public async Task Init()
+    public async Task InitAsync()
     {
         RefreshInternetState();
         await _userNotificationService.Initialize().ConfigureAwait(true);
@@ -68,6 +70,7 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
 
         var userNotifications = await _userNotificationService.GetNotifications().ConfigureAwait(true);
         UserNotifications.AddRange(userNotifications);
+        UserNotificationsEmpty = UserNotifications.Count == 0;
 
         dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
@@ -75,7 +78,7 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
     }
 
     [RelayCommand]
-    public async Task OpenDocumentFolder()
+    public async Task OpenDocumentFolderAsync()
     {
         var filename = _storeService.GetFilename();
         if (string.IsNullOrEmpty(filename))
@@ -87,7 +90,7 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
     }
 
     [RelayCommand]
-    public async Task OpenConfigurationFolder()
+    public async Task OpenConfigurationFolderAsync()
     {
         var folder = Path.GetDirectoryName(ConfigurationLocation);
         if (folder == null)
@@ -102,16 +105,7 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
 
     private void RefreshInternetState()
     {
-        if (NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable)
-        {
-            InternetState.State = "online";
-            InternetState.Icon = "\uE774";
-        }
-        else
-        {
-            InternetState.State = "offline";
-            InternetState.Icon = "\uF384";
-        }
+        InternetState.IsConnected = NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable;
     }
 
     private void UserNotificationService_OnUserNotificationsViewChanged(IReadOnlyList<UserNotification> newView)
@@ -120,6 +114,7 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
         {
             UserNotifications.Clear();
             UserNotifications.AddRange(newView);
+            UserNotificationsEmpty = UserNotifications.Count == 0;
         });
     }
 }

@@ -36,33 +36,45 @@ public partial class IntelligenceApiProviderViewModel : ObservableObject
 
     }
 
-    partial void OnApiKeyChanged(string value)
+    partial void OnApiKeyChanged(string oldValue, string newValue)
     {
-        Model.ApiKey = value;
-        SaveModel();
-    }
-
-    partial void OnEndpointChanged(string value)
-    {
-        Model.Endpoint = value;
-        SaveModel();
-    }
-
-    partial void OnApiTypeChanged(SourceProvider value)
-    {
-        Model.ApiType = value switch
+        if (oldValue != newValue)
         {
-            SourceProvider.OpenAI => AIProvider.OpenAI,
-            SourceProvider.Ollama => AIProvider.Ollama,
-            _ => throw new NotSupportedException($"API provider '{value}' is not supported.")
-        };
-        SaveModel();
+            Model.ApiKey = newValue;
+            SaveModel();
+        }
     }
 
-    partial void OnNameChanged(string value)
+    partial void OnEndpointChanged(string oldValue, string newValue)
     {
-        Model.Name = value;
-        SaveModel();
+        if (oldValue != newValue)
+        {
+            Model.Endpoint = newValue;
+            SaveModel();
+        }
+    }
+
+    partial void OnApiTypeChanged(SourceProvider oldValue, SourceProvider newValue)
+    {
+        if (oldValue != newValue)
+        {
+            Model.ApiType = newValue switch
+            {
+                SourceProvider.OpenAI => AIProvider.OpenAI,
+                SourceProvider.Ollama => AIProvider.Ollama,
+                _ => throw new NotSupportedException($"API provider '{newValue}' is not supported.")
+            };
+            SaveModel();
+        }
+    }
+
+    partial void OnNameChanged(string oldValue, string newValue)
+    {
+        if (oldValue != newValue)
+        {
+            Model.Name = newValue;
+            SaveModel();
+        }
     }
 
 

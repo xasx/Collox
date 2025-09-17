@@ -72,56 +72,77 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
     [RelayCommand]
     public void Delete() { WeakReferenceMessenger.Default.Send(new ProcessorDeletedMessage(this)); }
 
-    async partial void OnProviderChanged(IntelligenceApiProviderViewModel value)
+    async partial void OnProviderChanged(IntelligenceApiProviderViewModel oldValue, IntelligenceApiProviderViewModel newValue)
     {
-        Model.ApiProviderId = value.Id;
-        Model.ClientManager = new ChatClientManager<IntelligenceApiProvider>(value.Model);
-        AvailableModelIds.Clear();
-        AvailableModelIds.AddRange(await Model.ClientManager.AvailableModels);
-        SaveModel();
-    }
-
-    partial void OnTargetChanged(ProcessorTarget value)
-    {
-        Model.Target = value switch
+        if (!ReferenceEquals(oldValue, newValue))
         {
-            ProcessorTarget.Comment => Models.Target.Comment,
-            ProcessorTarget.Task => Models.Target.Task,
-            ProcessorTarget.Message => Models.Target.Message,
-            ProcessorTarget.Chat => Models.Target.Chat,
-            _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
-        };
-        SaveModel();
+            Model.ApiProviderId = newValue.Id;
+            Model.ClientManager = new ChatClientManager<IntelligenceApiProvider>(newValue.Model);
+            AvailableModelIds.Clear();
+            AvailableModelIds.AddRange(await Model.ClientManager.AvailableModels);
+            SaveModel();
+        }
     }
 
-    partial void OnModelIdChanged(string value)
+    partial void OnTargetChanged(ProcessorTarget oldValue, ProcessorTarget newValue)
     {
-        Model.ModelId = value;
-        SaveModel();
+        if (oldValue != newValue)
+        {
+            Model.Target = newValue switch
+            {
+                ProcessorTarget.Comment => Models.Target.Comment,
+                ProcessorTarget.Task => Models.Target.Task,
+                ProcessorTarget.Message => Models.Target.Message,
+                ProcessorTarget.Chat => Models.Target.Chat,
+                _ => throw new ArgumentOutOfRangeException(nameof(newValue), newValue, null)
+            };
+            SaveModel();
+        }
     }
 
-    partial void OnPromptChanged(string value)
+    partial void OnModelIdChanged(string oldValue, string newValue)
     {
-        Model.Prompt = value;
-        SaveModel();
+        if (oldValue != newValue)
+        {
+            Model.ModelId = newValue;
+            SaveModel();
+        }
     }
 
-    partial void OnSystemPromptChanged(string value)
+    partial void OnPromptChanged(string oldValue, string newValue)
     {
-        Model.SystemPrompt = value;
-        SaveModel();
+        if (oldValue != newValue)
+        {
+            Model.Prompt = newValue;
+            SaveModel();
+        }
     }
 
-    partial void OnNameChanged(string value)
+    partial void OnSystemPromptChanged(string oldValue, string newValue)
     {
-        Model.Name = value;
-        SaveModel();
+        if (oldValue != newValue)
+        {
+            Model.SystemPrompt = newValue;
+            SaveModel();
+        }
     }
 
-    partial void OnFallbackIdChanged(Guid value)
+    partial void OnNameChanged(string oldValue, string newValue)
     {
-        Model.FallbackId = value;
-        SaveModel();
+        if (oldValue != newValue)
+        {
+            Model.Name = newValue;
+            SaveModel();
+        }
+    }
+
+    partial void OnFallbackIdChanged(Guid oldValue, Guid newValue)
+    {
+        if (oldValue != newValue)
+        {
+            Model.FallbackId = newValue;
+            SaveModel();
+        }
     }
 
     private void SaveModel()

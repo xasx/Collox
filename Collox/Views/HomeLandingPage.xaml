@@ -89,6 +89,24 @@
             <dev:Card Title="Welcome">
                 <TextBlock Text="Welcome to Collox!" />
             </dev:Card>
+            <dev:Card Title="Setup">
+                <dev:StepBar AutoSelectOnItemClick="True"
+                             HeaderDisplayMode="Right"
+                             Orientation="Horizontal"
+                             ShowStepIndex="False">
+                    <dev:StepBarItem>
+                        <StackPanel Height="80"
+                                    Style="{ThemeResource StackPanelStyle}">
+
+                            <TextBlock Text="Define AI Providers" />
+                        </StackPanel>
+
+                    </dev:StepBarItem>
+                    <dev:StepBarItem Content="Define AI Processors" />
+                    <dev:StepBarItem Content="Revise settings" />
+                    <dev:StepBarItem Content="Ready to write" />
+                </dev:StepBar>
+            </dev:Card>
         </StackPanel>
     </Grid>
 

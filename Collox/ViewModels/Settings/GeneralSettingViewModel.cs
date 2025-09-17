@@ -17,7 +17,7 @@ public partial class GeneralSettingViewModel : ObservableObject
     [ObservableProperty] public partial bool PersistMessages { get; set; } = Settings.PersistMessages;
 
     [RelayCommand]
-    public async Task SelectBaseFolder()
+    public async Task SelectBaseFolderAsync()
     {
         var picker = new FolderPicker()
         {

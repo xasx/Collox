@@ -53,7 +53,7 @@ public sealed partial class MainPage : Page
 
     private void Shield_Click(object sender, RoutedEventArgs e)
     {
-        FlyoutBase.ShowAttachedFlyout(sender as Shield);
+        FlyoutBase.ShowAttachedFlyout(sender as Button);
     }
 
     private void PowerOffButton_Click(object sender, RoutedEventArgs e)
