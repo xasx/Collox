@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using Collox.Models;
 using Collox.Services;
+using Collox.ViewModels.Messages;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Collox.ViewModels;
@@ -70,7 +71,7 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
     }
 
     [RelayCommand]
-    public void Delete() { WeakReferenceMessenger.Default.Send(new ProcessorDeletedMessage(this)); }
+    public void Delete() => WeakReferenceMessenger.Default.Send(new ProcessorDeletedMessage(this));
 
     async partial void OnProviderChanged(IntelligenceApiProviderViewModel oldValue, IntelligenceApiProviderViewModel newValue)
     {
@@ -145,12 +146,9 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
         }
     }
 
-    private void SaveModel()
-    {
-        App.GetService<IAIService>().Save();
-    }
+    private void SaveModel() => App.GetService<IAIService>().Save();
 
-    public override bool Equals(object obj) { return Equals(obj as IntelligentProcessorViewModel); }
+    public override bool Equals(object obj) => Equals(obj as IntelligentProcessorViewModel);
 }
 
 public enum ProcessorTarget

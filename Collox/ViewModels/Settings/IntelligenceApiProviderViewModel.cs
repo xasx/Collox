@@ -1,5 +1,6 @@
 ﻿using Collox.Models;
 using Collox.Services;
+using Collox.ViewModels.Messages;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Collox.ViewModels;

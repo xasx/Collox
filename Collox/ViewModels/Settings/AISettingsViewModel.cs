@@ -1,10 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using Collox.Models;
 using Collox.Services;
+using Collox.ViewModels.Messages;
 using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.Mvvm.Messaging.Messages;
-using Windows.ApplicationModel.Resources.Core;
 using Serilog;
+using Windows.ApplicationModel.Resources.Core;
 
 namespace Collox.ViewModels;
 
@@ -47,7 +47,7 @@ public partial class AISettingsViewModel : ObservableObject
 
         try
         {
-            var processors = aiService.GetAll().ToList();
+            var processors = aiService.GetAllProcessors().ToList();
             var apiProviders = aiService.GetAllApiProviders()
                 .ToDictionary(p => p.Id, p => new IntelligenceApiProviderViewModel(p) { NamePresentation = "Display" });
 
@@ -56,7 +56,7 @@ public partial class AISettingsViewModel : ObservableObject
 
             if (processors.Count == 0)
             {
-                await CreateDefaultProcessor();
+                CreateDefaultProcessor();
             }
             else
             {
@@ -85,7 +85,7 @@ public partial class AISettingsViewModel : ObservableObject
         }
     }
 
-    private async Task CreateDefaultProcessor()
+    private void CreateDefaultProcessor()
     {
         var prompt = ResourceManager.Current.MainResourceMap.GetValue("DefaultValues/SynonymsPrompt").ValueAsString;
         var synonymsEnhancerProcessor = new IntelligentProcessor()
@@ -136,10 +136,3 @@ public partial class AISettingsViewModel : ObservableObject
         ApiProviders.Add(vm);
     }
 }
-
-public class ProcessorDeletedMessage(IntelligentProcessorViewModel intelligentProcessorViewModel) : ValueChangedMessage<IntelligentProcessorViewModel>(
-    intelligentProcessorViewModel);
-
-
-public class ApiProviderDeletedMessage(IntelligenceApiProviderViewModel intelligenceApiProviderViewModel) : ValueChangedMessage<IntelligenceApiProviderViewModel>(
-    intelligenceApiProviderViewModel);

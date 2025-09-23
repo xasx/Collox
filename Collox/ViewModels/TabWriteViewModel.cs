@@ -70,7 +70,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
     {
         Logger.Information("Loading tabs from service");
 
-        var procs = aiService.GetAll();
+        var procs = aiService.GetAllProcessors();
         var loadedTabs = tabContextService.GetTabs();
 
         Logger.Debug("Found {TabCount} tabs to load", loadedTabs.Count);

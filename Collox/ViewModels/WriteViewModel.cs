@@ -74,6 +74,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     public ObservableGroupedCollection<string, EmojiRecord> Emojis { get; init; } =
         new ObservableGroupedCollection<string, EmojiRecord>(Emoji.All.GroupBy(e => e.Category));
     [ObservableProperty] public partial string Filename { get; set; }
+    [ObservableProperty] public partial int HitPercentage { get; set; }
     [ObservableProperty] public partial string InputMessage { get; set; } = string.Empty;
     public ICollection<VoiceInfo> InstalledVoices => audioService.GetInstalledVoices();
     [ObservableProperty] public partial bool IsBeeping { get; set; }
@@ -256,8 +257,9 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
         InputMessage = string.Empty;
 
-        CharacterCount = Math.Min(KeyStrokesCount, CharacterCount + textMessage.Text.Length);
+        CharacterCount += textMessage.Text.Length;
         Logger.Debug("Updated CharacterCount to {CharacterCount}", CharacterCount);
+        UpdateHitPercentage();
 
         await PersistMessageIfEnabled(textMessage);
         SendTextSubmittedMessage(textMessage);
@@ -265,6 +267,12 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         await ProcessMessageWithAI(textMessage);
 
         Logger.Information("Completed adding text message");
+    }
+
+    public void UpdateHitPercentage()
+    {
+        HitPercentage = KeyStrokesCount == 0 ? 0 : (int)((double)CharacterCount / KeyStrokesCount * 100);
+        Logger.Debug("Updated HitPercentage to {HitPercentage}%", HitPercentage);
     }
 
     private async Task PersistMessageIfEnabled(TextColloxMessage textMessage)

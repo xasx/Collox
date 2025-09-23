@@ -24,8 +24,7 @@
     <Page.Resources>
 
         <converters:StringFormatConverter x:Key="StringFormatConverter" />
-        <!--  Boolean to Visibility converter with invert parameter support  -->
-
+ 
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 
         <converters:BoolToObjectConverter x:Key="BoolToObjectConverterNoti"
@@ -194,7 +193,7 @@
                         </dev:LayeredFontIcons>
 
                     </Button>
-                    <Button Click="Shield_Click"
+                    <Button Click="Shield_Click" Height="36"
                             FlyoutBase.AttachedFlyout="{StaticResource NotificationsFlyout}"
                             Style="{ThemeResource SubtleButtonStyle}">
                         <StackPanel Orientation="Horizontal"

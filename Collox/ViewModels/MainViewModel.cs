@@ -22,7 +22,7 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
     {
         _userNotificationService = userNotificationService;
         _storeService = storeService;
-        
+
         NetworkHelper.Instance.NetworkChanged += Instance_NetworkChanged;
     }
 
@@ -55,10 +55,7 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
     {
     }
 
-    partial void OnIsAIEnabledChanged(bool value)
-    {
-        Settings.EnableAI = value;
-    }
+    partial void OnIsAIEnabledChanged(bool value) => Settings.EnableAI = value;
 
     [RelayCommand]
     public async Task InitAsync()
@@ -98,23 +95,14 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
         await Launcher.LaunchFolderAsync(await StorageFolder.GetFolderFromPathAsync(folder));
     }
 
-    private void Instance_NetworkChanged(object sender, EventArgs e)
-    {
-        dispatcherQueue.TryEnqueue(RefreshInternetState);
-    }
+    private void Instance_NetworkChanged(object sender, EventArgs e) => dispatcherQueue.TryEnqueue(RefreshInternetState);
 
-    private void RefreshInternetState()
-    {
-        InternetState.IsConnected = NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable;
-    }
+    private void RefreshInternetState() => InternetState.IsConnected = NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable;
 
-    private void UserNotificationService_OnUserNotificationsViewChanged(IReadOnlyList<UserNotification> newView)
-    {
-        dispatcherQueue.TryEnqueue(() =>
-        {
-            UserNotifications.Clear();
-            UserNotifications.AddRange(newView);
-            UserNotificationsEmpty = UserNotifications.Count == 0;
-        });
-    }
+    private void UserNotificationService_OnUserNotificationsViewChanged(IReadOnlyList<UserNotification> newView) => dispatcherQueue.TryEnqueue(() =>
+                                                                                                                         {
+                                                                                                                             UserNotifications.Clear();
+                                                                                                                             UserNotifications.AddRange(newView);
+                                                                                                                             UserNotificationsEmpty = UserNotifications.Count == 0;
+                                                                                                                         });
 }

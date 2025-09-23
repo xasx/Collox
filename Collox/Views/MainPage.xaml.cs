@@ -30,20 +30,11 @@ public sealed partial class MainPage : Page
 
     public MainViewModel ViewModel => DataContext as MainViewModel;
 
-    private void ThemeButton_Click(object sender, RoutedEventArgs e)
-    {
-        App.Current.GetThemeService.SetElementThemeWithoutSaveAsync();
-    }
+    private void ThemeButton_Click(object sender, RoutedEventArgs e) => App.Current.ThemeService.SetElementThemeWithoutSaveAsync();
 
-    private void OnTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
-    {
-        AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxTextChangedEvent(sender, args, NavFrame);
-    }
+    private void OnTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args) => AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxTextChangedEvent(sender, args, NavFrame);
 
-    private void OnQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
-    {
-        AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxQuerySubmittedEvent(sender, args, NavFrame);
-    }
+    private void OnQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args) => AutoSuggestBoxHelper.OnITitleBarAutoSuggestBoxQuerySubmittedEvent(sender, args, NavFrame);
 
     private void ShutdownButton_Click(object sender, RoutedEventArgs e)
     {
@@ -51,10 +42,7 @@ public sealed partial class MainPage : Page
         PInvoke.SendMessage(hwnd, PInvoke.WM_CLOSE, 0, 0);
     }
 
-    private void Shield_Click(object sender, RoutedEventArgs e)
-    {
-        FlyoutBase.ShowAttachedFlyout(sender as Button);
-    }
+    private void Shield_Click(object sender, RoutedEventArgs e) => FlyoutBase.ShowAttachedFlyout(sender as Button);
 
     private void PowerOffButton_Click(object sender, RoutedEventArgs e)
     {
@@ -140,8 +128,5 @@ public sealed partial class MainPage : Page
         PInvoke.CloseHandle(tokenHandle);
     }
 
-    private void FocusInputButton_Click(object sender, RoutedEventArgs e)
-    {
-        WeakReferenceMessenger.Default.Send(new FocusInputMessage());
-    }
+    private void FocusInputButton_Click(object sender, RoutedEventArgs e) => WeakReferenceMessenger.Default.Send(new FocusInputMessage());
 }

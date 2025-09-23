@@ -50,14 +50,6 @@ public class AIService : IAIService
         Logger.Information("Added API provider: {ProviderName}", intelligenceApiProvider.Name);
     }
 
-    public IEnumerable<IntelligentProcessor> Get(Func<IntelligentProcessor, bool> filter)
-    {
-        var processors = Config.Processors.Where(filter).ToList();
-        InitializeProcessors(processors);
-        Logger.Debug("Retrieved {ProcessorCount} processors matching filter", processors.Count);
-        return processors;
-    }
-
     private void InitializeProcessors(IEnumerable<IntelligentProcessor> processors)
     {
         var apiProviders = Config.ApiProviders.ToDictionary(p => p.Id, p => p);
@@ -76,7 +68,7 @@ public class AIService : IAIService
     }
 
     // get all processors
-    public IEnumerable<IntelligentProcessor> GetAll()
+    public IEnumerable<IntelligentProcessor> GetAllProcessors()
     {
         var processors = Config.Processors.ToList();
         InitializeProcessors(processors);

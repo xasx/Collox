@@ -90,8 +90,8 @@ public partial class App : Application
 
     public IServiceProvider Services => _lazyServices.Value;
     public new static App Current => (App)Application.Current;
-    public INavigationServiceEx GetNavService => GetService<INavigationServiceEx>();
-    public IThemeService GetThemeService => GetService<IThemeService>();
+    public INavigationServiceEx NavigationService => GetService<INavigationServiceEx>();
+    public IThemeService ThemeService => GetService<IThemeService>();
 
     private bool isClosing;
 
@@ -338,7 +338,7 @@ public partial class App : Application
                 MainWindow.Content = rootFrame = new Frame();
             }
 
-            GetThemeService?.Initialize(MainWindow);
+            ThemeService?.Initialize(MainWindow);
             rootFrame.Navigate(typeof(MainPage));
 
             MainWindow.Title = MainWindow.AppWindow.Title = ProcessInfoHelper.ProductNameAndVersion;

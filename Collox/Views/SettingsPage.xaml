@@ -17,7 +17,7 @@
                     dev:PanelAttach.ChildrenTransitions="Default"
                     Spacing="5">
             <dev:SettingsCard x:Uid="GeneralSettingsCard"
-                              Command="{x:Bind local:App.Current.GetNavService.NavigateToCommand}"
+                              Command="{x:Bind local:App.Current.NavigationService.NavigateToCommand}"
                               CommandParameter="{dev:NavigationParameter PageType=views:GeneralSettingPage,
                                                                          BreadCrumbHeader='General'}"
                               Description="Change your app Settings"
@@ -25,7 +25,7 @@
                               HeaderIcon="{dev:BitmapIcon Source=Assets/Fluent/Settings.png}"
                               IsClickEnabled="True" />
             <dev:SettingsCard x:Uid="AISettingsCard"
-                              Command="{x:Bind local:App.Current.GetNavService.NavigateToCommand}"
+                              Command="{x:Bind local:App.Current.NavigationService.NavigateToCommand}"
                               CommandParameter="{dev:NavigationParameter PageType=views:AISettingPage,
                                                                          BreadCrumbHeader='AI'}"
                               Description="Change AI preferences"
@@ -33,7 +33,7 @@
                               HeaderIcon="{dev:BitmapIcon Source=Assets/Fluent/AI.png}"
                               IsClickEnabled="True" />
             <dev:SettingsCard x:Uid="ThemeSettingsCard"
-                              Command="{x:Bind local:App.Current.GetNavService.NavigateToCommand}"
+                              Command="{x:Bind local:App.Current.NavigationService.NavigateToCommand}"
                               CommandParameter="{dev:NavigationParameter PageType=views:ThemeSettingPage,
                                                                          BreadCrumbHeader='Appearance &amp; behavior'}"
                               Description="Explore the different ways to customize the appearance and behavior of your app. You can change the material, theme, accent, and more options to suit your style and preference."
@@ -41,7 +41,7 @@
                               HeaderIcon="{dev:BitmapIcon Source=Assets/Fluent/Theme.png}"
                               IsClickEnabled="True" />
             <dev:SettingsCard x:Uid="UpdateSettingsCard"
-                              Command="{x:Bind local:App.Current.GetNavService.NavigateToCommand}"
+                              Command="{x:Bind local:App.Current.NavigationService.NavigateToCommand}"
                               CommandParameter="{dev:NavigationParameter PageType=views:AppUpdateSettingPage,
                                                                          BreadCrumbHeader='Update App'}"
                               Description="Check for Updates"
@@ -49,7 +49,7 @@
                               HeaderIcon="{dev:BitmapIcon Source=Assets/Fluent/Update.png}"
                               IsClickEnabled="True" />
             <dev:SettingsCard x:Uid="AboutUsCard"
-                              Command="{x:Bind local:App.Current.GetNavService.NavigateToCommand}"
+                              Command="{x:Bind local:App.Current.NavigationService.NavigateToCommand}"
                               CommandParameter="{dev:NavigationParameter PageType=views:AboutUsSettingPage,
                                                                          BreadCrumbHeader='About us'}"
                               Description="About Collox and Developer"

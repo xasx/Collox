@@ -83,8 +83,8 @@ public sealed partial class WritePage : Page
         if (root is T typed)
             return typed;
 
-        int childCount = VisualTreeHelper.GetChildrenCount(root);
-        for (int i = 0; i < childCount; i++)
+        var childCount = VisualTreeHelper.GetChildrenCount(root);
+        for (var i = 0; i < childCount; i++)
         {
             var child = VisualTreeHelper.GetChild(root, i);
             var result = FindChildOfType<T>(child);
@@ -110,6 +110,8 @@ public sealed partial class WritePage : Page
     private void InputBox_PreviewKeyDown(object sender, KeyRoutedEventArgs e)
     {
         ViewModel.KeyStrokesCount++;
+        ViewModel.UpdateHitPercentage();
+
         if (e.Key == VirtualKey.Enter)
         {
             if (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Shift).HasFlag(CoreVirtualKeyStates.Down) ||
@@ -131,7 +133,7 @@ public sealed partial class WritePage : Page
         }
     }
 
-    private void InputBox_Loaded(object sender, RoutedEventArgs e) { InputTextBox.Focus(FocusState.Programmatic); }
+    private void InputBox_Loaded(object sender, RoutedEventArgs e) => InputTextBox.Focus(FocusState.Programmatic);
 
     private async void TemplatesFlyout_Opening(object sender, object e)
     {

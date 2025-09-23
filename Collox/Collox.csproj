@@ -147,8 +147,8 @@
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.250402" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.Markdown" Version="7.1.2" />
     <PackageReference Include="Cottle" Version="2.1.0" />
-    <PackageReference Include="DevWinUI" Version="9.0.0" />
-    <PackageReference Include="DevWinUI.Controls" Version="9.0.0" />
+    <PackageReference Include="DevWinUI" Version="9.1.0" />
+    <PackageReference Include="DevWinUI.Controls" Version="9.1.0" />
     <PackageReference Include="EmojiToolkit" Version="15.1.1" />
     <PackageReference Include="Humanizer.Core" Version="3.0.0-beta.96" />
     <PackageReference Include="Markdig" Version="0.42.0" />
@@ -167,7 +167,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="nucs.JsonSettings" Version="2.0.2" />
     <PackageReference Include="nucs.JsonSettings.AutoSaveGenerator" Version="2.0.4" />
-    <PackageReference Include="OllamaSharp" Version="5.4.4" />
+    <PackageReference Include="OllamaSharp" Version="5.4.5" />
     <PackageReference Include="OpenAI" Version="2.4.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Private.Uri" Version="4.3.2" />
