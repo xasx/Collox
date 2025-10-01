@@ -4,6 +4,7 @@ using Microsoft.Extensions.AI;
 using Serilog;
 
 namespace Collox.Services;
+
 public partial class ChatClientManager<T> : IDisposable, IChatClientManager where T : IChatClientFactory, INotifyPropertyChanged
 {
     private static readonly ILogger Logger = Log.ForContext<ChatClientManager<T>>();
@@ -47,7 +48,12 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
             var client = _clientCache.GetOrAdd(modelId, id =>
             {
                 Logger.Debug("Creating new client for model {ModelId}", id);
-                return _clientConfig.CreateClient(id);
+                var client = _clientConfig.CreateClient(id);
+
+                client = new ChatClientBuilder(client)
+                    .UseFunctionInvocation()
+                    .Build();
+                return client;
             });
 
             Logger.Information("Chat client ready for model {ModelId}", modelId);
@@ -105,6 +111,11 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
                 Logger.Information("Available models cache refreshed. Found {ModelCount} models", _cachedAvailableModels?.Count() ?? 0);
             }
             return _cachedAvailableModels;
+        }
+        catch(Exception ex)
+        {
+            Logger.Error(ex, "Error occurred while fetching available models");
+            throw;
         }
         finally
         {

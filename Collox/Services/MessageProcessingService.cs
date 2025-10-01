@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Collox.Mcp;
 using Collox.Models;
 using Microsoft.Extensions.AI;
 using Serilog;
@@ -8,15 +9,23 @@ namespace Collox.Services;
 public class MessageProcessingService : IMessageProcessingService
 {
     private static readonly ILogger Logger = Log.ForContext<MessageProcessingService>();
+    private readonly IMcpService mcpService;
 
-    public async Task ProcessMessageAsync(TextColloxMessage textColloxMessage, IEnumerable<IntelligentProcessor> processors)
+    public MessageProcessingService(IMcpService mcpService)
     {
-        Logger.Information("Starting further processing for message: {MessageId}", textColloxMessage.GetHashCode());
+        this.mcpService = mcpService;
+    }
+
+    public async Task ProcessMessageAsync(MessageProcessingContext context,
+                                          
+                                          IEnumerable<IntelligentProcessor> processors)
+    {
+        Logger.Information("Starting processing for message: {MessageId}", context.CurrentMessage.GetHashCode());
 
         if (!Settings.EnableAI)
         {
-            Logger.Debug("AI is disabled, skipping further processing");
-            textColloxMessage.IsLoading = false;
+            Logger.Debug("AI is disabled, skipping processing");
+            context.CurrentMessage.IsLoading = false;
             return;
         }
 
@@ -34,48 +43,48 @@ public class MessageProcessingService : IMessageProcessingService
                     processor.OnError = (ex) =>
                     {
                         Logger.Error(ex, "Processor {ProcessorName} encountered an error", processor.Name);
-                        textColloxMessage.ErrorMessage = $"Error: {ex.Message}";
-                        textColloxMessage.HasProcessingError = true;
+                        context.CurrentMessage.ErrorMessage = $"Error: {ex.Message}";
+                        context.CurrentMessage.HasProcessingError = true;
                     };
 
                     Logger.Debug("Starting work for processor: {ProcessorName}", processor.Name);
-                    await processor.Work().ConfigureAwait(false);
+                    await processor.Work(context).ConfigureAwait(false);
                     Logger.Debug("Completed work for processor: {ProcessorName}", processor.Name);
                 }
                 catch (Exception ex)
                 {
                     Logger.Error(ex, "Exception in processor {ProcessorName}: {ErrorMessage}", processor.Name, ex.Message);
-                    textColloxMessage.ErrorMessage = $"Error: {ex.Message}";
-                    textColloxMessage.HasProcessingError = true;
+                    context.CurrentMessage.ErrorMessage = $"Error: {ex.Message}";
+                    context.CurrentMessage.HasProcessingError = true;
                 }
             });
 
             await Task.WhenAll(tasks).ConfigureAwait(true);
-            Logger.Information("Completed further processing for all {ProcessorCount} processors", processorCount);
+            Logger.Information("Completed processing for all {ProcessorCount} processors", processorCount);
         }
         catch (Exception ex)
         {
             Logger.Error(ex, "Critical error in further processing: {ErrorMessage}", ex.Message);
-            textColloxMessage.ErrorMessage = $"Error: {ex.Message}";
-            textColloxMessage.HasProcessingError = true;
+            context.CurrentMessage.ErrorMessage = $"Error: {ex.Message}";
+            context.CurrentMessage.HasProcessingError = true;
         }
 
-        textColloxMessage.IsLoading = false;
+        context.CurrentMessage.IsLoading = false;
     }
 
-    public async Task<string> CreateCommentAsync(TextColloxMessage textColloxMessage, IntelligentProcessor processor, IChatClient client)
+    public async Task<string> CreateCommentAsync(MessageProcessingContext context, IntelligentProcessor processor, IChatClient client)
     {
         Logger.Information("Creating comment with processor: {ProcessorName}", processor.Name);
 
         var comment = new ColloxMessageComment() { Comment = string.Empty, GeneratorId = processor.Id };
-        textColloxMessage.Comments.Add(comment);
+        context.CurrentMessage.Comments.Add(comment);
 
         try
         {
             await StreamResponseAsync(
                 client,
                 processor,
-                textColloxMessage.Text,
+                context.CurrentMessage.Text,
                 text => comment.Comment += text);
 
             Logger.Debug("Comment created successfully. Length: {CommentLength}", comment.Comment.Length);
@@ -89,15 +98,20 @@ public class MessageProcessingService : IMessageProcessingService
         return comment.Comment;
     }
 
-    public async Task<string> CreateTaskAsync(TextColloxMessage textColloxMessage, IntelligentProcessor processor, IChatClient client, ObservableCollection<TaskViewModel> tasks)
+    public async Task<string> CreateTaskAsync(MessageProcessingContext context, IntelligentProcessor processor, IChatClient client)
     {
         Logger.Information("Creating task from message");
 
         try
         {
-            var response = await GetSingleResponseAsync(client, processor, textColloxMessage.Text);
-            tasks.Add(new TaskViewModel { Name = response, IsDone = false });
-            Logger.Debug("Task created: {TaskName}", response);
+            var response = await GetSingleResponseAsync(client, processor, context.CurrentMessage.Text);
+            if (string.IsNullOrWhiteSpace(response))
+            {
+                Logger.Debug("Received empty response when trying to get task");
+                return string.Empty;
+            }
+            context.Tasks.Add(new TaskViewModel { Name = response, IsDone = false });
+            Logger.Debug("Task created: {TaskNameLength}", response.Length);
             return response;
         }
         catch (Exception ex)
@@ -107,12 +121,12 @@ public class MessageProcessingService : IMessageProcessingService
         }
     }
 
-    public async Task<string> ModifyMessageAsync(TextColloxMessage textColloxMessage, IntelligentProcessor processor, IChatClient client)
+    public async Task<string> ModifyMessageAsync(MessageProcessingContext context, IntelligentProcessor processor, IChatClient client)
     {
         Logger.Information("Modifying message with processor: {ProcessorName}", processor.Name);
 
-        var originalText = textColloxMessage.Text;
-        textColloxMessage.Text = string.Empty;
+        var originalText = context.CurrentMessage.Text;
+        context.CurrentMessage.Text = string.Empty;
 
         try
         {
@@ -120,22 +134,22 @@ public class MessageProcessingService : IMessageProcessingService
                 client,
                 processor,
                 originalText,
-                text => textColloxMessage.Text += text);
+                text => context.CurrentMessage.Text += text);
 
             Logger.Debug("Message modification completed. Original length: {OriginalLength}, New length: {NewLength}",
-                originalText.Length, textColloxMessage.Text.Length);
+                originalText.Length, context.CurrentMessage.Text.Length);
         }
         catch (Exception ex)
         {
             Logger.Error(ex, "Error during message modification with processor {ProcessorName}", processor.Name);
-            textColloxMessage.Text = originalText;
+            context.CurrentMessage.Text = originalText;
             throw;
         }
 
-        return textColloxMessage.Text;
+        return context.CurrentMessage.Text;
     }
 
-    public async Task<string> CreateChatMessageAsync(IEnumerable<TextColloxMessage> messages, IntelligentProcessor processor, IChatClient client, ObservableCollection<ColloxMessage> messagesCollection, string context)
+    public async Task<string> CreateChatMessageAsync(MessageProcessingContext context, IntelligentProcessor processor, IChatClient client)
     {
         Logger.Information("Creating chat message with processor: {ProcessorName}", processor.Name);
 
@@ -146,15 +160,19 @@ public class MessageProcessingService : IMessageProcessingService
             IsLoading = true,
             IsGenerated = true,
             GeneratorId = processor.Id,
-            Context = context
+            Context = context.Context
         };
-        messagesCollection.Add(textColloxMessage);
+        context.Messages.Add(textColloxMessage);
 
-        var chatMessages = BuildChatContext(messages, processor);
+        var chatMessages = BuildChatContext(context.Messages.OfType<TextColloxMessage>(), processor);
 
         try
         {
-            await foreach (var update in client.GetStreamingResponseAsync(chatMessages))
+            var tools = await mcpService.GetTools();
+            await foreach (var update in client.GetStreamingResponseAsync(chatMessages, new ChatOptions() {
+                ToolMode = ChatToolMode.Auto,
+                Tools = [.. tools]
+            }))
             {
                 textColloxMessage.Text += update.Text;
             }
@@ -183,7 +201,12 @@ public class MessageProcessingService : IMessageProcessingService
         var userMessage = new ChatMessage(ChatRole.User, string.Format(processor.Prompt, inputText));
         chatMessages.Add(userMessage);
 
-        await foreach (var update in client.GetStreamingResponseAsync(chatMessages))
+        var tools = await mcpService.GetTools();
+        await foreach (var update in client.GetStreamingResponseAsync(chatMessages, new ChatOptions()
+        {
+            ToolMode = ChatToolMode.Auto,
+            Tools = [.. tools]
+        }))
         {
             onTextReceived(update.Text);
         }
@@ -201,7 +224,12 @@ public class MessageProcessingService : IMessageProcessingService
         var userMessage = new ChatMessage(ChatRole.User, string.Format(processor.Prompt, inputText));
         chatMessages.Add(userMessage);
 
-        var response = await client.GetResponseAsync(chatMessages).ConfigureAwait(true);
+        var tools = await mcpService.GetTools();
+        var response = await client.GetResponseAsync(chatMessages, new ChatOptions()
+        {
+            ToolMode = ChatToolMode.Auto,
+            Tools = [.. tools]
+        }).ConfigureAwait(true);
         return response.Text;
     }
 
@@ -229,6 +257,7 @@ public class MessageProcessingService : IMessageProcessingService
             {
                 if (!string.IsNullOrWhiteSpace(message.Text))
                 {
+                    
                     chatMessages.Add(new ChatMessage(ChatRole.User, message.Text));
                     messageCount++;
                 }

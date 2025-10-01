@@ -152,30 +152,35 @@
     <PackageReference Include="EmojiToolkit" Version="15.1.1" />
     <PackageReference Include="Humanizer.Core" Version="3.0.0-beta.96" />
     <PackageReference Include="Markdig" Version="0.42.0" />
-    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.9.0-preview.1.25458.4" />
+    <PackageReference Include="Microsoft.Extensions.AI" Version="9.9.1" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.9.1-preview.1.25474.6" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0-rc.1.25451.107" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-rc.1.25451.107" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-rc.1.25451.107" />
     <PackageReference Include="Microsoft.ML" Version="5.0.0-preview.25373.1" />
     <PackageReference Include="Microsoft.ML.LightGbm" Version="5.0.0-preview.25373.1" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.205">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4948" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250907003" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.6584" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250916003" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.0" />
+    <PackageReference Include="ModelContextProtocol" Version="0.4.0-preview.1" />
+    <PackageReference Include="ModelContextProtocolServer.Stdio" Version="0.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="nucs.JsonSettings" Version="2.0.2" />
     <PackageReference Include="nucs.JsonSettings.AutoSaveGenerator" Version="2.0.4" />
-    <PackageReference Include="OllamaSharp" Version="5.4.5" />
-    <PackageReference Include="OpenAI" Version="2.4.0" />
+    <PackageReference Include="OllamaSharp" Version="5.4.7" />
+    <PackageReference Include="OpenAI" Version="2.5.0" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Private.Uri" Version="4.3.2" />
     <PackageReference Include="System.Speech" Version="10.0.0-rc.1.25451.107" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageReference Include="System.Windows.Extensions" Version="10.0.0-rc.1.25451.107" />
     <PackageReference Include="WinUIEx" Version="2.8.0" />
-    <PackageReference Include="Serilog" Version="4.3.1-dev-02385" />
+    <PackageReference Include="Serilog" Version="4.3.1-dev-02387" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.3-dev-02320" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.1-dev-00953" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
@@ -218,5 +223,8 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="AppPackages\" />
   </ItemGroup>
 </Project>

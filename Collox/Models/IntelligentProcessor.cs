@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.AI;
+﻿using System.Collections.ObjectModel;
+using Collox.Services;
+using Microsoft.Extensions.AI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Serilog;
@@ -29,7 +31,7 @@ public partial class IntelligentProcessor
 
     public Guid FallbackId { get; set; }
 
-    public delegate Task<string> ProcessMessage(IChatClient chatClient);
+    public delegate Task<string> ProcessMessage(MessageProcessingContext context, IntelligentProcessor processor, IChatClient client);
 
     public delegate void ErrorHandler(Exception exception);
 
@@ -37,7 +39,7 @@ public partial class IntelligentProcessor
 
     [JsonIgnore] public ErrorHandler OnError { get; set; }
 
-    public async Task Work()
+    public async Task Work(MessageProcessingContext context)
     {
         Logger.Information("Starting work for processor '{ProcessorName}' (ID: {ProcessorId}) using {ClientManager} model '{ModelId}'",
             Name, Id, ClientManager, ModelId);
@@ -46,7 +48,7 @@ public partial class IntelligentProcessor
 
         try
         {
-            var result = await Process(client);
+            var result = await Process(context, this, client);
             Logger.Information("Successfully completed processing for '{ProcessorName}'. Result length: {ResultLength}",
                 Name, result?.Length ?? 0);
         }

@@ -11,7 +11,8 @@ using Windows.UI.Core;
 
 namespace Collox.Views;
 
-public sealed partial class WritePage : Page
+public sealed partial class WritePage : Page, IRecipient<TextSubmittedMessage>, IRecipient<MessageSelectedMessage>,
+    IRecipient<FocusInputMessage>
 {
     private const string predefined = "predefined";
     private ScrollViewer _messageScrollViewer;
@@ -32,17 +33,22 @@ public sealed partial class WritePage : Page
     {
         DataContext = App.GetService<WriteViewModel>();
         InitializeComponent();
-
-        WeakReferenceMessenger.Default
-            .Register<TextSubmittedMessage>(this, (s, e) => InputTextBox.Focus(FocusState.Programmatic));
-
-        WeakReferenceMessenger.Default
-            .Register<MessageSelectedMessage>(this, (s, e) => MessageListView.ScrollIntoView(e.Value));
-
-        WeakReferenceMessenger.Default.Register<FocusInputMessage>(this, (s, e) => FocusInputBox());
+        WeakReferenceMessenger.Default.RegisterAll(this);
 
         // Add this line to get the ScrollViewer after the control is loaded
         Loaded += WritePage_Loaded;
+        Unloaded += WritePage_Unloaded;
+    }
+
+    private void WritePage_Unloaded(object sender, RoutedEventArgs e)
+    {
+        WeakReferenceMessenger.Default.UnregisterAll(this);
+        
+        // Clean up event handlers
+        if (_messageScrollViewer != null)
+        {
+            _messageScrollViewer.ViewChanged -= MessageScrollViewer_ViewChanged;
+        }
     }
 
     private void FocusInputBox()
@@ -53,6 +59,12 @@ public sealed partial class WritePage : Page
 
     private void WritePage_Loaded(object sender, RoutedEventArgs e)
     {
+        // Re-register messenger if needed
+        if (!WeakReferenceMessenger.Default.IsRegistered<TextSubmittedMessage>(this))
+        {
+            WeakReferenceMessenger.Default.RegisterAll(this);
+        }
+        
         // Get the ScrollViewer from the ListView
         _messageScrollViewer = FindChildOfType<ScrollViewer>(MessageListView);
         if (_messageScrollViewer != null)
@@ -259,4 +271,10 @@ public sealed partial class WritePage : Page
     {
 
     }
+
+    public void Receive(TextSubmittedMessage message) => InputTextBox.Focus(FocusState.Programmatic);
+
+    public void Receive(MessageSelectedMessage message) => MessageListView.ScrollIntoView(message.Value);
+
+    public void Receive(FocusInputMessage message) => FocusInputBox();
 }

@@ -6,9 +6,13 @@ namespace Collox.Services;
 
 public interface IMessageProcessingService
 {
-    Task ProcessMessageAsync(TextColloxMessage message, IEnumerable<IntelligentProcessor> processors);
-    Task<string> CreateCommentAsync(TextColloxMessage message, IntelligentProcessor processor, IChatClient client);
-    Task<string> CreateTaskAsync(TextColloxMessage message, IntelligentProcessor processor, IChatClient client, ObservableCollection<TaskViewModel> tasks);
-    Task<string> ModifyMessageAsync(TextColloxMessage message, IntelligentProcessor processor, IChatClient client);
-    Task<string> CreateChatMessageAsync(IEnumerable<TextColloxMessage> messages, IntelligentProcessor processor, IChatClient client, ObservableCollection<ColloxMessage> messagesCollection, string context);
+    Task<string> CreateChatMessageAsync(MessageProcessingContext context, IntelligentProcessor processor, IChatClient client);
+    Task<string> CreateCommentAsync(MessageProcessingContext context, IntelligentProcessor processor, IChatClient client);
+    Task<string> CreateTaskAsync(MessageProcessingContext context, IntelligentProcessor processor, IChatClient client);
+    Task<string> ModifyMessageAsync(MessageProcessingContext context, IntelligentProcessor processor, IChatClient client);
+    Task ProcessMessageAsync(MessageProcessingContext context, IEnumerable<IntelligentProcessor> processors);
+
+
 }
+
+public record MessageProcessingContext(TextColloxMessage CurrentMessage, ObservableCollection<ColloxMessage> Messages, string Context, ObservableCollection<TaskViewModel> Tasks);

@@ -98,6 +98,7 @@ public partial class IntelligentProcessorViewModel : ObservableObject, IEquatabl
                 _ => throw new ArgumentOutOfRangeException(nameof(newValue), newValue, null)
             };
             SaveModel();
+            Model.Process = null; // Reset the processing function when the target changes
         }
     }
 

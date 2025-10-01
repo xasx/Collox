@@ -334,17 +334,21 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         // Set up processor configurations for the new service
         foreach (var processor in ConversationContext.ActiveProcessors)
         {
-            processor.Process = async (client) => processor.Target switch
+            processor.Process ??= processor.Target switch
             {
-                Target.Comment => await messageProcessingService.CreateCommentAsync(textMessage, processor, client),
-                Target.Task => await messageProcessingService.CreateTaskAsync(textMessage, processor, client, Tasks),
-                Target.Message => await messageProcessingService.ModifyMessageAsync(textMessage, processor, client),
-                Target.Chat => await messageProcessingService.CreateChatMessageAsync(Messages.OfType<TextColloxMessage>(), processor, client, Messages, ConversationContext.Context),
+                Target.Comment => messageProcessingService.CreateCommentAsync,
+                Target.Task => messageProcessingService.CreateTaskAsync,
+                Target.Message => messageProcessingService.ModifyMessageAsync,
+                Target.Chat => messageProcessingService.CreateChatMessageAsync,
                 _ => throw new NotImplementedException($"Target {processor.Target} not implemented"),
             };
         }
 
-        await messageProcessingService.ProcessMessageAsync(textMessage, ConversationContext.ActiveProcessors);
+        await messageProcessingService.ProcessMessageAsync(new MessageProcessingContext(textMessage,
+                                                                                        Messages,
+                                                                                        ConversationContext.Context,
+                                                                                        Tasks),
+                                                           ConversationContext.ActiveProcessors);
     }
 
     private async Task ProcessCommand()

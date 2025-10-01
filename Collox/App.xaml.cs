@@ -1,9 +1,13 @@
-﻿using Collox.Services;
+﻿using System.Runtime.CompilerServices;
+using Collox.Mcp;
+using Collox.Services;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Dispatching;
 using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.AppNotifications;
 using Microsoft.Windows.AppNotifications.Builder;
+using ModelContextProtocol.Protocol;
+using ModelContextProtocol.Server;
 using Serilog;
 using WinUIEx;
 using ILogger = Serilog.ILogger;
@@ -27,6 +31,11 @@ public partial class App : Application
         // Initialize Serilog first, before any logging calls
         InitializeSerilog();
 
+
+        Logger.Debug("Setting up profile optimization with root path: {RootPath}", Constants.RootDirectoryPath);
+        System.Runtime.ProfileOptimization.SetProfileRoot(Constants.RootDirectoryPath);
+        System.Runtime.ProfileOptimization.StartProfile("Startup.Profile");
+
         Logger.Information("Initializing Collox application");
 
         try
@@ -40,13 +49,7 @@ public partial class App : Application
             Logger.Debug("Initializing XAML components");
             InitializeComponent();
 
-            // Move profile optimization to background thread
-            _ = Task.Run(() =>
-            {
-                Logger.Debug("Setting up profile optimization with root path: {RootPath}", Constants.RootDirectoryPath);
-                System.Runtime.ProfileOptimization.SetProfileRoot(Constants.RootDirectoryPath);
-                System.Runtime.ProfileOptimization.StartProfile("Startup.Profile");
-            });
+
 
             Logger.Information("Collox application initialization completed successfully");
         }
@@ -72,16 +75,22 @@ public partial class App : Application
         // Configure Serilog with programmatic file path
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console(
-                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{ThreadId}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
             .WriteTo.Debug(
-                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{ThreadId}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
             .WriteTo.File(
                 path: logsPath,
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 30,
-                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{ThreadId}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
             .Enrich.FromLogContext()
             .Enrich.WithProperty("Application", "Collox")
+            .Enrich.WithThreadId()
+#if DEBUG
+            .MinimumLevel.Debug()
+#else
+            .MinimumLevel.Information()
+#endif
             .CreateLogger();
 
         // Create a logger specifically for this class
@@ -139,6 +148,8 @@ public partial class App : Application
             services.AddSingleton<IMessageProcessingService, MessageProcessingService>();
             services.AddSingleton<IAudioService, AudioService>();
 
+            services.AddSingleton<IMcpService, McpService>();
+
             // Register view models as transient (created when needed)
             services.AddTransient<MainViewModel>();
             services.AddTransient<GeneralSettingViewModel>();
@@ -171,6 +182,8 @@ public partial class App : Application
             // Create main window immediately but defer heavy setup
             Logger.Debug("Creating main window instance");
             MainWindow = new Window();
+            MainWindow.SystemBackdrop = new DevWinUI.MicaSystemBackdrop();
+           
 
             // Setup notification manager on background thread
             _ = Task.Run(() =>
@@ -204,6 +217,7 @@ public partial class App : Application
                 Logger.Information("App notification activation detected");
                 HandleNotification((AppNotificationActivatedEventArgs)activatedArgs.Data);
             }
+            RunMCPServer();
         }
         catch (Exception ex)
         {
@@ -212,15 +226,30 @@ public partial class App : Application
         }
     }
 
+    private void RunMCPServer()
+    {
+        var server = McpServer.Create(new QueueTransport(Origin.Server),
+            new McpServerOptions()
+            {
+                Capabilities = new ServerCapabilities()
+                {
+                    Tools = new ToolsCapability()
+                },
+                ToolCollection = [McpServerTool.Create(Tools.CreateTask)]
+            }, serviceProvider: Services);
+
+        server.RunAsync();
+    }
+
     private static Window CreateMirrorWindow()
     {
-        Logger.Debug("Creating mirror window via lazy initialization");
+        Logger.Debug("Creating mirror window via {Caller}");
 
         try
         {
             var mirrorWindow = new Window()
             {
-                
+                ExtendsContentIntoTitleBar = true,
                 SystemBackdrop = new DevWinUI.AcrylicSystemBackdrop(DesktopAcrylicKind.Thin)
             };
 
@@ -230,9 +259,7 @@ public partial class App : Application
             // Current.GetThemeService?.Initialize(mirrorWindow);
             WindowHelper.TrackWindow(mirrorWindow);
             rootFrame.Navigate(typeof(MirrorPage));
-            mirrorWindow.ExtendsContentIntoTitleBar = true;
 
-            mirrorWindow.SystemBackdrop = new DevWinUI.AcrylicSystemBackdrop(DesktopAcrylicKind.Thin);
             mirrorWindow.Title = mirrorWindow.AppWindow.Title = $"{ProcessInfoHelper.ProductName} - Mirror";
             mirrorWindow.AppWindow.SetIcon("Assets/AppIcon.ico");
 
@@ -261,7 +288,7 @@ public partial class App : Application
                 .SetAppLogoOverride(new System.Uri("ms-appx:///Assets/Fluent/Collox.png"),
                 AppNotificationImageCrop.Default)
                 //.AddText(ScenarioName)
-                .AddText("Showing mirror windowwhile in the background.")
+                .AddText("Showing mirror window while in the background.")
                 .AddText("Click to open main window.")
                 .AddButton(new AppNotificationButton("Open Main Window")
                     .AddArgument("action", "OpenApp")
@@ -271,7 +298,7 @@ public partial class App : Application
 
             AppNotificationManager.Default.Show(appNotification);
 
-            Logger.Information("Mirror window lazy initialization completed successfully");
+            Logger.Information("Mirror window initialization completed successfully");
             return mirrorWindow;
         }
         catch (Exception ex)
