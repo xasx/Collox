@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using Collox.Services;
+﻿using Collox.Services;
 using Microsoft.Extensions.AI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -17,8 +16,7 @@ public partial class IntelligentProcessor
 
     public Guid ApiProviderId { get; set; }
 
-    [JsonIgnore]
-    public IChatClientManager ClientManager { get; set; }
+    [JsonIgnore] public IChatClientManager ClientManager { get; set; }
 
     public string Prompt { get; set; }
 
@@ -31,7 +29,8 @@ public partial class IntelligentProcessor
 
     public Guid FallbackId { get; set; }
 
-    public delegate Task<string> ProcessMessage(MessageProcessingContext context, IntelligentProcessor processor, IChatClient client);
+    public delegate Task<string> ProcessMessage(MessageProcessingContext context, IntelligentProcessor processor,
+        IChatClient client);
 
     public delegate void ErrorHandler(Exception exception);
 
@@ -41,7 +40,8 @@ public partial class IntelligentProcessor
 
     public async Task Work(MessageProcessingContext context)
     {
-        Logger.Information("Starting work for processor '{ProcessorName}' (ID: {ProcessorId}) using {ClientManager} model '{ModelId}'",
+        Logger.Information(
+            "Starting work for processor '{ProcessorName}' (ID: {ProcessorId}) using {ClientManager} model '{ModelId}'",
             Name, Id, ClientManager, ModelId);
 
         var client = ClientManager?.GetChatClient(ModelId);

@@ -1,6 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using Collox.Mcp;
-using Collox.Models;
+﻿using Collox.Models;
 using Microsoft.Extensions.AI;
 using Serilog;
 
@@ -17,8 +15,7 @@ public class MessageProcessingService : IMessageProcessingService
     }
 
     public async Task ProcessMessageAsync(MessageProcessingContext context,
-                                          
-                                          IEnumerable<IntelligentProcessor> processors)
+        IEnumerable<IntelligentProcessor> processors)
     {
         Logger.Information("Starting processing for message: {MessageId}", context.CurrentMessage.GetHashCode());
 
@@ -29,14 +26,16 @@ public class MessageProcessingService : IMessageProcessingService
             return;
         }
 
-        var processorCount = processors.Count();
+        var intelligentProcessors = processors.ToList();
+        var processorCount = intelligentProcessors.Count;
         Logger.Debug("Processing with {ProcessorCount} active processors", processorCount);
 
         try
         {
-            var tasks = processors.Select(async processor =>
+            var tasks = intelligentProcessors.Select(async processor =>
             {
-                Logger.Debug("Processing with processor: {ProcessorName} (ID: {ProcessorId})", processor.Name, processor.Id);
+                Logger.Debug("Processing with processor: {ProcessorName} (ID: {ProcessorId})", processor.Name,
+                    processor.Id);
 
                 try
                 {
@@ -53,7 +52,8 @@ public class MessageProcessingService : IMessageProcessingService
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(ex, "Exception in processor {ProcessorName}: {ErrorMessage}", processor.Name, ex.Message);
+                    Logger.Error(ex, "Exception in processor {ProcessorName}: {ErrorMessage}", processor.Name,
+                        ex.Message);
                     context.CurrentMessage.ErrorMessage = $"Error: {ex.Message}";
                     context.CurrentMessage.HasProcessingError = true;
                 }
@@ -72,7 +72,8 @@ public class MessageProcessingService : IMessageProcessingService
         context.CurrentMessage.IsLoading = false;
     }
 
-    public async Task<string> CreateCommentAsync(MessageProcessingContext context, IntelligentProcessor processor, IChatClient client)
+    public async Task<string> CreateCommentAsync(MessageProcessingContext context, IntelligentProcessor processor,
+        IChatClient client)
     {
         Logger.Information("Creating comment with processor: {ProcessorName}", processor.Name);
 
@@ -98,7 +99,8 @@ public class MessageProcessingService : IMessageProcessingService
         return comment.Comment;
     }
 
-    public async Task<string> CreateTaskAsync(MessageProcessingContext context, IntelligentProcessor processor, IChatClient client)
+    public async Task<string> CreateTaskAsync(MessageProcessingContext context, IntelligentProcessor processor,
+        IChatClient client)
     {
         Logger.Information("Creating task from message");
 
@@ -110,6 +112,7 @@ public class MessageProcessingService : IMessageProcessingService
                 Logger.Debug("Received empty response when trying to get task");
                 return string.Empty;
             }
+
             context.Tasks.Add(new TaskViewModel { Name = response, IsDone = false });
             Logger.Debug("Task created: {TaskNameLength}", response.Length);
             return response;
@@ -121,7 +124,8 @@ public class MessageProcessingService : IMessageProcessingService
         }
     }
 
-    public async Task<string> ModifyMessageAsync(MessageProcessingContext context, IntelligentProcessor processor, IChatClient client)
+    public async Task<string> ModifyMessageAsync(MessageProcessingContext context, IntelligentProcessor processor,
+        IChatClient client)
     {
         Logger.Information("Modifying message with processor: {ProcessorName}", processor.Name);
 
@@ -149,7 +153,8 @@ public class MessageProcessingService : IMessageProcessingService
         return context.CurrentMessage.Text;
     }
 
-    public async Task<string> CreateChatMessageAsync(MessageProcessingContext context, IntelligentProcessor processor, IChatClient client)
+    public async Task<string> CreateChatMessageAsync(MessageProcessingContext context, IntelligentProcessor processor,
+        IChatClient client)
     {
         Logger.Information("Creating chat message with processor: {ProcessorName}", processor.Name);
 
@@ -169,10 +174,11 @@ public class MessageProcessingService : IMessageProcessingService
         try
         {
             var tools = await mcpService.GetTools();
-            await foreach (var update in client.GetStreamingResponseAsync(chatMessages, new ChatOptions() {
-                ToolMode = ChatToolMode.Auto,
-                Tools = [.. tools]
-            }))
+            await foreach (var update in client.GetStreamingResponseAsync(chatMessages, new ChatOptions()
+                           {
+                               ToolMode = ChatToolMode.Auto,
+                               Tools = [.. tools]
+                           }))
             {
                 textColloxMessage.Text += update.Text;
             }
@@ -189,7 +195,8 @@ public class MessageProcessingService : IMessageProcessingService
         return textColloxMessage.Text;
     }
 
-    private async Task StreamResponseAsync(IChatClient client, IntelligentProcessor processor, string inputText, Action<string> onTextReceived)
+    private async Task StreamResponseAsync(IChatClient client, IntelligentProcessor processor, string inputText,
+        Action<string> onTextReceived)
     {
         var chatMessages = new List<ChatMessage>();
 
@@ -203,16 +210,17 @@ public class MessageProcessingService : IMessageProcessingService
 
         var tools = await mcpService.GetTools();
         await foreach (var update in client.GetStreamingResponseAsync(chatMessages, new ChatOptions()
-        {
-            ToolMode = ChatToolMode.Auto,
-            Tools = [.. tools]
-        }))
+                       {
+                           ToolMode = ChatToolMode.Auto,
+                           Tools = [.. tools]
+                       }))
         {
             onTextReceived(update.Text);
         }
     }
 
-    private async Task<string> GetSingleResponseAsync(IChatClient client, IntelligentProcessor processor, string inputText)
+    private async Task<string> GetSingleResponseAsync(IChatClient client, IntelligentProcessor processor,
+        string inputText)
     {
         var chatMessages = new List<ChatMessage>();
 
@@ -257,14 +265,14 @@ public class MessageProcessingService : IMessageProcessingService
             {
                 if (!string.IsNullOrWhiteSpace(message.Text))
                 {
-                    
                     chatMessages.Add(new ChatMessage(ChatRole.User, message.Text));
                     messageCount++;
                 }
             }
         }
 
-        Logger.Debug("Built chat context with {MessageCount} messages for processor {ProcessorName}", messageCount, processor.Name);
+        Logger.Debug("Built chat context with {MessageCount} messages for processor {ProcessorName}", messageCount,
+            processor.Name);
         return chatMessages;
     }
 }

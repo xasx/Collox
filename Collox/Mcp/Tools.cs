@@ -16,7 +16,7 @@ public class Tools
 
     [McpServerTool, Description("Create a new task")]
     public static void CreateTask(string name)
-    { 
+    {
         Logger.Information("Adding task: {TaskName}", name);
         // Add your task creation logic here
 

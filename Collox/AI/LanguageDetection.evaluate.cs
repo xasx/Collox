@@ -11,17 +11,17 @@ namespace Collox
     public partial class LanguageDetection
     {
         /// <summary>
-        /// Permutation feature importance (PFI) is a technique to determine the importance 
-        /// of features in a trained machine learning model. PFI works by taking a labeled dataset, 
-        /// choosing a feature, and permuting the values for that feature across all the examples, 
+        /// Permutation feature importance (PFI) is a technique to determine the importance
+        /// of features in a trained machine learning model. PFI works by taking a labeled dataset,
+        /// choosing a feature, and permuting the values for that feature across all the examples,
         /// so that each example now has a random value for the feature and the original values for all other features.
-        /// The evaluation metric (e.g. R-squared) is then calculated for this modified dataset, 
-        /// and the change in the evaluation metric from the original dataset is computed. 
+        /// The evaluation metric (e.g. R-squared) is then calculated for this modified dataset,
+        /// and the change in the evaluation metric from the original dataset is computed.
         /// The larger the change in the evaluation metric, the more important the feature is to the model.
-        /// 
-        /// PFI typically takes a long time to compute, as the evaluation metric is calculated 
-        /// many times to determine the importance of each feature. 
-        /// 
+        ///
+        /// PFI typically takes a long time to compute, as the evaluation metric is calculated
+        /// many times to determine the importance of each feature.
+        ///
         /// </summary>
         /// <param name="mlContext">The common context for all ML.NET operations.</param>
         /// <param name="trainData">IDataView used to evaluate the model.</param>

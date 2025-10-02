@@ -11,15 +11,14 @@ using Serilog;
 
 namespace Collox.Models;
 
-public partial class IntelligenceApiProvider : IChatClientFactory, INotifyPropertyChanged
+public sealed partial class IntelligenceApiProvider : IChatClientFactory, INotifyPropertyChanged
 {
     private static readonly ILogger Logger = Log.ForContext<IntelligenceApiProvider>();
 
     public event PropertyChangedEventHandler PropertyChanged;
 
 
-    [JsonProperty(Order = -2)]
-    public Guid Id { get; init; }
+    [JsonProperty(Order = -2)] public Guid Id { get; init; }
 
     public string Name { get; set; }
 
@@ -45,7 +44,8 @@ public partial class IntelligenceApiProvider : IChatClientFactory, INotifyProper
         {
             if (field != value)
             {
-                Logger.Information("API provider type changed from {OldType} to {NewType} for {ProviderId}", field, value, Id);
+                Logger.Information("API provider type changed from {OldType} to {NewType} for {ProviderId}", field,
+                    value, Id);
                 field = value;
                 OnPropertyChanged();
             }
@@ -88,8 +88,10 @@ public partial class IntelligenceApiProvider : IChatClientFactory, INotifyProper
         };
     }
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
+    private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 
     private IChatClient CreateOllamaClient(string modelId)
     {

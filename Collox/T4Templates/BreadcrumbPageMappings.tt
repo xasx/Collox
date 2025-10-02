@@ -40,10 +40,10 @@ foreach (var file in xamlFiles)
     }
     catch (Exception ex)
     {
-#> 
+#>
         // Output an error message as comment in the generated file
         <#= $"// Error loading XAML file: {file} - {ex.Message}" #>
-<# 
+<#
     }
 }
 

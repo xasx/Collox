@@ -1,0 +1,94 @@
+#-------------------------------------------------------------------------------#
+#               Qodana analysis is configured by qodana.yaml file               #
+#             https://www.jetbrains.com/help/qodana/qodana-yaml.html            #
+#-------------------------------------------------------------------------------#
+#################################################################################
+#              WARNING: Do not store sensitive information in this file,        #
+#               as its contents will be included in the Qodana report.          #
+#################################################################################
+version: "1.0"
+#Specify IDE code to run analysis without container (Applied in CI/CD pipeline)
+ide: QDNET
+#Specify inspection profile for code analysis
+profile:
+  name: qodana.starter
+include:
+  - name: ConvertIfStatementToReturnStatement
+  - name: ArrangeStaticMemberQualifier
+  - name: AutoPropertyCanBeMadeGetOnly.Local
+  - name: HeapView.BoxingAllocation
+  - name: AsyncVoidMethod
+  - name: ClassNeverInstantiated.Global
+  - name: HeapView.PossibleBoxingAllocation
+  - name: HeapView.ClosureAllocation
+  - name: HeapView.CanAvoidClosure
+  - name: ConvertIfStatementToSwitchStatement
+  - name: AutoPropertyCanBeMadeGetOnly.Global
+  - name: ConvertToPrimaryConstructor
+  - name: ConvertToUsingDeclaration
+  - name: ConvertClosureToMethodGroup
+  - name: ConvertToConstant.Local
+  - name: HeapView.DelegateAllocation
+  - name: DuplicatedSequentialIfBodies
+  - name: FieldCanBeMadeReadOnly.Local
+  - name: InvertIf
+  - name: LoopCanBeConvertedToQuery
+  - name: MemberCanBePrivate.Global
+  - name: MemberCanBeMadeStatic.Global
+  - name: MemberCanBeMadeStatic.Local
+  - name: HeapView.ObjectAllocation
+  - name: HeapView.ObjectAllocation.Evident
+  - name: HeapView.ObjectAllocation.Possible
+  - name: PropertyCanBeMadeInitOnly.Global
+  - name: RedundantIfElseBlock
+  - name: CppRedundantElseKeyword
+  - name: RedundantEmptyObjectCreationArgumentList
+  - name: RedundantExplicitParamsArrayCreation
+  - name: RedundantLambdaSignatureParentheses
+  - name: RedundantTypeDeclarationBody
+  - name: ConvertSwitchStatementToSwitchExpression
+  - name: ReplaceWithPrimaryConstructorParameter
+  - name: CA1816
+  - name: CA1861
+  - name: CA1050
+  - name: CA1822
+  - name: CA2211
+  - name: CA1859
+  - name: SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+  - name: UnusedType.Global
+  - name: UseCollectionExpression
+  - name: ArrangeTypeMemberModifiers
+  - name: UseObjectOrCollectionInitializer
+  - name: SuggestVarOrType_Elsewhere
+  - name: SuggestVarOrType_BuiltInTypes
+  - name: SuggestVarOrType_SimpleTypes
+  - name: SuggestDiscardDeclarationVarStyle
+  - name: ArrangeTrailingCommaInMultilineLists
+  - name: ArrangeTrailingCommaInSinglelineLists
+  - name: ArrangeObjectCreationWhenTypeEvident
+  - name: UseRawString
+
+#Enable inspections
+#include:
+#  - name: <SomeEnabledInspectionId>
+#Disable inspections
+#exclude:
+#  - name: <SomeDisabledInspectionId>
+#    paths:
+#      - <path/where/not/run/inspection>
+#Execute shell command before Qodana execution (Applied in CI/CD pipeline)
+#bootstrap: sh ./prepare-qodana.sh
+#Install IDE plugins before Qodana execution (Applied in CI/CD pipeline)
+#plugins:
+#  - id: <plugin.id> #(plugin id can be found at https://plugins.jetbrains.com)
+# Quality gate. Will fail the CI/CD pipeline if any condition is not met
+# severityThresholds - configures maximum thresholds for different problem severities
+# testCoverageThresholds - configures minimum code coverage on a whole project and newly added code
+# Code Coverage is available in Ultimate and Ultimate Plus plans
+#failureConditions:
+#  severityThresholds:
+#    any: 15
+#    critical: 5
+#  testCoverageThresholds:
+#    fresh: 70
+#    total: 50

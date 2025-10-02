@@ -89,10 +89,10 @@ namespace Collox
         public static IEstimator<ITransformer> BuildPipeline(MLContext mlContext)
         {
             // Data process configuration with pipeline data transformations
-            var pipeline = mlContext.Transforms.Text.FeaturizeText(inputColumnName:@"text",outputColumnName:@"text")      
-                                    .Append(mlContext.Transforms.Concatenate(@"Features", new []{@"text"}))      
-                                    .Append(mlContext.Transforms.Conversion.MapValueToKey(outputColumnName:@"label",inputColumnName:@"label",addKeyValueAnnotationsAsText:false))      
-                                    .Append(mlContext.MulticlassClassification.Trainers.OneVersusAll(binaryEstimator: mlContext.BinaryClassification.Trainers.LbfgsLogisticRegression(new LbfgsLogisticRegressionBinaryTrainer.Options(){L1Regularization=0.03125F,L2Regularization=0.03125F,LabelColumnName=@"label",FeatureColumnName=@"Features"}), labelColumnName:@"label"))      
+            var pipeline = mlContext.Transforms.Text.FeaturizeText(inputColumnName:@"text",outputColumnName:@"text")
+                                    .Append(mlContext.Transforms.Concatenate(@"Features", new []{@"text"}))
+                                    .Append(mlContext.Transforms.Conversion.MapValueToKey(outputColumnName:@"label",inputColumnName:@"label",addKeyValueAnnotationsAsText:false))
+                                    .Append(mlContext.MulticlassClassification.Trainers.OneVersusAll(binaryEstimator: mlContext.BinaryClassification.Trainers.LbfgsLogisticRegression(new LbfgsLogisticRegressionBinaryTrainer.Options(){L1Regularization=0.03125F,L2Regularization=0.03125F,LabelColumnName=@"label",FeatureColumnName=@"Features"}), labelColumnName:@"label"))
                                     .Append(mlContext.Transforms.Conversion.MapKeyToValue(outputColumnName:@"PredictedLabel",inputColumnName:@"PredictedLabel"));
 
             return pipeline;

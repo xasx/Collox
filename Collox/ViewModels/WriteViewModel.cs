@@ -15,8 +15,9 @@ namespace Collox.ViewModels;
 public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware, IRecipient<TaskDoneMessage>
 {
     private static readonly ILogger Logger = Log.ForContext<WriteViewModel>();
-    private static readonly Lazy<MarkdownPipeline> _markdownPipeline = new(
-        () => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
+
+    private static readonly Lazy<MarkdownPipeline> _markdownPipeline =
+        new(() => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
     private readonly IStoreService storeService;
     private readonly IAudioService audioService;
@@ -48,7 +49,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         Tasks.CollectionChanged += (_, _) =>
         {
             ShowTasks = Tasks.Count > 0;
-            Logger.Debug("Tasks collection changed. ShowTasks: {ShowTasks}, TaskCount: {TaskCount}", ShowTasks, Tasks.Count);
+            Logger.Debug("Tasks collection changed. ShowTasks: {ShowTasks}, TaskCount: {TaskCount}", ShowTasks,
+                Tasks.Count);
         };
 
         MessageRelativeTimeUpdater.CreateTimer = () =>
@@ -68,11 +70,14 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     [ObservableProperty]
     public partial ObservableCollection<IntelligentProcessorViewModel> AvailableProcessors { get; set; } =
         [];
+
     [ObservableProperty] public partial int CharacterCount { get; set; }
     [ObservableProperty] public partial bool ClockShown { get; set; }
     [ObservableProperty] public partial TabData ConversationContext { get; set; }
+
     public ObservableGroupedCollection<string, EmojiRecord> Emojis { get; init; } =
         new ObservableGroupedCollection<string, EmojiRecord>(Emoji.All.GroupBy(e => e.Category));
+
     [ObservableProperty] public partial string Filename { get; set; }
     [ObservableProperty] public partial int HitPercentage { get; set; }
     [ObservableProperty] public partial string InputMessage { get; set; } = string.Empty;
@@ -94,7 +99,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         IsSpeaking = value.IsSpeaking;
         SelectedVoice = audioService.GetInstalledVoices().FirstOrDefault(vi => vi.Name == value.SelectedVoice);
 
-        Logger.Debug("ConversationContext changed to {ContextName}", value?.Context ?? "unknown");
+        Logger.Debug("ConversationContext changed to {ContextName}", value.Context ?? "unknown");
     }
 
     partial void OnIsBeepingChanged(bool value)
@@ -137,7 +142,8 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             return;
         }
 
-        Logger.Information("Submit command initiated. Mode: {Mode}, InputLength: {Length}", SubmitModeIcon, InputMessage.Length);
+        Logger.Information("Submit command initiated. Mode: {Mode}, InputLength: {Length}", SubmitModeIcon,
+            InputMessage.Length);
 
         ConversationContext.IsEditing = false;
 
@@ -345,10 +351,10 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         }
 
         await messageProcessingService.ProcessMessageAsync(new MessageProcessingContext(textMessage,
-                                                                                        Messages,
-                                                                                        ConversationContext.Context,
-                                                                                        Tasks),
-                                                           ConversationContext.ActiveProcessors);
+                Messages,
+                ConversationContext.Context,
+                Tasks),
+            ConversationContext.ActiveProcessors);
     }
 
     private async Task ProcessCommand()
