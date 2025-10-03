@@ -8,11 +8,12 @@ using Windows.ApplicationModel.Resources.Core;
 
 namespace Collox.ViewModels;
 
-public partial class AISettingsViewModel : ObservableObject
+public partial class AISettingsViewModel : ObservableObject, IDisposable
 {
     private static readonly ILogger Logger = Log.ForContext<AISettingsViewModel>();
     private readonly IAIService aiService;
     private bool _initialized;
+    private bool _disposed;
 
     public AISettingsViewModel(IAIService aIService)
     {
@@ -134,5 +135,25 @@ public partial class AISettingsViewModel : ObservableObject
         aiService.Save();
         var vm = new IntelligenceApiProviderViewModel(provider);
         ApiProviders.Add(vm);
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                WeakReferenceMessenger.Default.Unregister<ProcessorDeletedMessage>(this);
+                WeakReferenceMessenger.Default.Unregister<ApiProviderDeletedMessage>(this);
+            }
+
+            _disposed = true;
+        }
     }
 }

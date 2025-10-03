@@ -4,10 +4,11 @@ using Serilog;
 
 namespace Collox.Services;
 
-public class MessageProcessingService : IMessageProcessingService
+public class MessageProcessingService : IMessageProcessingService, IDisposable
 {
     private static readonly ILogger Logger = Log.ForContext<MessageProcessingService>();
     private readonly IMcpService mcpService;
+    private bool _disposed;
 
     public MessageProcessingService(IMcpService mcpService)
     {
@@ -274,5 +275,21 @@ public class MessageProcessingService : IMessageProcessingService
         Logger.Debug("Built chat context with {MessageCount} messages for processor {ProcessorName}", messageCount,
             processor.Name);
         return chatMessages;
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        Logger.Debug("Disposing MessageProcessingService");
+
+        if (mcpService is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+
+        _disposed = true;
+        Logger.Information("MessageProcessingService disposed successfully");
     }
 }

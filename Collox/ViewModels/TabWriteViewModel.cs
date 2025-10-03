@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+﻿﻿using System.Collections.ObjectModel;
 using Collox.Services;
 using Collox.ViewModels.Messages;
 using CommunityToolkit.Mvvm.Messaging;
@@ -6,7 +6,7 @@ using Serilog;
 
 namespace Collox.ViewModels;
 
-public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSuggestBoxAware, IRecipient<UpdateTabMessage>, INavigationAwareEx
+public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSuggestBoxAware, IRecipient<UpdateTabMessage>, INavigationAwareEx, IDisposable
 {
     private static readonly ILogger Logger = Log.ForContext<TabWriteViewModel>();
     private static readonly TabData initialTab = new() { Context = "Default", IsCloseable = false, IsEditing = false };
@@ -18,6 +18,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
 
     private readonly ITabContextService tabContextService;
     private readonly IAIService aiService;
+    private bool _disposed;
 
     public TabWriteViewModel(ITabContextService tabContextService, IAIService aiService)
     {
@@ -167,5 +168,16 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
         tabContextService.NotifyTabUpdate(tabContext);
 
         Logger.Debug("Context updated for tab: {Context}", tabData.Context);
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        Logger.Debug("Disposing TabWriteViewModel");
+        WeakReferenceMessenger.Default.UnregisterAll(this);
+        _disposed = true;
+        Logger.Information("TabWriteViewModel disposed successfully");
     }
 }

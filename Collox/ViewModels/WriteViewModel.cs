@@ -12,7 +12,7 @@ using Windows.System;
 
 namespace Collox.ViewModels;
 
-public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware, IRecipient<TaskDoneMessage>
+public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxAware, IRecipient<TaskDoneMessage>, IDisposable
 {
     private static readonly ILogger Logger = Log.ForContext<WriteViewModel>();
 
@@ -23,6 +23,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     private readonly IAudioService audioService;
     private readonly IMessageProcessingService messageProcessingService;
     private readonly ICommandService commandService;
+    private bool _disposed;
 
     public WriteViewModel(
         IStoreService storeService,
@@ -449,5 +450,16 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         // New code should use IAudioService instead
         var audioService = App.GetService<IAudioService>();
         await audioService.ReadTextAsync(text, voice);
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        Logger.Debug("Disposing WriteViewModel");
+        WeakReferenceMessenger.Default.UnregisterAll(this);
+        _disposed = true;
+        Logger.Information("WriteViewModel disposed successfully");
     }
 }

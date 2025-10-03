@@ -8,8 +8,10 @@ using TextBox = Microsoft.UI.Xaml.Controls.TextBox;
 
 namespace Collox.Views;
 
-public sealed partial class TabWritePage : Page
+public sealed partial class TabWritePage : Page, IDisposable
 {
+    private bool _disposed;
+
     public TabWritePage()
     {
         DataContext = App.GetService<TabWriteViewModel>();
@@ -182,5 +184,16 @@ public sealed partial class TabWritePage : Page
     {
         // SetFocusOnTab(ViewModel.SelectedTab, MainTabView);
         App.MirrorWindow.Activate();
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        WeakReferenceMessenger.Default.Unregister<FocusTabMessage>(this);
+        WeakReferenceMessenger.Default.Unregister<GetFrameRequestMessage>(this);
+
+        _disposed = true;
     }
 }

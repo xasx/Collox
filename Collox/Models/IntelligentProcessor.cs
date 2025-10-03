@@ -6,9 +6,10 @@ using Serilog;
 
 namespace Collox.Models;
 
-public partial class IntelligentProcessor
+public partial class IntelligentProcessor : IDisposable
 {
     private static readonly ILogger Logger = Log.ForContext<IntelligentProcessor>();
+    private bool _disposed;
 
     public Guid Id { get; init; }
 
@@ -58,6 +59,22 @@ public partial class IntelligentProcessor
                 Name, Id);
             OnError?.Invoke(ex);
         }
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        Logger.Debug("Disposing IntelligentProcessor: {ProcessorName} (ID: {ProcessorId})", Name, Id);
+
+        if (ClientManager is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+
+        _disposed = true;
+        Logger.Information("IntelligentProcessor disposed: {ProcessorName}", Name);
     }
 }
 

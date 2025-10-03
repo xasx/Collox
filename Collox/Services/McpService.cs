@@ -1,13 +1,14 @@
-﻿using System.Collections.ObjectModel;
+﻿﻿using System.Collections.ObjectModel;
 using ModelContextProtocol.Client;
 using Serilog;
 
 namespace Collox.Services;
 
-internal class McpService : IMcpService
+internal class McpService : IMcpService, IDisposable
 {
     private readonly McpClient mcpClient;
     private static readonly ILogger Logger = Log.ForContext<McpService>();
+    private bool _disposed;
 
     public McpService()
     {
@@ -44,5 +45,21 @@ internal class McpService : IMcpService
             Logger.Error(ex, "Failed to retrieve MCP tools");
             throw;
         }
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        Logger.Debug("Disposing McpService");
+
+        if (mcpClient is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+
+        _disposed = true;
+        Logger.Information("McpService disposed successfully");
     }
 }

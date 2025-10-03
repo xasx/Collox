@@ -1,10 +1,11 @@
-﻿namespace Collox.ViewModels;
+﻿﻿namespace Collox.ViewModels;
 
-public sealed class MessageRelativeTimeUpdater
+public sealed class MessageRelativeTimeUpdater : IDisposable
 {
     public static Func<ITimer> CreateTimer { get; set; }
 
     private readonly ITimer Timer = CreateTimer();
+    private bool _disposed;
 
     public MessageRelativeTimeUpdater()
     {
@@ -17,6 +18,20 @@ public sealed class MessageRelativeTimeUpdater
     {
         ColloxWeakEventListener colloxWeakEventListener = new(colloxMessage) { Timer = Timer };
         Timer.Tick += colloxWeakEventListener.OnTimerTick;
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        Timer?.Stop();
+        if (Timer is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+
+        _disposed = true;
     }
 }
 internal class ColloxWeakEventListener(ColloxMessage colloxMessage)

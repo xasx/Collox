@@ -1,26 +1,29 @@
-﻿using Windows.UI.Notifications;
+﻿﻿using Windows.UI.Notifications;
 using Windows.UI.Notifications.Management;
 using static Collox.Services.IUserNotificationService;
 
 namespace Collox.Services;
 
-public class UserNotificationService : IUserNotificationService
+public class UserNotificationService : IUserNotificationService, IDisposable
 {
+    private UserNotificationListener _listener;
+    private bool _disposed;
+
     public async Task Initialize()
     {
         // Get the listener
-        var listener = UserNotificationListener.Current;
+        _listener = UserNotificationListener.Current;
 
         // And request access to the user's notifications (must be called from UI thread)
-        var accessStatus = await listener.RequestAccessAsync();
+        var accessStatus = await _listener.RequestAccessAsync();
 
         switch (accessStatus)
         {
             // This means the user has granted access.
             case UserNotificationListenerAccessStatus.Allowed:
-                listener.NotificationChanged += Listener_NotificationChanged;
+                _listener.NotificationChanged += Listener_NotificationChanged;
                 // Yay! Proceed as normal
-                await UpdateUserNotifications(listener).ConfigureAwait(false);
+                await UpdateUserNotifications(_listener).ConfigureAwait(false);
                 break;
 
             // This means the user has denied access.
@@ -67,4 +70,17 @@ public class UserNotificationService : IUserNotificationService
 
     public async Task<IReadOnlyList<UserNotification>> GetNotifications()
     { return await UserNotificationListener.Current.GetNotificationsAsync(NotificationKinds.Toast); }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        if (_listener != null)
+        {
+            _listener.NotificationChanged -= Listener_NotificationChanged;
+        }
+
+        _disposed = true;
+    }
 }

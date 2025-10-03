@@ -5,9 +5,10 @@ using System.Collections.ObjectModel;
 
 namespace Collox.ViewModels;
 
-public partial class TemplatesViewModel : ObservableObject
+public partial class TemplatesViewModel : ObservableObject, IDisposable
 {
     private readonly ITemplateService templateService;
+    private bool disposed;
 
     public TemplatesViewModel(ITemplateService templateService)
     {
@@ -93,5 +94,26 @@ public partial class TemplatesViewModel : ObservableObject
 
         Name = string.Empty;
         Content = string.Empty;
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposed)
+        {
+            if (disposing)
+            {
+                WeakReferenceMessenger.Default.Unregister<TemplateAddedMessage>(this);
+                WeakReferenceMessenger.Default.Unregister<TemplateDeletedMessage>(this);
+                WeakReferenceMessenger.Default.Unregister<TemplateEditedMessage>(this);
+            }
+
+            disposed = true;
+        }
     }
 }

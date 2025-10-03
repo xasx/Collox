@@ -4,9 +4,10 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace Collox.ViewModels;
 
-public partial class MirrorViewModel : ObservableRecipient, IRecipient<TextSubmittedMessage>
+public partial class MirrorViewModel : ObservableRecipient, IRecipient<TextSubmittedMessage>, IDisposable
 {
     private const string All = "All";
+    private bool _disposed;
 
     [ObservableProperty] public partial ObservableCollection<TextColloxMessage> Messages { get; set; } = [];
 
@@ -63,5 +64,14 @@ public partial class MirrorViewModel : ObservableRecipient, IRecipient<TextSubmi
     partial void OnSelectedContextsChanged(ObservableCollection<string> value)
     {
         FilterMessages();
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        WeakReferenceMessenger.Default.Unregister<TextSubmittedMessage>(this);
+        _disposed = true;
     }
 }

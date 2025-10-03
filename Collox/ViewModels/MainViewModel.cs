@@ -10,11 +10,12 @@ using NetworkHelper = CommunityToolkit.WinUI.Helpers.NetworkHelper;
 namespace Collox.ViewModels;
 
 public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyChangedMessage<string>>,
-    ITitleBarAutoSuggestBoxAware
+    ITitleBarAutoSuggestBoxAware, IDisposable
 {
     private DispatcherQueue dispatcherQueue = DispatcherQueue.GetForCurrentThread();
     private readonly IUserNotificationService _userNotificationService;
     private readonly IStoreService _storeService;
+    private bool _disposed;
 
     public MainViewModel(
         IUserNotificationService userNotificationService,
@@ -105,4 +106,19 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
                                                                                                                              UserNotifications.AddRange(newView);
                                                                                                                              UserNotificationsEmpty = UserNotifications.Count == 0;
                                                                                                                          });
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        NetworkHelper.Instance.NetworkChanged -= Instance_NetworkChanged;
+
+        if (_userNotificationService != null)
+        {
+            _userNotificationService.OnUserNotificationsViewChanged -= UserNotificationService_OnUserNotificationsViewChanged;
+        }
+
+        _disposed = true;
+    }
 }

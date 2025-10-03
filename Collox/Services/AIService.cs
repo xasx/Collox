@@ -7,9 +7,10 @@ using Nucs.JsonSettings.Modulation.Recovery;
 
 namespace Collox.Services;
 
-public class AIService : IAIService
+public class AIService : IAIService, IDisposable
 {
     private static readonly ILogger Logger = Log.ForContext<AIService>();
+    private bool _disposed;
 
     private IntelligenceConfig Config
     {
@@ -90,6 +91,7 @@ public class AIService : IAIService
             intelligentProcessor.Name, intelligentProcessor.Id);
 
         Config.Processors?.Remove(intelligentProcessor);
+        intelligentProcessor?.Dispose();
 
         Logger.Information("Removed intelligent processor: {ProcessorName}", intelligentProcessor.Name);
     }
@@ -124,5 +126,25 @@ public class AIService : IAIService
         InitializeProcessors(Config.Processors);
         Logger.Information("AI configuration loaded successfully with {ProcessorCount} processors and {ProviderCount} providers",
             Config.Processors?.Count ?? 0, Config.ApiProviders?.Count ?? 0);
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        Logger.Debug("Disposing AIService");
+
+        // Dispose all processors (which will dispose their own ClientManagers)
+        if (Config.Processors != null)
+        {
+            foreach (var processor in Config.Processors)
+            {
+                processor?.Dispose();
+            }
+        }
+
+        _disposed = true;
+        Logger.Information("AIService disposed successfully");
     }
 }
