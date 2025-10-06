@@ -221,7 +221,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         try
         {
             Messages.Clear();
-            await storeService.SaveNow().ConfigureAwait(false);
+            await storeService.SaveNow(CancellationToken.None).ConfigureAwait(false);
             Logger.Information("Clear completed successfully");
         }
         catch (Exception ex)
@@ -237,7 +237,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
 
         try
         {
-            await storeService.SaveNow().ConfigureAwait(false);
+            await storeService.SaveNow(CancellationToken.None).ConfigureAwait(false);
             Logger.Information("Save completed successfully");
         }
         catch (Exception ex)
@@ -290,7 +290,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             {
                 Logger.Debug("Persisting message to store");
                 var singleMessage = new SingleMessage(textMessage.Text, textMessage.Context, textMessage.Timestamp);
-                await storeService.Append(singleMessage).ConfigureAwait(true);
+                await storeService.Append(singleMessage, CancellationToken.None).ConfigureAwait(true);
                 Logger.Debug("Message persisted successfully");
             }
             catch (Exception ex)
@@ -313,13 +313,13 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         if (IsBeeping)
         {
             Logger.Debug("Playing beep sound asynchronously");
-            audioTasks.Add(audioService.PlayBeepSoundAsync());
+            audioTasks.Add(audioService.PlayBeepSoundAsync(CancellationToken.None));
         }
 
         if (IsSpeaking)
         {
             Logger.Debug("Reading text with voice: {VoiceName}", SelectedVoice?.Name ?? "Default");
-            audioTasks.Add(audioService.ReadTextAsync(text, SelectedVoice?.Name));
+            audioTasks.Add(audioService.ReadTextAsync(text, SelectedVoice?.Name, CancellationToken.None));
         }
 
         if (audioTasks.Count > 0)
@@ -355,7 +355,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
                 Messages,
                 ConversationContext.Context,
                 Tasks),
-            ConversationContext.ActiveProcessors);
+            ConversationContext.ActiveProcessors, CancellationToken.None);
     }
 
     private async Task ProcessCommand()
@@ -372,7 +372,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
             AudioService = audioService
         };
 
-        var result = await commandService.ProcessCommandAsync(command, commandContext);
+        var result = await commandService.ProcessCommandAsync(command, commandContext, CancellationToken.None);
 
         if (result.ResultMessage != null)
         {
@@ -449,7 +449,7 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
         // This method is kept for backward compatibility but should be deprecated
         // New code should use IAudioService instead
         var audioService = App.GetService<IAudioService>();
-        await audioService.ReadTextAsync(text, voice);
+        await audioService.ReadTextAsync(text, voice, CancellationToken.None);
     }
 
     public void Dispose()

@@ -4,7 +4,7 @@ namespace Collox.Services;
 
 public interface IAudioService
 {
-    Task PlayBeepSoundAsync();
-    Task ReadTextAsync(string text, string voiceName = null);
+    Task PlayBeepSoundAsync(CancellationToken cancellationToken = default);
+    Task ReadTextAsync(string text, string voiceName = null, CancellationToken cancellationToken = default);
     ICollection<VoiceInfo> GetInstalledVoices();
 }

@@ -52,7 +52,7 @@ public class WriteViewModelCommandTests
 
         var commandResult = new CommandResult { Success = true };
         _commandServiceMock.Setup(
-            s => s.ProcessCommandAsync("clear", It.IsAny<CommandContext>()))
+            s => s.ProcessCommandAsync("clear", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(commandResult);
 
         // Act
@@ -60,7 +60,7 @@ public class WriteViewModelCommandTests
 
         // Assert
         _commandServiceMock.Verify(
-            s => s.ProcessCommandAsync("clear", It.IsAny<CommandContext>()), 
+            s => s.ProcessCommandAsync("clear", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()), 
             Times.Once);
     }
 
@@ -73,7 +73,7 @@ public class WriteViewModelCommandTests
 
         var commandResult = new CommandResult { Success = true };
         _commandServiceMock.Setup(
-            s => s.ProcessCommandAsync("save", It.IsAny<CommandContext>()))
+            s => s.ProcessCommandAsync("save", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(commandResult);
 
         // Act
@@ -81,7 +81,7 @@ public class WriteViewModelCommandTests
 
         // Assert
         _commandServiceMock.Verify(
-            s => s.ProcessCommandAsync("save", It.IsAny<CommandContext>()), 
+            s => s.ProcessCommandAsync("save", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()), 
             Times.Once);
     }
 
@@ -99,7 +99,7 @@ public class WriteViewModelCommandTests
         };
         var commandResult = new CommandResult { Success = true, ResultMessage = helpMessage };
         _commandServiceMock.Setup(
-            s => s.ProcessCommandAsync("help", It.IsAny<CommandContext>()))
+            s => s.ProcessCommandAsync("help", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(commandResult);
 
         // Act
@@ -107,7 +107,7 @@ public class WriteViewModelCommandTests
 
         // Assert
         _commandServiceMock.Verify(
-            s => s.ProcessCommandAsync("help", It.IsAny<CommandContext>()), 
+            s => s.ProcessCommandAsync("help", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()), 
             Times.Once);
         Check.That(_viewModel.Messages).HasSize(1);
         Check.That(_viewModel.Messages[0]).IsInstanceOf<InternalColloxMessage>();
@@ -123,7 +123,7 @@ public class WriteViewModelCommandTests
         var timeMessage = new TimeColloxMessage { Time = DateTime.Now.TimeOfDay };
         var commandResult = new CommandResult { Success = true, ResultMessage = timeMessage };
         _commandServiceMock.Setup(
-            s => s.ProcessCommandAsync("time", It.IsAny<CommandContext>()))
+            s => s.ProcessCommandAsync("time", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(commandResult);
 
         // Act
@@ -131,7 +131,7 @@ public class WriteViewModelCommandTests
 
         // Assert
         _commandServiceMock.Verify(
-            s => s.ProcessCommandAsync("time", It.IsAny<CommandContext>()), 
+            s => s.ProcessCommandAsync("time", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()), 
             Times.Once);
         Check.That(_viewModel.Messages).HasSize(1);
         Check.That(_viewModel.Messages[0]).IsInstanceOf<TimeColloxMessage>();
@@ -147,7 +147,7 @@ public class WriteViewModelCommandTests
 
         var commandResult = new CommandResult { Success = true };
         _commandServiceMock.Setup(
-            s => s.ProcessCommandAsync("pin", It.IsAny<CommandContext>()))
+            s => s.ProcessCommandAsync("pin", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(commandResult);
 
         // Act
@@ -155,7 +155,7 @@ public class WriteViewModelCommandTests
 
         // Assert
         _commandServiceMock.Verify(
-            s => s.ProcessCommandAsync("pin", It.IsAny<CommandContext>()), 
+            s => s.ProcessCommandAsync("pin", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()), 
             Times.Once);
     }
 
@@ -169,7 +169,7 @@ public class WriteViewModelCommandTests
 
         var commandResult = new CommandResult { Success = true };
         _commandServiceMock.Setup(
-            s => s.ProcessCommandAsync("unpin", It.IsAny<CommandContext>()))
+            s => s.ProcessCommandAsync("unpin", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(commandResult);
 
         // Act
@@ -177,7 +177,7 @@ public class WriteViewModelCommandTests
 
         // Assert
         _commandServiceMock.Verify(
-            s => s.ProcessCommandAsync("unpin", It.IsAny<CommandContext>()), 
+            s => s.ProcessCommandAsync("unpin", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()), 
             Times.Once);
     }
 
@@ -190,7 +190,7 @@ public class WriteViewModelCommandTests
 
         var commandResult = new CommandResult { Success = true };
         _commandServiceMock.Setup(
-            s => s.ProcessCommandAsync("task Write unit tests", It.IsAny<CommandContext>()))
+            s => s.ProcessCommandAsync("task Write unit tests", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(commandResult);
 
         // Act
@@ -198,7 +198,7 @@ public class WriteViewModelCommandTests
 
         // Assert
         _commandServiceMock.Verify(
-            s => s.ProcessCommandAsync("task Write unit tests", It.IsAny<CommandContext>()), 
+            s => s.ProcessCommandAsync("task Write unit tests", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()), 
             Times.Once);
     }
 
@@ -216,7 +216,7 @@ public class WriteViewModelCommandTests
         };
         var commandResult = new CommandResult { Success = true, ResultMessage = helpMessage };
         _commandServiceMock.Setup(
-            s => s.ProcessCommandAsync("help", It.IsAny<CommandContext>()))
+            s => s.ProcessCommandAsync("help", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(commandResult);
 
         // Act
@@ -236,7 +236,7 @@ public class WriteViewModelCommandTests
 
         var commandResult = new CommandResult { Success = false, ErrorMessage = "Unknown command" };
         _commandServiceMock.Setup(
-            s => s.ProcessCommandAsync("invalid", It.IsAny<CommandContext>()))
+            s => s.ProcessCommandAsync("invalid", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(commandResult);
 
         // Act
@@ -244,7 +244,7 @@ public class WriteViewModelCommandTests
 
         // Assert - The error should be logged but not throw an exception
         _commandServiceMock.Verify(
-            s => s.ProcessCommandAsync("invalid", It.IsAny<CommandContext>()), 
+            s => s.ProcessCommandAsync("invalid", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()), 
             Times.Once);
     }
 }

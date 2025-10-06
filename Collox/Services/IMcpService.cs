@@ -4,5 +4,5 @@ namespace Collox.Services;
 
 public interface IMcpService
 {
-    ValueTask<IList<McpClientTool>> GetTools();
+    ValueTask<IList<McpClientTool>> GetTools(CancellationToken cancellationToken = default);
 }

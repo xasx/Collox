@@ -9,7 +9,7 @@ public class CommandService : ICommandService
     private static readonly Lazy<MarkdownPipeline> _markdownPipeline = new(
         () => new MarkdownPipelineBuilder().UseAdvancedExtensions().Build());
 
-    public async Task<CommandResult> ProcessCommandAsync(string command, CommandContext context)
+    public async Task<CommandResult> ProcessCommandAsync(string command, CommandContext context, CancellationToken cancellationToken = default)
     {
         Logger.Information("Processing command: {Command}", command);
 
@@ -19,9 +19,9 @@ public class CommandService : ICommandService
         {
             return tokens switch
             {
-                ["clear", ..] => await HandleClearCommand(context),
-                ["save", ..] => await HandleSaveCommand(context),
-                ["speak", ..] => await HandleSpeakCommand(context),
+                ["clear", ..] => await HandleClearCommand(context, cancellationToken),
+                ["save", ..] => await HandleSaveCommand(context, cancellationToken),
+                ["speak", ..] => await HandleSpeakCommand(context, cancellationToken),
                 ["time", ..] => HandleTimeCommand(context),
                 ["pin", ..] => HandlePinCommand(context),
                 ["unpin", ..] => HandleUnpinCommand(context),
@@ -37,22 +37,22 @@ public class CommandService : ICommandService
         }
     }
 
-    private async Task<CommandResult> HandleClearCommand(CommandContext context)
+    private async Task<CommandResult> HandleClearCommand(CommandContext context, CancellationToken cancellationToken = default)
     {
         Logger.Debug("Executing clear command");
         context.Messages.Clear();
-        await context.StoreService.SaveNow().ConfigureAwait(false);
+        await context.StoreService.SaveNow(cancellationToken).ConfigureAwait(false);
         return new CommandResult { Success = true };
     }
 
-    private async Task<CommandResult> HandleSaveCommand(CommandContext context)
+    private async Task<CommandResult> HandleSaveCommand(CommandContext context, CancellationToken cancellationToken = default)
     {
         Logger.Debug("Executing save command");
-        await context.StoreService.SaveNow().ConfigureAwait(false);
+        await context.StoreService.SaveNow(cancellationToken).ConfigureAwait(false);
         return new CommandResult { Success = true };
     }
 
-    private async Task<CommandResult> HandleSpeakCommand(CommandContext context)
+    private async Task<CommandResult> HandleSpeakCommand(CommandContext context, CancellationToken cancellationToken = default)
     {
         Logger.Debug("Executing speak command");
 
@@ -62,7 +62,7 @@ public class CommandService : ICommandService
             if (lastTextMessage != null)
             {
                 var textToSpeak = StripMd(lastTextMessage.Text);
-                await context.AudioService.ReadTextAsync(textToSpeak).ConfigureAwait(false);
+                await context.AudioService.ReadTextAsync(textToSpeak, null, cancellationToken).ConfigureAwait(false);
                 Logger.Debug("Speaking last message with length: {Length}", textToSpeak.Length);
             }
         }

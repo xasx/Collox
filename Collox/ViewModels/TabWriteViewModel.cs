@@ -128,7 +128,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
 
     public void OnNavigatedFrom()
     {
-        App.GetService<IStoreService>().SaveNow();
+        App.GetService<IStoreService>().SaveNow(CancellationToken.None);
     }
 
     public void OnNavigatedTo(object parameter)
