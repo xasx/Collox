@@ -16,7 +16,7 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
     }
 
     public async Task ProcessMessageAsync(MessageProcessingContext context,
-        IEnumerable<IntelligentProcessor> processors)
+        IEnumerable<IntelligentProcessor> processors, CancellationToken cancellationToken = default)
     {
         Logger.Information("Starting processing for message: {MessageId}", context.CurrentMessage.GetHashCode());
 
@@ -48,7 +48,7 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
                     };
 
                     Logger.Debug("Starting work for processor: {ProcessorName}", processor.Name);
-                    await processor.Work(context).ConfigureAwait(false);
+                    await processor.Work(context, cancellationToken).ConfigureAwait(false);
                     Logger.Debug("Completed work for processor: {ProcessorName}", processor.Name);
                 }
                 catch (Exception ex)
@@ -74,7 +74,7 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
     }
 
     public async Task<string> CreateCommentAsync(MessageProcessingContext context, IntelligentProcessor processor,
-        IChatClient client)
+        IChatClient client, CancellationToken cancellationToken = default)
     {
         Logger.Information("Creating comment with processor: {ProcessorName}", processor.Name);
 
@@ -87,7 +87,8 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
                 client,
                 processor,
                 context.CurrentMessage.Text,
-                text => comment.Comment += text);
+                text => comment.Comment += text,
+                cancellationToken);
 
             Logger.Debug("Comment created successfully. Length: {CommentLength}", comment.Comment.Length);
         }
@@ -101,13 +102,13 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
     }
 
     public async Task<string> CreateTaskAsync(MessageProcessingContext context, IntelligentProcessor processor,
-        IChatClient client)
+        IChatClient client, CancellationToken cancellationToken = default)
     {
         Logger.Information("Creating task from message");
 
         try
         {
-            var response = await GetSingleResponseAsync(client, processor, context.CurrentMessage.Text);
+            var response = await GetSingleResponseAsync(client, processor, context.CurrentMessage.Text, cancellationToken);
             if (string.IsNullOrWhiteSpace(response))
             {
                 Logger.Debug("Received empty response when trying to get task");
@@ -126,7 +127,7 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
     }
 
     public async Task<string> ModifyMessageAsync(MessageProcessingContext context, IntelligentProcessor processor,
-        IChatClient client)
+        IChatClient client, CancellationToken cancellationToken = default)
     {
         Logger.Information("Modifying message with processor: {ProcessorName}", processor.Name);
 
@@ -139,7 +140,8 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
                 client,
                 processor,
                 originalText,
-                text => context.CurrentMessage.Text += text);
+                text => context.CurrentMessage.Text += text,
+                cancellationToken);
 
             Logger.Debug("Message modification completed. Original length: {OriginalLength}, New length: {NewLength}",
                 originalText.Length, context.CurrentMessage.Text.Length);
@@ -155,7 +157,7 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
     }
 
     public async Task<string> CreateChatMessageAsync(MessageProcessingContext context, IntelligentProcessor processor,
-        IChatClient client)
+        IChatClient client, CancellationToken cancellationToken = default)
     {
         Logger.Information("Creating chat message with processor: {ProcessorName}", processor.Name);
 
@@ -174,12 +176,12 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
 
         try
         {
-            var tools = await mcpService.GetTools();
+            var tools = await mcpService.GetTools(cancellationToken);
             await foreach (var update in client.GetStreamingResponseAsync(chatMessages, new ChatOptions()
                            {
                                ToolMode = ChatToolMode.Auto,
                                Tools = [.. tools]
-                           }))
+                           }, cancellationToken))
             {
                 textColloxMessage.Text += update.Text;
             }
@@ -197,7 +199,7 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
     }
 
     private async Task StreamResponseAsync(IChatClient client, IntelligentProcessor processor, string inputText,
-        Action<string> onTextReceived)
+        Action<string> onTextReceived, CancellationToken cancellationToken = default)
     {
         var chatMessages = new List<ChatMessage>();
 
@@ -209,19 +211,19 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
         var userMessage = new ChatMessage(ChatRole.User, string.Format(processor.Prompt, inputText));
         chatMessages.Add(userMessage);
 
-        var tools = await mcpService.GetTools();
+        var tools = await mcpService.GetTools(cancellationToken);
         await foreach (var update in client.GetStreamingResponseAsync(chatMessages, new ChatOptions()
                        {
                            ToolMode = ChatToolMode.Auto,
                            Tools = [.. tools]
-                       }))
+                       }, cancellationToken))
         {
             onTextReceived(update.Text);
         }
     }
 
     private async Task<string> GetSingleResponseAsync(IChatClient client, IntelligentProcessor processor,
-        string inputText)
+        string inputText, CancellationToken cancellationToken = default)
     {
         var chatMessages = new List<ChatMessage>();
 
@@ -233,12 +235,12 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
         var userMessage = new ChatMessage(ChatRole.User, string.Format(processor.Prompt, inputText));
         chatMessages.Add(userMessage);
 
-        var tools = await mcpService.GetTools();
+        var tools = await mcpService.GetTools(cancellationToken);
         var response = await client.GetResponseAsync(chatMessages, new ChatOptions()
         {
             ToolMode = ChatToolMode.Auto,
             Tools = [.. tools]
-        }).ConfigureAwait(true);
+        }, cancellationToken).ConfigureAwait(true);
         return response.Text;
     }
 

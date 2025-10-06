@@ -31,7 +31,7 @@ public partial class IntelligentProcessor : IDisposable
     public Guid FallbackId { get; set; }
 
     public delegate Task<string> ProcessMessage(MessageProcessingContext context, IntelligentProcessor processor,
-        IChatClient client);
+        IChatClient client, CancellationToken cancellationToken);
 
     public delegate void ErrorHandler(Exception exception);
 
@@ -39,7 +39,7 @@ public partial class IntelligentProcessor : IDisposable
 
     [JsonIgnore] public ErrorHandler OnError { get; set; }
 
-    public async Task Work(MessageProcessingContext context)
+    public async Task Work(MessageProcessingContext context, CancellationToken cancellationToken = default)
     {
         Logger.Information(
             "Starting work for processor '{ProcessorName}' (ID: {ProcessorId}) using {ClientManager} model '{ModelId}'",
@@ -49,7 +49,7 @@ public partial class IntelligentProcessor : IDisposable
 
         try
         {
-            var result = await Process(context, this, client);
+            var result = await Process(context, this, client, cancellationToken);
             Logger.Information("Successfully completed processing for '{ProcessorName}'. Result length: {ResultLength}",
                 Name, result?.Length ?? 0);
         }

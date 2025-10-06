@@ -15,7 +15,7 @@ public partial class HistoryViewModel(IStoreService storeService) : ObservableOb
     public async Task LoadHistory()
     {
         Histories.Clear();
-        var historyData = await storeService.Load().ConfigureAwait(true);
+        var historyData = await storeService.Load(CancellationToken.None).ConfigureAwait(true);
 
         foreach (var (month, historyItems) in historyData.Reverse())
         {

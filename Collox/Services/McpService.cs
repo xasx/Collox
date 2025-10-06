@@ -25,17 +25,17 @@ internal class McpService : IMcpService, IDisposable
         }
     }
 
-    public async ValueTask<IList<McpClientTool>> GetTools()
+    public async ValueTask<IList<McpClientTool>> GetTools(CancellationToken cancellationToken = default)
     {
         Logger.Debug("Retrieving MCP tools");
         try
         {
-            var tools = await mcpClient.ListToolsAsync();
+            var tools = await mcpClient.ListToolsAsync(cancellationToken);
             Logger.Information("Successfully retrieved {ToolCount} MCP tools", tools.Count);
             foreach (var tool in tools)
             {
                 Logger.Debug("Tool: {ToolName}, Description: {ToolDescription}", tool.Name, tool.Description);
-                var res = await tool.CallAsync(arguments: ReadOnlyDictionary<string, object>.Empty);
+                var res = await tool.CallAsync(arguments: ReadOnlyDictionary<string, object>.Empty, cancellationToken: cancellationToken);
                 Logger.Debug("Tool {ToolName} executed with result: {Result}", tool.Name, res.Content);
             }
             return tools;

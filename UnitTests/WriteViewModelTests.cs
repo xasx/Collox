@@ -128,7 +128,7 @@ public class WriteViewModelTests
 
         // Assert
         Check.That(_viewModel.Messages).IsEmpty();
-        _storeServiceMock.Verify(s => s.SaveNow(), Times.Once);
+        _storeServiceMock.Verify(s => s.SaveNow(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]
@@ -138,7 +138,7 @@ public class WriteViewModelTests
         await _viewModel.SaveNowCommand.ExecuteAsync(null);
 
         // Assert
-        _storeServiceMock.Verify(s => s.SaveNow(), Times.Once);
+        _storeServiceMock.Verify(s => s.SaveNow(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]

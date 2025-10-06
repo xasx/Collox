@@ -13,7 +13,7 @@ public class AudioService : IAudioService
 
     public ICollection<VoiceInfo> GetInstalledVoices() => _voiceInfos.Value;
 
-    public async Task PlayBeepSoundAsync()
+    public async Task PlayBeepSoundAsync(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -22,7 +22,7 @@ public class AudioService : IAudioService
                 var installedPath = Package.Current.InstalledLocation.Path;
                 var sp = new SoundPlayer(Path.Combine(installedPath, "Assets", "notify.wav"));
                 sp.PlaySync();
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
             Logger.Debug("Beep sound played successfully");
         }
         catch (Exception ex)
@@ -31,7 +31,7 @@ public class AudioService : IAudioService
         }
     }
 
-    public async Task ReadTextAsync(string text, string voiceName = null)
+    public async Task ReadTextAsync(string text, string voiceName = null, CancellationToken cancellationToken = default)
     {
         Logger.Debug("Reading text with voice: {Voice}, TextLength: {Length}", voiceName ?? "Default", text.Length);
 
@@ -52,7 +52,7 @@ public class AudioService : IAudioService
                 }
 
                 speechSynthesizer.Speak(text);
-            }).ConfigureAwait(false);
+            }, cancellationToken).ConfigureAwait(false);
             Logger.Debug("Text reading completed successfully");
         }
         catch (Exception ex)

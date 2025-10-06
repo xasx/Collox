@@ -5,7 +5,7 @@ namespace Collox.Services;
 
 public interface ICommandService
 {
-    Task<CommandResult> ProcessCommandAsync(string command, CommandContext context);
+    Task<CommandResult> ProcessCommandAsync(string command, CommandContext context, CancellationToken cancellationToken = default);
 }
 
 public class CommandResult

@@ -25,7 +25,7 @@ internal class StoreService : IStoreService
         currentFilename = GenerateCurrentFilename(DateTime.Now);
     }
 
-    public async Task Append(SingleMessage singleMessage)
+    public async Task Append(SingleMessage singleMessage, CancellationToken cancellationToken = default)
     {
         await Task.Run(() =>
         {
@@ -39,7 +39,7 @@ internal class StoreService : IStoreService
             {
                 Save();
             }
-        }).ConfigureAwait(false);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     public string GetFilename()
@@ -47,12 +47,12 @@ internal class StoreService : IStoreService
         return currentFilename;
     }
 
-    public Task SaveNow()
+    public Task SaveNow(CancellationToken cancellationToken = default)
     {
-        return Task.Run(Save);
+        return Task.Run(Save, cancellationToken);
     }
 
-    public Task<IDictionary<string, ICollection<MarkdownRecording>>> Load()
+    public Task<IDictionary<string, ICollection<MarkdownRecording>>> Load(CancellationToken cancellationToken = default)
     {
         return Task.Run<IDictionary<string, ICollection<MarkdownRecording>>>(async () =>
         {
@@ -76,7 +76,7 @@ internal class StoreService : IStoreService
                         {
                             for (var i = 0; i < 5; i++)
                             {
-                                var line = await sr.ReadLineAsync().ConfigureAwait(false);
+                                var line = await sr.ReadLineAsync(cancellationToken).ConfigureAwait(false);
                                 if (line != null)
                                 {
                                     lines += line + Environment.NewLine;
@@ -113,7 +113,7 @@ internal class StoreService : IStoreService
             }
 
             return dict;
-        });
+        }, cancellationToken);
     }
 
     private string GenerateCurrentFilename(DateTime now)

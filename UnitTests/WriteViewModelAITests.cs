@@ -76,7 +76,7 @@ public class WriteViewModelAITests
 
         // Assert
         _messageProcessingServiceMock.Verify(
-            s => s.ProcessMessageAsync(textMessage, processors), 
+            s => s.ProcessMessageAsync(It.IsAny<MessageProcessingContext>(), processors, It.IsAny<CancellationToken>()), 
             Times.Once);
     }
 
@@ -93,8 +93,8 @@ public class WriteViewModelAITests
         await _viewModel.SubmitCommand.ExecuteAsync(null);
 
         // Assert
-        _audioServiceMock.Verify(a => a.PlayBeepSoundAsync(), Times.Once);
-        _audioServiceMock.Verify(a => a.ReadTextAsync("Test message", It.IsAny<string>()), Times.Once);
+        _audioServiceMock.Verify(a => a.PlayBeepSoundAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _audioServiceMock.Verify(a => a.ReadTextAsync("Test message", It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]
@@ -109,7 +109,7 @@ public class WriteViewModelAITests
 
         // Assert
         _audioServiceMock.Verify(
-            a => a.ReadTextAsync(It.IsAny<string>(), It.IsAny<string>()), 
+            a => a.ReadTextAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), 
             Times.Once);
     }
 
@@ -122,7 +122,7 @@ public class WriteViewModelAITests
 
         var commandResult = new CommandResult { Success = true };
         _commandServiceMock.Setup(
-            s => s.ProcessCommandAsync("test command", It.IsAny<CommandContext>()))
+            s => s.ProcessCommandAsync("test command", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(commandResult);
 
         // Act
@@ -130,7 +130,7 @@ public class WriteViewModelAITests
 
         // Assert
         _commandServiceMock.Verify(
-            s => s.ProcessCommandAsync("test command", It.IsAny<CommandContext>()), 
+            s => s.ProcessCommandAsync("test command", It.IsAny<CommandContext>(), It.IsAny<CancellationToken>()), 
             Times.Once);
     }
 

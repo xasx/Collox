@@ -43,7 +43,7 @@ public class HistoryViewModelTests
             }
         };
 
-        _storeServiceMock.Setup(s => s.Load()).ReturnsAsync(mockData);
+        _storeServiceMock.Setup(s => s.Load(It.IsAny<CancellationToken>())).ReturnsAsync(mockData);
 
         // Act
         await _viewModel.LoadHistory();
