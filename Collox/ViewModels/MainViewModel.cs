@@ -29,7 +29,7 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
 
     [ObservableProperty] public partial bool IsAIEnabled { get; set; } = Settings.EnableAI;
 
-    [ObservableProperty] public partial InternetState InternetState { get; set; } = new();
+    [ObservableProperty] public partial bool InternetState { get; set; } 
 
     [ObservableProperty] public partial ObservableCollection<UserNotification> UserNotifications { get; set; } = [];
 
@@ -98,7 +98,7 @@ public partial class MainViewModel : ObservableRecipient, IRecipient<PropertyCha
 
     private void Instance_NetworkChanged(object sender, EventArgs e) => dispatcherQueue.TryEnqueue(RefreshInternetState);
 
-    private void RefreshInternetState() => InternetState.IsConnected = NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable;
+    private void RefreshInternetState() => InternetState = NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable;
 
     private void UserNotificationService_OnUserNotificationsViewChanged(IReadOnlyList<UserNotification> newView) => dispatcherQueue.TryEnqueue(() =>
                                                                                                                          {

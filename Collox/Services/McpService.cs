@@ -30,7 +30,7 @@ internal class McpService : IMcpService, IDisposable
         Logger.Debug("Retrieving MCP tools");
         try
         {
-            var tools = await mcpClient.ListToolsAsync(cancellationToken);
+            var tools = await mcpClient.ListToolsAsync(cancellationToken: cancellationToken);
             Logger.Information("Successfully retrieved {ToolCount} MCP tools", tools.Count);
             foreach (var tool in tools)
             {

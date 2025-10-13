@@ -24,7 +24,7 @@
     <Page.Resources>
 
         <converters:StringFormatConverter x:Key="StringFormatConverter" />
- 
+
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 
         <converters:BoolToObjectConverter x:Key="BoolToObjectConverterNoti"
@@ -171,29 +171,27 @@
             <TitleBar.Content>
                 <StackPanel Orientation="Horizontal">
 
-                    <Button Style="{ThemeResource SubtleButtonStyle}">
+                    <dev:LayeredFontIcons>
+                        <dev:LayeredFontIcons.FontIcons>
 
-                        <dev:LayeredFontIcons>
-                            <dev:LayeredFontIcons.FontIcons>
+                            <FontIcon FontSize="20"
+                                      Glyph="&#xF385;" />
+                            <FontIcon Margin="10,10,0,0"
+                                      FontSize="14"
+                                      Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                      Glyph="&#xE814;"
+                                      Visibility="{x:Bind ViewModel.InternetState, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True, Mode=OneWay}" />
+                            <FontIcon Margin="10,10,0,0"
+                                      FontSize="14"
+                                      Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                      Glyph="&#xEC61;"
+                                      Visibility="{x:Bind ViewModel.InternetState, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False, Mode=OneWay}" />
 
-                                <FontIcon FontSize="20"
-                                          Glyph="&#xF385;" />
-                                <FontIcon Margin="10,10,0,0"
-                                          FontSize="14"
-                                          Foreground="{ThemeResource SystemFillColorCautionBrush}"
-                                          Glyph="&#xE814;"
-                                          Visibility="{x:Bind ViewModel.InternetState.IsConnected, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}" />
-                                <FontIcon Margin="10,10,0,0"
-                                          FontSize="14"
-                                          Foreground="{ThemeResource SystemFillColorSuccessBrush}"
-                                          Glyph="&#xEC61;"
-                                          Visibility="{x:Bind ViewModel.InternetState.IsConnected, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=True}" />
+                        </dev:LayeredFontIcons.FontIcons>
+                    </dev:LayeredFontIcons>
 
-                            </dev:LayeredFontIcons.FontIcons>
-                        </dev:LayeredFontIcons>
-
-                    </Button>
-                    <Button Click="Shield_Click" Height="36"
+                    <Button Height="36"
+                            Click="Shield_Click"
                             FlyoutBase.AttachedFlyout="{StaticResource NotificationsFlyout}"
                             Style="{ThemeResource SubtleButtonStyle}">
                         <StackPanel Orientation="Horizontal"

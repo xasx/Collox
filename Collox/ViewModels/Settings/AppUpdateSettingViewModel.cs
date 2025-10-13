@@ -36,8 +36,8 @@ public partial class AppUpdateSettingViewModel : ObservableObject
             try
             {
                 //Todo: Fix UserName and Repo
-                var username = "";
-                var repo = "";
+                var username = "xasx";
+                var repo = "Collox";
                 LastUpdateCheck = DateTime.Now.ToShortDateString();
                 Settings.LastUpdateCheck = DateTime.Now.ToShortDateString();
                 var update =

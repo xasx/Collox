@@ -150,24 +150,24 @@
     <PackageReference Include="DevWinUI" Version="9.1.0" />
     <PackageReference Include="DevWinUI.Controls" Version="9.1.0" />
     <PackageReference Include="EmojiToolkit" Version="15.1.1" />
-    <PackageReference Include="Humanizer.Core" Version="3.0.0-beta.96" />
+    <PackageReference Include="Humanizer.Core" Version="3.0.0-rc.6" />
     <PackageReference Include="Markdig" Version="0.42.0" />
     <PackageReference Include="Microsoft.Extensions.AI" Version="9.9.1" />
     <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.9.1-preview.1.25474.6" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0-rc.1.25451.107" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0-rc.1.25451.107" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-rc.1.25451.107" />
-    <PackageReference Include="Microsoft.ML" Version="5.0.0-preview.25373.1" />
-    <PackageReference Include="Microsoft.ML.LightGbm" Version="5.0.0-preview.25373.1" />
+    <PackageReference Include="Microsoft.ML" Version="5.0.0-preview.25503.2" />
+    <PackageReference Include="Microsoft.ML.LightGbm" Version="5.0.0-preview.25503.2" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.205">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.6584" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250916003" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.0.250930001-experimental1" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.0" />
-    <PackageReference Include="ModelContextProtocol" Version="0.4.0-preview.1" />
-    <PackageReference Include="ModelContextProtocolServer.Stdio" Version="0.5.0" />
+    <PackageReference Include="ModelContextProtocol" Version="0.4.0-preview.2" />
+    <PackageReference Include="ModelContextProtocolServer.Stdio" Version="0.6.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="nucs.JsonSettings" Version="2.0.2" />
     <PackageReference Include="nucs.JsonSettings.AutoSaveGenerator" Version="2.0.4" />
@@ -223,8 +223,5 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="AppPackages\" />
   </ItemGroup>
 </Project>

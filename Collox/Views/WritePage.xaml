@@ -312,6 +312,7 @@
                            FontSize="24"
                            FontWeight="SemiBold"
                            Text="{x:Bind Time}" />
+                <dev:FlipCards Source="Time" />
             </StackPanel>
         </DataTemplate>
 

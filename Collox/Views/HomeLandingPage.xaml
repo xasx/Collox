@@ -13,19 +13,20 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+
         <dev:OverviewPageHeader Title="Collox"
                                 Grid.Row="0"
                                 Background="{ThemeResource CardGradient2Brush}"
                                 Description="Communicate again.">
             <dev:OverviewPageHeader.ActionContent>
-                <Button AutomationProperties.Name="c">
+                <Button AutomationProperties.Name="Info">
                     <Button.Content>
                         <StackPanel Orientation="Horizontal"
                                     Spacing="8">
                             <FontIcon FontSize="16"
                                       Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
                                       Glyph="&#xE7C3;" />
-                            <TextBlock Text="c" />
+                            <TextBlock Text="Info" />
                         </StackPanel>
                     </Button.Content>
 
@@ -82,7 +83,24 @@
                 </Grid>
             </dev:OverviewPageHeader.ImageContent>
         </dev:OverviewPageHeader>
+        <!--
+        <dev:HomePageHeader Grid.Column="0"
+                            HeaderImage="ms-appx:///Assets/Cover.png"
+                            HeaderImageHeight="300"
+                            HeaderSubtitleText="Communicate again"
+                            HeaderText="Collox">
 
+            <dev:HomePageHeader.HeaderContent>
+                <StackPanel Orientation="Horizontal"
+                            Spacing="12">
+                    <dev:HeaderTile Title="Get Started"
+                                    Description="Start your journey with Collox" />
+                    <dev:HeaderTile Title="Learn More"
+                                    Description="Discover more about Collox" />
+
+                </StackPanel>
+            </dev:HomePageHeader.HeaderContent>
+        </dev:HomePageHeader>-->
         <StackPanel Grid.Row="1"
                     Margin="8"
                     Spacing="12">
