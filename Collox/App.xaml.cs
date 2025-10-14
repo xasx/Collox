@@ -165,6 +165,7 @@ public partial class App : Application
             services.AddTransient<HistoryViewModel>();
             services.AddTransient<TabWriteViewModel>();
             services.AddTransient<MirrorViewModel>();
+            services.AddTransient<HomeLandingViewModel>();
 
             var serviceProvider = services.BuildServiceProvider();
             Logger.Information("Service configuration completed. Total services registered: {ServiceCount}",
