@@ -1,7 +1,7 @@
-﻿using Collox.Services;
+﻿using System.Collections.ObjectModel;
+using Collox.Services;
 using Collox.ViewModels.Messages;
 using CommunityToolkit.Mvvm.Messaging;
-using System.Collections.ObjectModel;
 
 namespace Collox.ViewModels;
 

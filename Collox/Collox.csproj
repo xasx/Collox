@@ -151,8 +151,8 @@
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.250402" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.Markdown" Version="7.1.2" />
     <PackageReference Include="Cottle" Version="2.1.0" />
-    <PackageReference Include="DevWinUI" Version="9.3.0" />
-    <PackageReference Include="DevWinUI.Controls" Version="9.3.0" />
+    <PackageReference Include="DevWinUI" Version="9.4.1" />
+    <PackageReference Include="DevWinUI.Controls" Version="9.4.1" />
     <PackageReference Include="EmojiToolkit" Version="15.1.1" />
     <PackageReference Include="Humanizer.Core" Version="3.0.0-rc.6" />
     <PackageReference Include="Markdig" Version="0.43.0" />
@@ -168,7 +168,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.3.0-prerelease.251015.2" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.6584" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.6901" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.0.250930001-experimental1" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.0" />
     <PackageReference Include="ModelContextProtocol" Version="0.4.0-preview.3" />

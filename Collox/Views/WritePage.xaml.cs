@@ -43,7 +43,7 @@ public sealed partial class WritePage : Page, IRecipient<TextSubmittedMessage>, 
     private void WritePage_Unloaded(object sender, RoutedEventArgs e)
     {
         WeakReferenceMessenger.Default.UnregisterAll(this);
-        
+
         // Clean up event handlers
         if (_messageScrollViewer != null)
         {
@@ -64,7 +64,7 @@ public sealed partial class WritePage : Page, IRecipient<TextSubmittedMessage>, 
         {
             WeakReferenceMessenger.Default.RegisterAll(this);
         }
-        
+
         // Get the ScrollViewer from the ListView
         _messageScrollViewer = FindChildOfType<ScrollViewer>(MessageListView);
         if (_messageScrollViewer != null)
@@ -255,7 +255,7 @@ public sealed partial class WritePage : Page, IRecipient<TextSubmittedMessage>, 
     {
         ViewModel.ConversationContext.ActiveProcessors.Clear();
         ViewModel.ConversationContext.ActiveProcessors
-            .AddRange([.. ProcessorsListView.SelectedItems.Cast<IntelligentProcessorViewModel>().Select(p => p.Model)]);
+            .AddRange(ProcessorsListView.SelectedItems.Cast<IntelligentProcessorViewModel>().Select(p => p.Model));
         WeakReferenceMessenger.Default.Send(new UpdateTabMessage(ViewModel.ConversationContext));
     }
 

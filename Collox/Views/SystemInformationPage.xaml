@@ -14,7 +14,7 @@
         <converters:StringVisibilityConverter x:Key="StringVisibilityConverter" />
     </Page.Resources>
 
-    <Grid>
+    <Grid dev:PanelAttach.ChildrenTransitions="EntranceThemeTransition">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />

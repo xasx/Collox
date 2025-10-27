@@ -285,7 +285,7 @@ public partial class App : Application
             mirrorWindow.SetIsMaximizable(false);
             mirrorWindow.SetIsMinimizable(false);
             mirrorWindow.SetIsResizable(false);
-            mirrorWindow.SetIsShownInSwitchers(false);
+            mirrorWindow.AppWindow.IsShownInSwitchers = false;
 
             WindowHelper.RemoveWindowBorderAndTitleBar(mirrorWindow);
 
