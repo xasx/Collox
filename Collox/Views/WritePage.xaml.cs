@@ -183,18 +183,42 @@ public sealed partial class WritePage : Page, IRecipient<TextSubmittedMessage>, 
     private void ApplyTemplate(Template templateItem)
     {
         var doc = Document.CreateDefault(templateItem.Content).DocumentOrThrow;
-
         var tti = doc.Render(_context.Value);
-        ViewModel.InputMessage += tti;
+        
+        // Get current cursor position
+        var cursorPosition = InputTextBox.SelectionStart;
+        
+        // Insert template text at cursor position
+        var currentText = ViewModel.InputMessage ?? string.Empty;
+        ViewModel.InputMessage = currentText.Insert(cursorPosition, tti);
+        ViewModel.KeyStrokesCount ++;
+
+        // Move cursor to end of inserted text
+        InputTextBox.SelectionStart = cursorPosition + tti.Length;
+        InputTextBox.SelectionLength = 0;
+        
+        // Focus the text box
+        InputTextBox.Focus(FocusState.Programmatic);
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
         var b = sender as Button;
-        ViewModel.InputMessage += b!.Tag;
+        
+        // Get current cursor position
+        var cursorPosition = InputTextBox.SelectionStart;
+        
+        // Insert button tag text at cursor position
+        var currentText = ViewModel.InputMessage ?? string.Empty;
+        var tagText = b!.Tag?.ToString() ?? string.Empty;
+        ViewModel.InputMessage = currentText.Insert(cursorPosition, tagText);
+        
         ViewModel.KeyStrokesCount++;
+        
+        // Move cursor to end of inserted text
         InputTextBox.Focus(FocusState.Programmatic);
-        InputTextBox.Select(InputTextBox.Text.Length, 0);
+        InputTextBox.SelectionStart = cursorPosition + tagText.Length;
+        InputTextBox.SelectionLength = 0;
     }
 
     private void GridView_ItemClick(object sender, ItemClickEventArgs e) { VoiceSettingsFlyout.Hide(); }
