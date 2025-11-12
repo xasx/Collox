@@ -1,5 +1,6 @@
 ﻿using Collox.Mcp;
 using Collox.Services;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Dispatching;
 using Microsoft.Windows.AppLifecycle;
@@ -8,6 +9,8 @@ using Microsoft.Windows.AppNotifications.Builder;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Serilog;
+using Serilog.Extensions.Logging;
+using System.Drawing;
 using WinUIEx;
 using AcrylicSystemBackdrop = DevWinUI.AcrylicSystemBackdrop;
 using ILogger = Serilog.ILogger;
@@ -135,7 +138,7 @@ public partial class App : Application
         try
         {
             // Add Serilog as the logging provider
-            services.AddLogging(builder => builder.AddSerilog());
+            services.AddLogging(builder => builder.ClearProviders().AddSerilog(dispose: true));
 
             // Register core services first (these are needed immediately)
             services.AddSingleton<IThemeService, ThemeService>();

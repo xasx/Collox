@@ -14,6 +14,8 @@ public partial class ColloxMessage : ObservableObject
     [ObservableProperty] public partial TimeSpan RelativeTimestamp { get; set; } = TimeSpan.Zero;
 
     public DateTime Timestamp { get; init; }
+
+    public Ulid Id { get; init; } = Ulid.NewUlid();
 }
 
 public partial class TextColloxMessage : ColloxMessage

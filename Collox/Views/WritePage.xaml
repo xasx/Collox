@@ -141,7 +141,8 @@
         <Flyout x:Name="EmojiFlyout">
             <StackPanel Width="400"
                         Height="400">
-                <ctrls:Segmented x:Name="EmojiSegment">
+                <ctrls:Segmented x:Name="EmojiSegment"
+                                 SelectionChanged="EmojiSegment_SelectionChanged">
                     <ctrls:SegmentedItem Icon="{winUi:FontIcon Glyph=&#xED54;}" />
                     <ctrls:SegmentedItem Icon="{winUi:FontIcon Glyph=&#xED53;}" />
                     <ctrls:SegmentedItem Icon="{winUi:FontIcon Glyph=&#xED55;}" />
@@ -154,7 +155,8 @@
 
                 <ScrollView Height="380"
                             ContentOrientation="Vertical">
-                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.Emojis, Mode=OneTime}">
+                    <ItemsRepeater x:Name="EmojiRepeater"
+                                   ItemsSource="{x:Bind ViewModel.Emojis, Mode=OneTime}">
                         <ItemsRepeater.ItemTemplate>
                             <DataTemplate x:DataType="collections:IReadOnlyObservableGroup">
                                 <StackPanel Margin="0,8,0,0"
@@ -163,6 +165,7 @@
                                                CanBeScrollAnchor="True"
                                                FontSize="24"
                                                FontWeight="SemiBold"
+                                               Tag="{x:Bind Key}"
                                                Text="{x:Bind Key}" />
                                     <ItemsRepeater xmlns:et="using:EmojiToolkit"
                                                    ItemsSource="{x:Bind}">

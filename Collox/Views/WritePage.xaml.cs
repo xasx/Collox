@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Collox.ViewModels.Messages;
 using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.WinUI.Controls;
 using Cottle;
 using EmojiToolkit;
 using Microsoft.UI.Input;
@@ -16,7 +17,13 @@ public sealed partial class WritePage : Page, IRecipient<TextSubmittedMessage>, 
 {
     private const string predefined = "predefined";
     private ScrollViewer _messageScrollViewer;
-    //lazy context creation
+    
+    // Cache the emoji category map as a static readonly field
+    private static readonly string[] _emojiCategoryMap = Emoji.All
+        .Select(e => e.Category)
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToArray();
+    
     private readonly Lazy<IContext> _context = new(() => Context.CreateBuiltin(Context.CreateCustom(
             (value) =>
             {
@@ -301,4 +308,41 @@ public sealed partial class WritePage : Page, IRecipient<TextSubmittedMessage>, 
     public void Receive(MessageSelectedMessage message) => MessageListView.ScrollIntoView(message.Value);
 
     public void Receive(FocusInputMessage message) => FocusInputBox();
+
+    private void EmojiSegment_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is not Segmented segmented || segmented.SelectedIndex == -1)
+            return;
+
+        // Map segment index to emoji category
+        var selectedCategory = _emojiCategoryMap[segmented.SelectedIndex];
+        
+        // Find the ScrollView in the emoji flyout
+        var scrollView = FindChildOfType<ScrollView>(EmojiFlyout.Content as FrameworkElement);
+        if (scrollView == null)
+            return;
+        
+        // Find the TextBlock with matching category in the ItemsRepeater
+        var itemsRepeater = EmojiRepeater;
+        if (itemsRepeater == null)
+            return;
+        
+        // Find the group header TextBlock with the matching category
+        for (var i = 0; i < itemsRepeater.ItemsSourceView.Count; i++)
+        {
+            var container = itemsRepeater.TryGetElement(i) as FrameworkElement;
+            var headerTextBlock = FindChildOfType<TextBlock>(container);
+            
+            if (headerTextBlock?.Tag?.ToString()?.Equals(selectedCategory, StringComparison.OrdinalIgnoreCase) == true)
+            {
+                // Scroll the header into view
+                headerTextBlock.StartBringIntoView(new BringIntoViewOptions
+                {
+                    AnimationDesired = true,
+                    VerticalAlignmentRatio = 0.0 // Align to top
+                });
+                break;
+            }
+        }
+    }
 }
