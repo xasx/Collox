@@ -9,12 +9,14 @@
     <File Path=".github/workflows/dotnet-release.yml" />
     <File Path="settings.xamlstyler" />
   </Folder>
+  <Project Path="Collox.Api/Collox.Api.csproj" Id="67c7ba06-3584-4882-8dda-9dc8e66393dc" />
   <Project Path="Collox/Collox.csproj">
     <Platform Solution="*|ARM64" Project="ARM64" />
     <Platform Solution="*|x64" Project="x64" />
     <Platform Solution="*|x86" Project="x86" />
     <Deploy />
   </Project>
+  <Project Path="HelloPlugin/HelloPlugin.csproj" Id="01735efc-96e9-488d-878c-6f44c0698e18" />
   <Project Path="UnitTests/UnitTests.csproj">
     <Platform Solution="Debug|x64" Project="x64" />
   </Project>

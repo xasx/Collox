@@ -149,7 +149,8 @@
         </Flyout>
     </Page.Resources>
 
-    <Grid RowDefinitions="Auto, *">
+    <Grid dev:PanelAttach.ChildrenTransitions="ReorderThemeTransition"
+          RowDefinitions="Auto, *">
         <TitleBar x:Name="AppTitleBar"
                   Title="{x:Bind dev:ProcessInfoHelper.ProductName}"
                   IconSource="{dev:BitmapIconSource Source=ms-appx:///Assets/Store/StoreLogo.scale-400.png}"

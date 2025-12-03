@@ -16,27 +16,28 @@
         <dev:SwitchConverter x:Key="SwitchConverter"
                              TargetType="vm:SourceProvider">
             <dev:Case Value="OpenAI">
-                <BitmapIcon UriSource="ms-appx:///Assets/Fluent/OpenAI.png"
-                            Width="20"
-                            Height="20" />
+                <BitmapIcon Width="20"
+                            Height="20"
+                            UriSource="ms-appx:///Assets/Fluent/OpenAI.png" />
             </dev:Case>
             <dev:Case Value="Ollama">
-                <BitmapIcon UriSource="ms-appx:///Assets/Fluent/Ollama.png"
-                            Width="20"
-                            Height="20" />
+                <BitmapIcon Width="20"
+                            Height="20"
+                            UriSource="ms-appx:///Assets/Fluent/Ollama.png" />
             </dev:Case>
         </dev:SwitchConverter>
 
-        <!-- Template for API Provider Items -->
-        <DataTemplate x:Key="ApiProviderTemplate" x:DataType="vm:IntelligenceApiProviderViewModel">
+        <!--  Template for API Provider Items  -->
+        <DataTemplate x:Key="ApiProviderTemplate"
+                      x:DataType="vm:IntelligenceApiProviderViewModel">
             <dev:SettingsExpander Margin="0,4,0,4"
                                   Description="{x:Bind Id, Mode=OneWay}"
                                   HeaderIcon="{x:Bind ApiType, Mode=OneWay, Converter={StaticResource SwitchConverter}}">
                 <dev:SettingsExpander.Header>
                     <dev:SwitchPresenter Value="{x:Bind NamePresentation, Mode=OneWay}">
                         <dev:Case Value="Display">
-                            <TextBlock Text="{x:Bind Name, Mode=OneWay}" 
-                                       FontWeight="SemiBold" />
+                            <TextBlock FontWeight="SemiBold"
+                                       Text="{x:Bind Name, Mode=OneWay}" />
                         </dev:Case>
                         <dev:Case Value="Edit">
                             <TextBox KeyDown="TextBox_KeyDown_1"
@@ -45,20 +46,20 @@
                         </dev:Case>
                     </dev:SwitchPresenter>
                 </dev:SettingsExpander.Header>
-                
+
                 <Button Command="{x:Bind DeleteCommand}"
                         Style="{ThemeResource SubtleButtonStyle}"
                         ToolTipService.ToolTip="Delete provider">
                     <FontIcon Glyph="&#xE74D;" />
                 </Button>
-                
+
                 <dev:SettingsExpander.Items>
                     <dev:SettingsCard x:Uid="ApiTypeCard"
                                       Description="The type of API to use"
                                       Header="API Type">
-                        <ComboBox ItemsSource="{dev:EnumValues Type=vm:SourceProvider}"
-                                  SelectedItem="{x:Bind ApiType, Mode=TwoWay}"
-                                  MinWidth="200" />
+                        <ComboBox MinWidth="200"
+                                  ItemsSource="{dev:EnumValues Type=vm:SourceProvider}"
+                                  SelectedItem="{x:Bind ApiType, Mode=TwoWay}" />
                     </dev:SettingsCard>
 
                     <dev:SettingsCard x:Uid="AddressCard"
@@ -84,16 +85,17 @@
             </dev:SettingsExpander>
         </DataTemplate>
 
-        <!-- Template for Processor Items -->
-        <DataTemplate x:Key="ProcessorTemplate" x:DataType="vm:IntelligentProcessorViewModel">
+        <!--  Template for Processor Items  -->
+        <DataTemplate x:Key="ProcessorTemplate"
+                      x:DataType="vm:IntelligentProcessorViewModel">
             <dev:SettingsExpander Margin="0,4,0,4"
                                   Description="{x:Bind Id, Mode=OneWay}"
                                   HeaderIcon="{dev:FontIcon GlyphCode=E950}">
                 <dev:SettingsExpander.Header>
                     <dev:SwitchPresenter Value="{x:Bind NamePresentation, Mode=OneWay}">
                         <dev:Case Value="Display">
-                            <TextBlock Text="{x:Bind Name, Mode=OneWay}" 
-                                       FontWeight="SemiBold" />
+                            <TextBlock FontWeight="SemiBold"
+                                       Text="{x:Bind Name, Mode=OneWay}" />
                         </dev:Case>
                         <dev:Case Value="Edit">
                             <TextBox KeyDown="TextBox_KeyDown"
@@ -102,31 +104,31 @@
                         </dev:Case>
                     </dev:SwitchPresenter>
                 </dev:SettingsExpander.Header>
-                
+
                 <Button Command="{x:Bind DeleteCommand}"
                         Style="{ThemeResource SubtleButtonStyle}"
                         ToolTipService.ToolTip="Delete processor">
                     <FontIcon Glyph="&#xE74D;" />
                 </Button>
-                
+
                 <dev:SettingsExpander.Items>
                     <dev:SettingsCard x:Uid="PromptCard"
                                       Description="The prompt to pass on to the AI Provider."
                                       Header="User Prompt">
-                        <TextBox MinWidth="320"
+                        <TextBox Height="80"
+                                 MinWidth="320"
                                  MaxWidth="560"
-                                 Height="80"
                                  AcceptsReturn="True"
                                  Text="{x:Bind Prompt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  TextWrapping="Wrap" />
                     </dev:SettingsCard>
-                    
+
                     <dev:SettingsCard x:Uid="SystemPromptCard"
                                       Description="The system prompt to pass on to the AI Provider."
                                       Header="System Prompt">
-                        <TextBox MinWidth="320"
+                        <TextBox Height="80"
+                                 MinWidth="320"
                                  MaxWidth="560"
-                                 Height="80"
                                  AcceptsReturn="True"
                                  Text="{x:Bind SystemPrompt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  TextWrapping="Wrap" />
@@ -135,17 +137,17 @@
                     <dev:SettingsCard x:Uid="TargetCard"
                                       Description="Target of the enhancement, location to put the response to."
                                       Header="Target">
-                        <ComboBox ItemsSource="{dev:EnumValues Type=vm:ProcessorTarget}"
-                                  SelectedItem="{x:Bind Target, Mode=TwoWay}"
-                                  MinWidth="200" />
+                        <ComboBox MinWidth="200"
+                                  ItemsSource="{dev:EnumValues Type=vm:ProcessorTarget}"
+                                  SelectedItem="{x:Bind Target, Mode=TwoWay}" />
                     </dev:SettingsCard>
 
                     <dev:SettingsCard x:Uid="ProviderCard"
                                       Description="The Provider to use"
                                       Header="Provider">
-                        <ComboBox ItemsSource="{x:Bind Providers, Mode=OneWay}"
-                                  SelectedItem="{x:Bind Provider, Mode=TwoWay}"
-                                  MinWidth="200">
+                        <ComboBox MinWidth="200"
+                                  ItemsSource="{x:Bind Providers, Mode=OneWay}"
+                                  SelectedItem="{x:Bind Provider, Mode=TwoWay}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate x:DataType="vm:IntelligenceApiProviderViewModel">
                                     <TextBlock Text="{x:Bind Name}" />
@@ -157,9 +159,9 @@
                     <dev:SettingsCard x:Uid="ModelIdCard"
                                       Description="The Id of the model to use."
                                       Header="Model Id">
-                        <ComboBox ItemsSource="{x:Bind AvailableModelIds, Mode=OneWay}"
-                                  SelectedItem="{x:Bind ModelId, Mode=TwoWay}"
-                                  MinWidth="200" />
+                        <ComboBox MinWidth="200"
+                                  ItemsSource="{x:Bind AvailableModelIds, Mode=OneWay}"
+                                  SelectedItem="{x:Bind ModelId, Mode=TwoWay}" />
                     </dev:SettingsCard>
                 </dev:SettingsExpander.Items>
             </dev:SettingsExpander>
@@ -177,14 +179,14 @@
         <StackPanel Margin="10"
                     dev:PanelAttach.ChildrenTransitions="SettingsCardTransition"
                     Spacing="20">
-            
-            <!-- AI Providers Group -->
+
+            <!--  AI Providers Group  -->
             <dev:SettingsGroup Description="Define AI Providers which serve OpenAI or Ollama APIs."
                                Header="AI Providers"
                                HeaderIcon="{dev:FontIcon GlyphName=Connected}">
                 <dev:SettingsGroup.Items>
-                    <dev:SettingsCard Header="Add New Provider"
-                                      Description="Create a new AI provider configuration">
+                    <dev:SettingsCard Description="Create a new AI provider configuration"
+                                      Header="Add New Provider">
                         <Button Command="{x:Bind ViewModel.AddApiProviderCommand}">
                             <FontIcon Glyph="&#xE710;" />
                         </Button>
@@ -192,17 +194,17 @@
                 </dev:SettingsGroup.Items>
             </dev:SettingsGroup>
 
-            <!-- API Providers List -->
-            <ItemsRepeater ItemsSource="{x:Bind ViewModel.ApiProviders, Mode=OneWay}"
-                           ItemTemplate="{StaticResource ApiProviderTemplate}" />
+            <!--  API Providers List  -->
+            <ItemsRepeater ItemTemplate="{StaticResource ApiProviderTemplate}"
+                           ItemsSource="{x:Bind ViewModel.ApiProviders, Mode=OneWay}" />
 
-            <!-- AI Integration Group -->
+            <!--  AI Integration Group  -->
             <dev:SettingsGroup Description="Define how AI integrates with the application, especially using your messages."
                                Header="AI Integration"
                                HeaderIcon="{dev:FontIcon GlyphName=Robot}">
                 <dev:SettingsGroup.Items>
-                    <dev:SettingsCard Header="Add New Processor"
-                                      Description="Create a new AI processing function">
+                    <dev:SettingsCard Description="Create a new AI processing function"
+                                      Header="Add New Processor">
                         <Button Command="{x:Bind ViewModel.AddProcessorCommand}">
                             <FontIcon Glyph="&#xE710;" />
                         </Button>
@@ -210,9 +212,9 @@
                 </dev:SettingsGroup.Items>
             </dev:SettingsGroup>
 
-            <!-- Processors List -->
-            <ItemsRepeater ItemsSource="{x:Bind ViewModel.Processors, Mode=OneWay}"
-                           ItemTemplate="{StaticResource ProcessorTemplate}" />
+            <!--  Processors List  -->
+            <ItemsRepeater ItemTemplate="{StaticResource ProcessorTemplate}"
+                           ItemsSource="{x:Bind ViewModel.Processors, Mode=OneWay}" />
         </StackPanel>
     </ScrollView>
 </Page>

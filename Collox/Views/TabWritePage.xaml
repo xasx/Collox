@@ -24,6 +24,7 @@
     <TabView x:Name="MainTabView"
              HorizontalAlignment="Stretch"
              VerticalAlignment="Stretch"
+             dev:PanelAttach.ChildrenTransitions="EntranceThemeTransition"
              AddTabButtonClick="MainTabView_AddTabButtonClick"
              SelectedItem="{x:Bind ViewModel.SelectedTab, Mode=TwoWay}"
              TabItemsSource="{x:Bind ViewModel.Tabs, Mode=OneWay}"
@@ -87,7 +88,8 @@
             <DataTemplate x:DataType="vm:TabData">
                 <TabViewItem CloseRequested="TabViewItem_CloseRequested"
                              IconSource="{dev:FontIconSource GlyphCode=E8BD}"
-                             IsClosable="{x:Bind IsCloseable, Mode=OneWay}">
+                             IsClosable="{x:Bind IsCloseable, Mode=OneWay}"
+                             Style="{ThemeResource TabViewItemRoundedStyle}">
                     <Frame x:Name="TabFrame">
                         <local:WritePage ConversationContext="{x:Bind Mode=OneWay}" />
                     </Frame>

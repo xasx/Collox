@@ -9,8 +9,6 @@ using Microsoft.Windows.AppNotifications.Builder;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Serilog;
-using Serilog.Extensions.Logging;
-using System.Drawing;
 using WinUIEx;
 using AcrylicSystemBackdrop = DevWinUI.AcrylicSystemBackdrop;
 using ILogger = Serilog.ILogger;
@@ -20,7 +18,7 @@ namespace Collox;
 
 public partial class App : Application
 {
-    public static ILogger Logger { get; private set; }
+    private static ILogger Logger { get; set; }
 
     public static Window MainWindow;
     private static readonly Lazy<Window> _lazyMirrorWindow = new(CreateMirrorWindow);
@@ -102,7 +100,7 @@ public partial class App : Application
         Logger = Log.ForContext<App>();
     }
 
-    public IServiceProvider Services => _lazyServices.Value;
+    private IServiceProvider Services => _lazyServices.Value;
     public new static App Current => (App)Application.Current;
     public INavigationServiceEx NavigationService => GetService<INavigationServiceEx>();
     public IThemeService ThemeService => GetService<IThemeService>();
@@ -146,6 +144,7 @@ public partial class App : Application
             services.AddSingleton<IStoreService, StoreService>();
 
             services.AddSingleton<IAIService, AIService>();
+            services.AddSingleton<IPluginService, PluginService>();
 
             // Other services that can be deferred
             services.AddSingleton<ITemplateService, TemplateService>();
@@ -190,8 +189,10 @@ public partial class App : Application
         {
             // Create main window immediately but defer heavy setup
             Logger.Debug("Creating main window instance");
-            MainWindow = new Window();
-            MainWindow.SystemBackdrop = new DevWinUI.MicaSystemBackdrop();
+            MainWindow = new Window
+            {
+                SystemBackdrop = new DevWinUI.MicaSystemBackdrop()
+            };
 
 
             // Setup notification manager on background thread
@@ -226,7 +227,7 @@ public partial class App : Application
                 Logger.Information("App notification activation detected");
                 HandleNotification((AppNotificationActivatedEventArgs)activatedArgs.Data);
             }
-
+            GetService<IPluginService>().LoadPluginsAsync();
             RunMCPServer();
         }
         catch (Exception ex)
@@ -292,22 +293,6 @@ public partial class App : Application
 
             WindowHelper.RemoveWindowBorderAndTitleBar(mirrorWindow);
 
-            var appNotification = new AppNotificationBuilder()
-                .AddArgument("action", "ToastClick")
-                //.AddArgument(Common.scenarioTag, ScenarioId.ToString())
-                .SetAppLogoOverride(new Uri("ms-appx:///Assets/Fluent/Collox.png"),
-                    AppNotificationImageCrop.Default)
-                //.AddText(ScenarioName)
-                .AddText("Showing mirror window while in the background.")
-                .AddText("Click to open main window.")
-                .AddButton(new AppNotificationButton("Open Main Window")
-                        .AddArgument("action", "OpenApp")
-                    //.AddArgument(Common.scenarioTag, ScenarioId.ToString())
-                )
-                .BuildNotification();
-
-            AppNotificationManager.Default.Show(appNotification);
-
             Logger.Information("Mirror window initialization completed successfully");
             return mirrorWindow;
         }
@@ -333,7 +318,7 @@ public partial class App : Application
         {
             var dispatcherQueue = MainWindow?.DispatcherQueue ?? DispatcherQueue.GetForCurrentThread();
 
-            dispatcherQueue.TryEnqueue(async delegate
+            dispatcherQueue.TryEnqueue(delegate
             {
                 if (data.Arguments["action"] == "OpenApp")
                 {
@@ -350,7 +335,7 @@ public partial class App : Application
                 }
 
                 Logger.Verbose("Executing notification handler on UI thread");
-                await Task.CompletedTask;
+
                 Logger.Debug("Notification handling completed");
             });
         }
@@ -415,6 +400,23 @@ public partial class App : Application
             {
                 Logger.Information("Main window hidden, showing mirror window");
                 MirrorWindow.Show();
+
+                var appNotification = new AppNotificationBuilder()
+                    .AddArgument("action", "ToastClick")
+                    //.AddArgument(Common.scenarioTag, ScenarioId.ToString())
+                    .SetAppLogoOverride(new Uri("ms-appx:///Assets/Fluent/Collox.png"),
+                        AppNotificationImageCrop.Default)
+                    //.AddText(ScenarioName)
+                    .AddText("Showing mirror window while in the background.")
+                    .AddText("Click to open main window.")
+                    .AddButton(new AppNotificationButton("Open Main Window")
+                            .AddArgument("action", "OpenApp")
+                        //.AddArgument(Common.scenarioTag, ScenarioId.ToString())
+                    )
+                    .BuildNotification();
+
+                AppNotificationManager.Default.Show(appNotification);
+
             }
         }
         catch (Exception ex)
