@@ -65,34 +65,6 @@ public partial class ChatClientManager<T> : IDisposable, IChatClientManager wher
         }
     }
 
-    // Keep synchronous version for compatibility
-    public IChatClient GetChatClient(string modelId)
-    {
-        if (string.IsNullOrWhiteSpace(modelId))
-        {
-            throw new ArgumentException("Model ID cannot be null or empty.", nameof(modelId));
-        }
-
-        _cacheLock.Wait();
-        try
-        {
-            if (_clientCache.TryGetValue(modelId, out var cachedClient))
-            {
-                Logger.Debug("Retrieved cached client for model {ModelId}", modelId);
-                return cachedClient;
-            }
-
-            Logger.Debug("Creating new client for model {ModelId}", modelId);
-            var newClient = _clientConfig.CreateClient(modelId);
-            _clientCache[modelId] = newClient;
-            Logger.Information("Chat client created and cached for model {ModelId}", modelId);
-            return newClient;
-        }
-        finally
-        {
-            _cacheLock.Release();
-        }
-    }
 
     public Task<IEnumerable<string>> AvailableModels => GetAvailableModelsAsync();
 

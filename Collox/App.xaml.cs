@@ -142,7 +142,7 @@ public partial class App : Application
             services.AddSingleton<IThemeService, ThemeService>();
             services.AddSingleton<INavigationServiceEx, NavigationServiceEx>();
             services.AddSingleton<IStoreService, StoreService>();
-
+            services.AddSingleton<IPluginService, PluginService>();
             services.AddSingleton<IAIService, AIService>();
 
             // Other services that can be deferred

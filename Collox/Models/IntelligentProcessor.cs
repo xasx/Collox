@@ -45,7 +45,7 @@ public partial class IntelligentProcessor : IDisposable
             "Starting work for processor '{ProcessorName}' (ID: {ProcessorId}) using {ClientManager} model '{ModelId}'",
             Name, Id, ClientManager, ModelId);
 
-        var client = ClientManager?.GetChatClient(ModelId);
+        var client = await ClientManager?.GetChatClientAsync(ModelId);
 
         try
         {
