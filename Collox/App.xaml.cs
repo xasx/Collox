@@ -9,8 +9,6 @@ using Microsoft.Windows.AppNotifications.Builder;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Serilog;
-using Serilog.Extensions.Logging;
-using System.Drawing;
 using WinUIEx;
 using AcrylicSystemBackdrop = DevWinUI.AcrylicSystemBackdrop;
 using ILogger = Serilog.ILogger;

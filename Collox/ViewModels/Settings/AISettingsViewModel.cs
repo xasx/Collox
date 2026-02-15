@@ -72,7 +72,9 @@ public partial class AISettingsViewModel : ObservableObject, IDisposable
                     }
 
                     vm.Providers = availableApiProviders;
+                    if (vm.Model.ClientManager != null) {
                     vm.AvailableModelIds.AddRange(await vm.Model.ClientManager.AvailableModels);
+                    }
 
                     Processors.Add(vm);
                 }

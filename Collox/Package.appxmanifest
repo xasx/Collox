@@ -8,7 +8,8 @@
   xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
   xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
   xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
-  IgnorableNamespaces="uap rescap com desktop uap3">
+  xmlns:uap18="http://schemas.microsoft.com/appx/manifest/uap/windows10/18"
+  IgnorableNamespaces="uap rescap com desktop uap3 uap18">
 
   <Identity
     Name="2985101d-3474-44c0-ab2b-cc6459d26a7c"
@@ -34,9 +35,11 @@
   </Resources>
 
   <Applications>
-    <Application Id="App"
+    <Application Id="App" a:TrustLevel="mediumIL" b:RuntimeBehavior="packagedClassicApp"
+                 xmlns:b="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+                 xmlns:a="http://schemas.microsoft.com/appx/manifest/preview/windows10/security"
       Executable="$targetnametoken$.exe"
-      EntryPoint="$targetentrypoint$">
+      EntryPoint="$targetentrypoint$" uap18:TrustLevel="mediumIL" uap18:RuntimeBehavior="packagedClassicApp">
       <uap:VisualElements
         DisplayName="Collox"
         Description="Collox"

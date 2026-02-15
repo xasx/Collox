@@ -88,7 +88,6 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
                 initialTab.IsSpeaking = tabContext.IsSpeaking;
                 initialTab.SelectedVoice = tabContext.SelectedVoice;
                 tabContexts[initialTab] = tabContext;
-                Tabs.Add(initialTab);
                 continue;
             }
 
@@ -110,6 +109,7 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
             Logger.Debug("Loaded tab: {Context}", tabContext.Name);
         }
 
+        Tabs.Add(initialTab);
         Logger.Information("Completed loading {TabCount} tabs", loadedTabs.Count);
     }
 
