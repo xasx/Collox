@@ -105,7 +105,7 @@ public partial class App : Application
     public INavigationServiceEx NavigationService => GetService<INavigationServiceEx>();
     public IThemeService ThemeService => GetService<IThemeService>();
 
-    private bool isClosing;
+    private int _isClosing;
 
     public static T GetService<T>() where T : class
     {
@@ -276,7 +276,7 @@ public partial class App : Application
 
             mirrorWindow.Closed += (sender, args) =>
             {
-                if (Current.isClosing) return;
+                if (Volatile.Read(ref Current._isClosing) != 0) return;
                 Logger.Information("Hiding mirror window instead of closing");
                 mirrorWindow.Hide();
                 args.Handled = true;
@@ -400,7 +400,7 @@ public partial class App : Application
 
     private void MainWindow_VisibilityChanged(object sender, WindowVisibilityChangedEventArgs args)
     {
-        if (isClosing)
+        if (Volatile.Read(ref _isClosing) != 0)
         {
             return;
         }
@@ -432,7 +432,7 @@ public partial class App : Application
             Logger.Information("Application state saved successfully");
 
             Logger.Debug("Setting application closing flag");
-            Interlocked.Exchange(ref isClosing, true);
+            Interlocked.Exchange(ref _isClosing, 1);
 
             Logger.Debug("Closing mirror window if initialized");
             if (_lazyMirrorWindow.IsValueCreated)

@@ -94,7 +94,7 @@ public partial class AISettingsViewModel : ObservableObject, IDisposable
         var synonymsEnhancerProcessor = new IntelligentProcessor()
         {
             Id = Guid.NewGuid(),
-            ModelId = " default",
+            ModelId = "default",
             Prompt = prompt,
             Target = Target.Comment,
             FallbackId = Guid.NewGuid(),
