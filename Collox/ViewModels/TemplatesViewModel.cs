@@ -70,7 +70,7 @@ public partial class TemplatesViewModel : ObservableObject, IDisposable
     [RelayCommand]
     public async Task SaveTemplate()
     {
-        if (Name.IsWhiteSpace() || Name?.Length == 0)
+        if (string.IsNullOrWhiteSpace(Name))
         {
             return;
         }
