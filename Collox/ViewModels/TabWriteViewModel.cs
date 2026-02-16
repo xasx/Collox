@@ -83,7 +83,9 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
                 Logger.Debug("Updating initial tab with saved data");
                 initialTab.ActiveProcessors.Clear();
                 initialTab.ActiveProcessors.AddRange(
-                    tabContext.ActiveProcessors.ConvertAll(x => procs.FirstOrDefault(p => p.Id == x)));
+                    tabContext.ActiveProcessors
+                        .Select(x => procs.FirstOrDefault(p => p.Id == x))
+                        .Where(p => p != null));
                 initialTab.IsBeeping = tabContext.IsBeeping;
                 initialTab.IsSpeaking = tabContext.IsSpeaking;
                 initialTab.SelectedVoice = tabContext.SelectedVoice;
@@ -101,7 +103,9 @@ public partial class TabWriteViewModel : ObservableRecipient, ITitleBarAutoSugge
                 IsEditing = false
             };
             tabData.ActiveProcessors.AddRange(
-                tabContext.ActiveProcessors.ConvertAll(x => procs.FirstOrDefault(p => p.Id == x)));
+                tabContext.ActiveProcessors
+                    .Select(x => procs.FirstOrDefault(p => p.Id == x))
+                    .Where(p => p != null));
 
             Tabs.Add(tabData);
             tabContexts[tabData] = tabContext;

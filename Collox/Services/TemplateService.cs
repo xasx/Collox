@@ -8,7 +8,7 @@ public class TemplateService : ITemplateService
     private readonly string templatesDir = Path.Combine(
         Settings.BaseFolder, "Templates");
 
-    private Dictionary<string, MarkdownTemplate> cache;
+    private Dictionary<string, MarkdownTemplate> cache = new();
 
     public async Task DeleteTemplate(string name)
     {
@@ -41,6 +41,7 @@ public class TemplateService : ITemplateService
 
     public async Task<IDictionary<string, MarkdownTemplate>> LoadTemplates()
     {
+        Directory.CreateDirectory(templatesDir);
         var filenames = Directory.GetFiles(templatesDir);
         Dictionary<string, MarkdownTemplate> templates = [];
         foreach (var filename in filenames)
