@@ -129,9 +129,10 @@ internal class StoreService : IStoreService
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(fn)!);
+            using var writer = new StreamWriter(fn, append: true);
             while (q.TryDequeue(out var line))
             {
-                File.AppendAllText(fn, line + Environment.NewLine);
+                writer.WriteLine(line);
             }
             lastSave = DateTime.Now;
             Logger.Debug("File saved successfully: {FileName}", fn);
