@@ -225,6 +225,27 @@ public partial class App : Application
                 HandleNotification((AppNotificationActivatedEventArgs)activatedArgs.Data);
             }
 
+            // Load and initialize plugins in the background after window setup
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var pluginService = GetService<IPluginService>();
+
+                    // Phase 1: Discover and load plugin assemblies
+                    await pluginService.LoadPluginsAsync();
+                    Logger.Information("Plugin loading completed");
+
+                    // Phase 2: Initialize plugins that need it
+                    await pluginService.InitializePluginsAsync();
+                    Logger.Information("Plugin initialization completed");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, "Failed to load/initialize plugins during startup");
+                }
+            });
+
             RunMCPServer();
         }
         catch (Exception ex)
@@ -430,6 +451,16 @@ public partial class App : Application
             Logger.Debug("Saving application state before closing");
             GetService<IStoreService>().SaveNow().Wait();
             Logger.Information("Application state saved successfully");
+
+            Logger.Debug("Shutting down plugin service");
+            try
+            {
+                (GetService<IPluginService>() as IDisposable)?.Dispose();
+            }
+            catch (Exception pluginEx)
+            {
+                Logger.Error(pluginEx, "Error disposing plugin service");
+            }
 
             Logger.Debug("Setting application closing flag");
             Interlocked.Exchange(ref _isClosing, 1);
