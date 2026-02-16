@@ -1,4 +1,4 @@
-﻿using Collox.Api;
+using Collox.Api;
 using Collox.Models;
 using Microsoft.Extensions.Logging;
 using System.Reflection;
@@ -28,12 +28,13 @@ public class PluginLoadContext : AssemblyLoadContext
     }
 }
 
-public class PluginService : IPluginService
+public class PluginService : IPluginService, IDisposable
 {
     private readonly IServiceProvider _services;
     private readonly ILogger<PluginService> _logger;
     private readonly Dictionary<string, (Plugin Plugin, PluginLoadContext Context)> _loadedPlugins = new();
     private readonly string _pluginsDirectory;
+    private bool _disposed;
 
     public PluginService(IServiceProvider services, ILogger<PluginService> logger)
     {
@@ -43,14 +44,17 @@ public class PluginService : IPluginService
         Directory.CreateDirectory(_pluginsDirectory);
     }
 
+    /// <summary>
+    /// Phase 1: Discover and load plugin assemblies. Does not call InitializeAsync.
+    /// </summary>
     public async Task LoadPluginsAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Loading plugins from: {PluginsDirectory}", _pluginsDirectory);
         cancellationToken.ThrowIfCancellationRequested();
         await Task.Yield();
-        var pluginDirectories = Directory.GetDirectories(_pluginsDirectory);
-        // load from each Directory the plugin dll that also has a deps.json file
-        foreach (var pluginDirectory in pluginDirectories)
+
+        // Load plugins from subdirectories (those with deps.json)
+        foreach (var pluginDirectory in Directory.GetDirectories(_pluginsDirectory))
         {
             var dlls = Directory.GetFiles(pluginDirectory, "*.dll", SearchOption.TopDirectoryOnly);
             foreach (var dll in dlls)
@@ -58,94 +62,7 @@ public class PluginService : IPluginService
                 var depsJson = Path.ChangeExtension(dll, ".deps.json");
                 if (File.Exists(depsJson))
                 {
-                    try
-                    {
-                        var loadContext = new PluginLoadContext(dll);
-                        var assembly = loadContext.LoadFromAssemblyPath(dll);
-                        // Test assembly for pluginattribute
-                        var pluginAttribute = assembly.GetCustomAttribute<PluginAttribute>();
-                        if (pluginAttribute is null)
-                        {
-                            _logger.LogWarning("No plugin descriptor found in assembly: {PluginPath}", dll);
-                            _logger.LogInformation("Unloading context for assembly: {PluginPath}", dll);
-                            loadContext.Unload();
-                            continue;
-                        }
-
-                        var plugin = new Plugin()
-                        {
-                            Id = pluginAttribute.Id,
-                            Name = pluginAttribute.Name,
-                            Version = pluginAttribute.Version,
-                            Author = pluginAttribute.Author,
-                            Description = pluginAttribute.Description,
-                        };
-                        //enumerate plugin interfaces in the assembly
-                        Type[] allTypes;
-                        try
-                        {
-                            allTypes = assembly.GetTypes();
-                        }
-                        catch (ReflectionTypeLoadException ex)
-                        {
-                            _logger.LogWarning(ex, "Some types in plugin assembly could not be loaded: {PluginPath}",
-                                dll);
-                            allTypes = ex.Types
-                                .Where(t => t != null)
-                                .Cast<Type>()
-                                .ToArray();
-                        }
-
-                        var initPluginType = allTypes
-                            .FirstOrDefault(t => typeof(IPlugin).IsAssignableFrom(t) && !t.IsAbstract && t.IsClass);
-                        if (initPluginType != null)
-                        {
-                            var initPluginInstance = (IPlugin)Activator.CreateInstance(initPluginType)!;
-                            plugin.InitPlugin = initPluginInstance;
-                        }
-
-                        // find other plugin types
-                        // IApiProvider
-                        var apiProviderTypes = allTypes
-                            .Where(t => typeof(IApiProvider).IsAssignableFrom(t) && !t.IsAbstract && t.IsClass)
-                            .ToList();
-                        foreach (var apiProviderType in apiProviderTypes)
-                        {
-                            // scan for annotation
-                            var apiProviderDesc = apiProviderType.GetCustomAttribute<ApiProviderNameAttribute>();
-                            if (apiProviderDesc != null)
-                            {
-                                plugin.ApiProvidersByName[apiProviderDesc.Name] = new Lazy<IApiProvider>(() =>
-                                    (IApiProvider)Activator.CreateInstance(apiProviderType)!);
-                            }
-                        }
-
-                        if (_loadedPlugins.TryGetValue(plugin.Name, out var existingPluginEntry))
-                        {
-                            // A plugin with the same name is already loaded; avoid silently overwriting it.
-                            var existingPlugin = existingPluginEntry.Plugin;
-                            _logger.LogError(
-                                "Plugin name conflict: a plugin named '{PluginName}' is already loaded (Id: {ExistingPluginId}). " +
-                                "The plugin from '{PluginPath}' with Id: {NewPluginId} will not be loaded.",
-                                plugin.Name,
-                                existingPlugin.Id,
-                                dll,
-                                plugin.Id);
-
-                            _logger.LogInformation("Unloading context for conflicting plugin assembly: {PluginPath}",
-                                dll);
-                            loadContext.Unload();
-                            continue;
-                        }
-
-                        _loadedPlugins[plugin.Name] = (plugin, loadContext);
-                        _logger.LogInformation("Loaded plugin: {PluginName} v{PluginVersion} by {PluginAuthor}",
-                            plugin.Name, plugin.Version, plugin.Author);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Failed to load plugin from: {PluginPath}", dll);
-                    }
+                    TryLoadPlugin(dll);
                 }
             }
         }
@@ -153,93 +70,119 @@ public class PluginService : IPluginService
         // Also load simple plugins (single DLLs) from the root plugins directory
         foreach (var pluginPath in Directory.GetFiles(_pluginsDirectory, "*.dll", SearchOption.TopDirectoryOnly))
         {
-            try
+            TryLoadPlugin(pluginPath);
+        }
+    }
+
+    /// <summary>
+    /// Phase 2: Initialize all loaded plugins that have an IPlugin implementation.
+    /// </summary>
+    public async Task InitializePluginsAsync(CancellationToken cancellationToken = default)
+    {
+        foreach (var (name, (plugin, _)) in _loadedPlugins)
+        {
+            if (plugin.InitPlugin != null)
             {
-                var loadContext = new PluginLoadContext(pluginPath);
-                var assembly = loadContext.LoadFromAssemblyPath(pluginPath);
-
-                // Test assembly for pluginattribute
-                var pluginAttribute = assembly.GetCustomAttribute<PluginAttribute>();
-
-                if (pluginAttribute is null)
-                {
-                    _logger.LogWarning("No plugin descriptor found in assembly: {PluginPath}", pluginPath);
-                    _logger.LogInformation("Unloading context for assembly: {PluginPath}", pluginPath);
-                    loadContext.Unload();
-                    continue;
-                }
-
-                var plugin = new Plugin()
-                {
-                    Id = pluginAttribute.Id,
-                    Name = pluginAttribute.Name,
-                    Version = pluginAttribute.Version,
-                    Author = pluginAttribute.Author,
-                    Description = pluginAttribute.Description,
-                };
-
-                // Check for duplicate before adding
-                if (_loadedPlugins.TryGetValue(plugin.Name, out var existingPluginEntry))
-                {
-                    var existingPlugin = existingPluginEntry.Plugin;
-                    _logger.LogError(
-                        "Plugin name conflict: a plugin named '{PluginName}' is already loaded (Id: {ExistingPluginId}). " +
-                        "The plugin from '{PluginPath}' with Id: {NewPluginId} will not be loaded.",
-                        plugin.Name,
-                        existingPlugin.Id,
-                        pluginPath,
-                        plugin.Id);
-                    loadContext.Unload();
-                    continue;
-                }
-
-                // Enumerate plugin interfaces in the assembly
-                Type[] allTypes;
                 try
                 {
-                    allTypes = assembly.GetTypes();
+                    await plugin.InitPlugin.InitializeAsync(_services, cancellationToken);
+                    _logger.LogInformation("Initialized plugin: {PluginName}", name);
                 }
-                catch (ReflectionTypeLoadException rtle)
+                catch (Exception ex)
                 {
-                    _logger.LogWarning(rtle, "Some types in plugin assembly could not be loaded: {PluginPath}",
-                        pluginPath);
-                    allTypes = rtle.Types
-                        .Where(t => t != null)
-                        .Cast<Type>()
-                        .ToArray();
+                    _logger.LogError(ex, "Failed to initialize plugin: {PluginName}", name);
                 }
-
-                var initPluginType = allTypes
-                    .FirstOrDefault(t => typeof(IPlugin).IsAssignableFrom(t) && !t.IsAbstract && t.IsClass);
-                if (initPluginType != null)
-                {
-                    var initPluginInstance = (IPlugin)Activator.CreateInstance(initPluginType)!;
-                    plugin.InitPlugin = initPluginInstance;
-                }
-
-                // Find IApiProvider types
-                var apiProviderTypes = allTypes
-                    .Where(t => typeof(IApiProvider).IsAssignableFrom(t) && !t.IsAbstract && t.IsClass)
-                    .ToList();
-
-                foreach (var apiProviderType in apiProviderTypes)
-                {
-                    var apiProviderDesc = apiProviderType.GetCustomAttribute<ApiProviderNameAttribute>();
-                    if (apiProviderDesc != null)
-                    {
-                        plugin.ApiProvidersByName[apiProviderDesc.Name] = new Lazy<IApiProvider>(() =>
-                            (IApiProvider)Activator.CreateInstance(apiProviderType)!);
-                    }
-                }
-
-                _loadedPlugins[plugin.Name] = (plugin, loadContext);
-                _logger.LogInformation("Loaded plugin: {PluginName} v{PluginVersion} by {PluginAuthor}",
-                    plugin.Name, plugin.Version, plugin.Author);
             }
-            catch (Exception ex)
+        }
+    }
+
+    private void TryLoadPlugin(string dllPath)
+    {
+        PluginLoadContext loadContext = null;
+        try
+        {
+            loadContext = new PluginLoadContext(dllPath);
+            var assembly = loadContext.LoadFromAssemblyPath(dllPath);
+
+            var pluginAttribute = assembly.GetCustomAttribute<PluginAttribute>();
+            if (pluginAttribute is null)
             {
-                _logger.LogError(ex, "Failed to load plugin from: {PluginPath}", pluginPath);
+                _logger.LogWarning("No plugin descriptor found in assembly: {PluginPath}", dllPath);
+                loadContext.Unload();
+                return;
             }
+
+            var plugin = new Plugin()
+            {
+                Id = pluginAttribute.Id,
+                Name = pluginAttribute.Name,
+                Version = pluginAttribute.Version,
+                Author = pluginAttribute.Author,
+                Description = pluginAttribute.Description,
+            };
+
+            // Check for duplicate before doing any further work
+            if (_loadedPlugins.TryGetValue(plugin.Name, out var existingPluginEntry))
+            {
+                _logger.LogError(
+                    "Plugin name conflict: a plugin named '{PluginName}' is already loaded (Id: {ExistingPluginId}). " +
+                    "The plugin from '{PluginPath}' with Id: {NewPluginId} will not be loaded.",
+                    plugin.Name,
+                    existingPluginEntry.Plugin.Id,
+                    dllPath,
+                    plugin.Id);
+                loadContext.Unload();
+                return;
+            }
+
+            // Enumerate types in the assembly
+            Type[] allTypes;
+            try
+            {
+                allTypes = assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                _logger.LogWarning(ex, "Some types in plugin assembly could not be loaded: {PluginPath}", dllPath);
+                allTypes = ex.Types
+                    .Where(t => t != null)
+                    .Cast<Type>()
+                    .ToArray();
+            }
+
+            // Find optional IPlugin implementation (for plugins that need initialization)
+            var initPluginType = allTypes
+                .FirstOrDefault(t => typeof(IPlugin).IsAssignableFrom(t)
+                                     && !t.IsAbstract && t.IsClass);
+            if (initPluginType != null)
+            {
+                var initPluginInstance = (IPlugin)Activator.CreateInstance(initPluginType)!;
+                plugin.InitPlugin = initPluginInstance;
+            }
+
+            // Find IApiProvider types (independent of IPlugin)
+            var apiProviderTypes = allTypes
+                .Where(t => typeof(IApiProvider).IsAssignableFrom(t) && !t.IsAbstract && t.IsClass)
+                .ToList();
+            foreach (var apiProviderType in apiProviderTypes)
+            {
+                var apiProviderDesc = apiProviderType.GetCustomAttribute<ApiProviderNameAttribute>();
+                if (apiProviderDesc != null)
+                {
+                    plugin.ApiProvidersByName[apiProviderDesc.Name] = new Lazy<IApiProvider>(() =>
+                        (IApiProvider)Activator.CreateInstance(apiProviderType)!);
+                }
+            }
+
+            _loadedPlugins[plugin.Name] = (plugin, loadContext);
+            _logger.LogInformation("Loaded plugin: {PluginName} v{PluginVersion} by {PluginAuthor}",
+                plugin.Name, plugin.Version, plugin.Author);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load plugin from: {PluginPath}", dllPath);
+            // Clean up the load context if we created one but failed
+            loadContext?.Unload();
         }
     }
 
@@ -258,5 +201,27 @@ public class PluginService : IPluginService
             _loadedPlugins.Remove(pluginName);
             _logger.LogInformation("Unloaded plugin: {PluginName}", pluginName);
         }
+    }
+
+    public void Dispose()
+    {
+        if (_disposed)
+            return;
+
+        foreach (var (name, (plugin, context)) in _loadedPlugins)
+        {
+            try
+            {
+                plugin.InitPlugin?.ShutdownAsync().GetAwaiter().GetResult();
+                context.Unload();
+                _logger.LogInformation("Shut down plugin: {PluginName}", name);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error shutting down plugin: {PluginName}", name);
+            }
+        }
+        _loadedPlugins.Clear();
+        _disposed = true;
     }
 }
