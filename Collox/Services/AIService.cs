@@ -30,8 +30,16 @@ public partial class AIService : IAIService, IDisposable
 
         if (intelligentProcessor.ApiProviderId != Guid.Empty)
         {
-            intelligentProcessor.ClientManager = new ChatClientManager<IntelligenceApiProvider>(
-                Config.ApiProviders.FirstOrDefault(p => p.Id == intelligentProcessor.ApiProviderId));
+            var apiProvider = Config.ApiProviders.FirstOrDefault(p => p.Id == intelligentProcessor.ApiProviderId);
+            if (apiProvider != null)
+            {
+                intelligentProcessor.ClientManager = new ChatClientManager<IntelligenceApiProvider>(apiProvider);
+            }
+            else
+            {
+                Logger.Warning("API provider {ProviderId} not found when adding processor {ProcessorName}",
+                    intelligentProcessor.ApiProviderId, intelligentProcessor.Name);
+            }
         }
         Config.Processors.Add(intelligentProcessor);
 

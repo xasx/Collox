@@ -45,10 +45,23 @@ public partial class IntelligentProcessor : IDisposable
             "Starting work for processor '{ProcessorName}' (ID: {ProcessorId}) using {ClientManager} model '{ModelId}'",
             Name, Id, ClientManager, ModelId);
 
-        var client = await ClientManager?.GetChatClientAsync(ModelId);
+        if (ClientManager is null)
+        {
+            Logger.Error("ClientManager is null for processor '{ProcessorName}' (ID: {ProcessorId}). Skipping.", Name, Id);
+            OnError?.Invoke(new InvalidOperationException($"No API provider configured for processor '{Name}'."));
+            return;
+        }
+
+        if (Process is null)
+        {
+            Logger.Error("Process delegate is null for processor '{ProcessorName}' (ID: {ProcessorId}). Skipping.", Name, Id);
+            OnError?.Invoke(new InvalidOperationException($"No processing function assigned for processor '{Name}'."));
+            return;
+        }
 
         try
         {
+            var client = await ClientManager.GetChatClientAsync(ModelId);
             var result = await Process(context, this, client, cancellationToken);
             Logger.Information("Successfully completed processing for '{ProcessorName}'. Result length: {ResultLength}",
                 Name, result?.Length ?? 0);
