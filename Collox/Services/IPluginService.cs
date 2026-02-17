@@ -2,7 +2,7 @@
 
 namespace Collox.Services;
 
-public interface IPluginService
+public interface IPluginService : IAsyncDisposable
 {
     /// <summary>
     /// Phase 1: Discover and load plugin assemblies without initializing them.
