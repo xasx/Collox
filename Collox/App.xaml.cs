@@ -106,6 +106,8 @@ public partial class App : Application
     public IThemeService ThemeService => GetService<IThemeService>();
 
     private int _isClosing;
+    private Task _pluginLoadTask = Task.CompletedTask;
+    private readonly CancellationTokenSource _pluginLoadCts = new();
 
     public static T GetService<T>() where T : class
     {
@@ -225,26 +227,30 @@ public partial class App : Application
                 HandleNotification((AppNotificationActivatedEventArgs)activatedArgs.Data);
             }
 
-            // Load and initialize plugins in the background after window setup
-            _ = Task.Run(async () =>
+            // Load and initialize plugins in the background after window setup.
+            // Store the Task so shutdown can cancel and await it before disposing.
+            var pluginService = GetService<IPluginService>();
+            _pluginLoadTask = Task.Run(async () =>
             {
                 try
                 {
-                    var pluginService = GetService<IPluginService>();
-
                     // Phase 1: Discover and load plugin assemblies
-                    await pluginService.LoadPluginsAsync();
+                    await pluginService.LoadPluginsAsync(_pluginLoadCts.Token);
                     Logger.Information("Plugin loading completed");
 
                     // Phase 2: Initialize plugins that need it
-                    await pluginService.InitializePluginsAsync();
+                    await pluginService.InitializePluginsAsync(_pluginLoadCts.Token);
                     Logger.Information("Plugin initialization completed");
+                }
+                catch (OperationCanceledException)
+                {
+                    Logger.Information("Plugin loading cancelled during shutdown");
                 }
                 catch (Exception ex)
                 {
                     Logger.Error(ex, "Failed to load/initialize plugins during startup");
                 }
-            });
+            }, _pluginLoadCts.Token);
 
             RunMCPServer();
         }
@@ -452,10 +458,15 @@ public partial class App : Application
             GetService<IStoreService>().SaveNow().Wait();
             Logger.Information("Application state saved successfully");
 
-            Logger.Debug("Shutting down plugin service");
+            Logger.Debug("Cancelling and awaiting plugin loading");
+            _pluginLoadCts.Cancel();
+            try { _pluginLoadTask.Wait(); } catch { /* OperationCanceledException / AggregateException expected */ }
+            _pluginLoadCts.Dispose();
+
+            Logger.Debug("Disposing plugin service");
             try
             {
-                (GetService<IPluginService>() as IDisposable)?.Dispose();
+                GetService<IPluginService>().DisposeAsync().AsTask().Wait();
             }
             catch (Exception pluginEx)
             {
