@@ -154,11 +154,9 @@ public class PluginService : IPluginService
                     .ToArray();
             }
 
-            // Find optional IPlugin implementation (exclude IApiProvider subtypes so they
-            // don't accidentally match the IPlugin init slot)
+            // Find optional IPlugin implementation (for plugins that need initialization)
             var initPluginType = allTypes
                 .FirstOrDefault(t => typeof(IPlugin).IsAssignableFrom(t)
-                                     && !typeof(IApiProvider).IsAssignableFrom(t)
                                      && !t.IsAbstract && t.IsClass);
             if (initPluginType != null)
             {
