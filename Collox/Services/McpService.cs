@@ -1,5 +1,4 @@
-﻿﻿using System.Collections.ObjectModel;
-using ModelContextProtocol.Client;
+﻿﻿using ModelContextProtocol.Client;
 using Serilog;
 
 namespace Collox.Services;
@@ -8,15 +7,21 @@ internal class McpService : IMcpService, IDisposable
 {
     private readonly McpClient mcpClient;
     private static readonly ILogger Logger = Log.ForContext<McpService>();
-    private bool _disposed;
+    private int _disposed;
 
-    public McpService()
+    private McpService(McpClient client)
+    {
+        mcpClient = client;
+        Logger.Information("McpService initialized successfully");
+    }
+
+    public static async Task<IMcpService> CreateAsync()
     {
         Logger.Debug("Initializing McpService");
         try
         {
-            mcpClient = McpClient.CreateAsync(new ClientQueueTransport()).Result;
-            Logger.Information("McpService initialized successfully");
+            var client = await McpClient.CreateAsync(new ClientQueueTransport()).ConfigureAwait(false);
+            return new McpService(client);
         }
         catch (Exception ex)
         {
@@ -32,12 +37,6 @@ internal class McpService : IMcpService, IDisposable
         {
             var tools = await mcpClient.ListToolsAsync(cancellationToken: cancellationToken);
             Logger.Information("Successfully retrieved {ToolCount} MCP tools", tools.Count);
-            foreach (var tool in tools)
-            {
-                Logger.Debug("Tool: {ToolName}, Description: {ToolDescription}", tool.Name, tool.Description);
-                var res = await tool.CallAsync(arguments: ReadOnlyDictionary<string, object>.Empty, cancellationToken: cancellationToken);
-                Logger.Debug("Tool {ToolName} executed with result: {Result}", tool.Name, res.Content);
-            }
             return tools;
         }
         catch (Exception ex)
@@ -49,7 +48,7 @@ internal class McpService : IMcpService, IDisposable
 
     public void Dispose()
     {
-        if (_disposed)
+        if (Interlocked.Exchange(ref _disposed, 1) != 0)
             return;
 
         Logger.Debug("Disposing McpService");
@@ -59,7 +58,6 @@ internal class McpService : IMcpService, IDisposable
             disposable.Dispose();
         }
 
-        _disposed = true;
         Logger.Information("McpService disposed successfully");
     }
 }

@@ -108,6 +108,9 @@ public partial class App : Application
     private int _isClosing;
     private Task _pluginLoadTask = Task.CompletedTask;
     private readonly CancellationTokenSource _pluginLoadCts = new();
+    private Task _mcpServerTask = Task.CompletedTask;
+    private readonly CancellationTokenSource _mcpServerCts = new();
+    private IAsyncDisposable _mcpServer;
 
     public static T GetService<T>() where T : class
     {
@@ -155,7 +158,7 @@ public partial class App : Application
             services.AddSingleton<IMessageProcessingService, MessageProcessingService>();
             services.AddSingleton<IAudioService, AudioService>();
 
-            services.AddSingleton<IMcpService, McpService>();
+            services.AddSingleton<Task<IMcpService>>(_ => McpService.CreateAsync());
 
             // Register view models as transient (created when needed)
             services.AddTransient<MainViewModel>();
@@ -227,6 +230,18 @@ public partial class App : Application
                 HandleNotification((AppNotificationActivatedEventArgs)activatedArgs.Data);
             }
 
+            try
+            {
+                _mcpServerTask = RunMCPServer(_mcpServerCts.Token);
+                _ = _mcpServerTask.ContinueWith(t =>
+                {
+                    Logger.Error(t.Exception, "MCP server failed");
+                }, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "MCP server failed to start");
+            }
             // Load and initialize plugins in the background after window setup.
             // Store the Task so shutdown can cancel and await it before disposing.
             var pluginService = GetService<IPluginService>();
@@ -252,7 +267,6 @@ public partial class App : Application
                 }
             }, _pluginLoadCts.Token);
 
-            RunMCPServer();
         }
         catch (Exception ex)
         {
@@ -261,7 +275,7 @@ public partial class App : Application
         }
     }
 
-    private async Task RunMCPServer()
+    private async Task RunMCPServer(CancellationToken cancellationToken)
     {
         var server = McpServer.Create(new QueueTransport(Origin.Server),
             new McpServerOptions()
@@ -273,7 +287,8 @@ public partial class App : Application
                 ToolCollection = [McpServerTool.Create(Tools.CreateTask)]
             }, serviceProvider: Services);
 
-        await server.RunAsync();
+        _mcpServer = server;
+        await server.RunAsync(cancellationToken);
     }
 
     private static Window CreateMirrorWindow()
@@ -458,15 +473,19 @@ public partial class App : Application
             GetService<IStoreService>().SaveNow().Wait();
             Logger.Information("Application state saved successfully");
 
+            // Cancel the MCP server — disposal is fire-and-forget since
+            // the process is exiting and the in-memory transport needs no cleanup.
+            _mcpServerCts.Cancel();
+
             // Run cancellation and async disposal on a thread-pool thread so that
             // any awaited continuations inside DisposeAsync never try to marshal
             // back to the UI SynchronizationContext and deadlock.
             Logger.Debug("Cancelling and awaiting plugin loading");
+            _pluginLoadCts.Cancel();
             try
             {
                 Task.Run(async () =>
                 {
-                    _pluginLoadCts.Cancel();
                     try { await _pluginLoadTask; } catch { /* cancellation expected */ }
                     _pluginLoadCts.Dispose();
 

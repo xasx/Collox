@@ -7,12 +7,33 @@ namespace Collox.Services;
 public class MessageProcessingService : IMessageProcessingService, IDisposable
 {
     private static readonly ILogger Logger = Log.ForContext<MessageProcessingService>();
-    private readonly IMcpService mcpService;
-    private bool _disposed;
+    private readonly Task<IMcpService> mcpServiceTask;
+    private IMcpService _mcpService;
+    private int _disposed;
 
-    public MessageProcessingService(IMcpService mcpService)
+    public MessageProcessingService(Task<IMcpService> mcpServiceTask)
     {
-        this.mcpService = mcpService;
+        this.mcpServiceTask = mcpServiceTask;
+    }
+
+    private async ValueTask<IMcpService> GetMcpServiceAsync()
+    {
+        if (_mcpService is not null)
+        {
+            return _mcpService;
+        }
+
+        try
+        {
+            var service = await mcpServiceTask.ConfigureAwait(false);
+            Interlocked.CompareExchange(ref _mcpService, service, null);
+            return _mcpService;
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Failed to initialize MCP service. MCP-dependent operations will be unavailable");
+            throw;
+        }
     }
 
     public async Task ProcessMessageAsync(MessageProcessingContext context,
@@ -176,7 +197,7 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
 
         try
         {
-            var tools = await mcpService.GetTools(cancellationToken);
+            var tools = await (await GetMcpServiceAsync()).GetTools(cancellationToken);
             await foreach (var update in client.GetStreamingResponseAsync(chatMessages, new ChatOptions()
                            {
                                ToolMode = ChatToolMode.Auto,
@@ -211,7 +232,7 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
         var userMessage = new ChatMessage(ChatRole.User, string.Format(processor.Prompt, inputText));
         chatMessages.Add(userMessage);
 
-        var tools = await mcpService.GetTools(cancellationToken);
+        var tools = await (await GetMcpServiceAsync()).GetTools(cancellationToken);
         await foreach (var update in client.GetStreamingResponseAsync(chatMessages, new ChatOptions()
                        {
                            ToolMode = ChatToolMode.Auto,
@@ -235,7 +256,7 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
         var userMessage = new ChatMessage(ChatRole.User, string.Format(processor.Prompt, inputText));
         chatMessages.Add(userMessage);
 
-        var tools = await mcpService.GetTools(cancellationToken);
+        var tools = await (await GetMcpServiceAsync()).GetTools(cancellationToken);
         var response = await client.GetResponseAsync(chatMessages, new ChatOptions()
         {
             ToolMode = ChatToolMode.Auto,
@@ -281,17 +302,13 @@ public class MessageProcessingService : IMessageProcessingService, IDisposable
 
     public void Dispose()
     {
-        if (_disposed)
+        if (Interlocked.Exchange(ref _disposed, 1) != 0)
             return;
 
         Logger.Debug("Disposing MessageProcessingService");
 
-        if (mcpService is IDisposable disposable)
-        {
-            disposable.Dispose();
-        }
+        // McpService is a DI-managed singleton; let the container handle its disposal.
 
-        _disposed = true;
         Logger.Information("MessageProcessingService disposed successfully");
     }
 }
