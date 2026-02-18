@@ -105,7 +105,9 @@ public partial class App : Application
     public INavigationServiceEx NavigationService => GetService<INavigationServiceEx>();
     public IThemeService ThemeService => GetService<IThemeService>();
 
-    private bool isClosing;
+    private int _isClosing;
+    private Task _pluginLoadTask = Task.CompletedTask;
+    private readonly CancellationTokenSource _pluginLoadCts = new();
 
     public static T GetService<T>() where T : class
     {
@@ -225,6 +227,31 @@ public partial class App : Application
                 HandleNotification((AppNotificationActivatedEventArgs)activatedArgs.Data);
             }
 
+            // Load and initialize plugins in the background after window setup.
+            // Store the Task so shutdown can cancel and await it before disposing.
+            var pluginService = GetService<IPluginService>();
+            _pluginLoadTask = Task.Run(async () =>
+            {
+                try
+                {
+                    // Phase 1: Discover and load plugin assemblies
+                    await pluginService.LoadPluginsAsync(_pluginLoadCts.Token);
+                    Logger.Information("Plugin loading completed");
+
+                    // Phase 2: Initialize plugins that need it
+                    await pluginService.InitializePluginsAsync(_pluginLoadCts.Token);
+                    Logger.Information("Plugin initialization completed");
+                }
+                catch (OperationCanceledException)
+                {
+                    Logger.Information("Plugin loading cancelled during shutdown");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, "Failed to load/initialize plugins during startup");
+                }
+            }, _pluginLoadCts.Token);
+
             RunMCPServer();
         }
         catch (Exception ex)
@@ -276,7 +303,7 @@ public partial class App : Application
 
             mirrorWindow.Closed += (sender, args) =>
             {
-                if (Current.isClosing) return;
+                if (Volatile.Read(ref Current._isClosing) != 0) return;
                 Logger.Information("Hiding mirror window instead of closing");
                 mirrorWindow.Hide();
                 args.Handled = true;
@@ -400,7 +427,7 @@ public partial class App : Application
 
     private void MainWindow_VisibilityChanged(object sender, WindowVisibilityChangedEventArgs args)
     {
-        if (isClosing)
+        if (Volatile.Read(ref _isClosing) != 0)
         {
             return;
         }
@@ -431,8 +458,29 @@ public partial class App : Application
             GetService<IStoreService>().SaveNow().Wait();
             Logger.Information("Application state saved successfully");
 
+            // Run cancellation and async disposal on a thread-pool thread so that
+            // any awaited continuations inside DisposeAsync never try to marshal
+            // back to the UI SynchronizationContext and deadlock.
+            Logger.Debug("Cancelling and awaiting plugin loading");
+            try
+            {
+                Task.Run(async () =>
+                {
+                    _pluginLoadCts.Cancel();
+                    try { await _pluginLoadTask; } catch { /* cancellation expected */ }
+                    _pluginLoadCts.Dispose();
+
+                    Logger.Debug("Disposing plugin service");
+                    await GetService<IPluginService>().DisposeAsync();
+                }).Wait();
+            }
+            catch (Exception pluginEx)
+            {
+                Logger.Error(pluginEx, "Error disposing plugin service");
+            }
+
             Logger.Debug("Setting application closing flag");
-            Interlocked.Exchange(ref isClosing, true);
+            Interlocked.Exchange(ref _isClosing, 1);
 
             Logger.Debug("Closing mirror window if initialized");
             if (_lazyMirrorWindow.IsValueCreated)
