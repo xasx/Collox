@@ -37,7 +37,7 @@ public class PluginService : IPluginService
     // between LoadPluginsAsync (background Task.Run) and DisposeAsync (UI-thread shutdown).
     private readonly SemaphoreSlim _pluginsLock = new(1, 1);
     private readonly string _pluginsDirectory;
-    private bool _disposed;
+    private int _disposed; // 0 = not disposed, 1 = disposed; use Interlocked for thread safety
 
     public PluginService(IServiceProvider services, ILogger<PluginService> logger)
     {
@@ -255,8 +255,9 @@ public class PluginService : IPluginService
 
     public async ValueTask DisposeAsync()
     {
-        if (_disposed) return;
-        _disposed = true;
+        // Interlocked.Exchange ensures only one caller proceeds even if DisposeAsync
+        // is invoked concurrently, avoiding ObjectDisposedException on _pluginsLock.
+        if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
 
         await _pluginsLock.WaitAsync();
         try
