@@ -238,10 +238,17 @@ public class PluginService : IPluginService
             // Remove first so the entry is gone even if ShutdownAsync throws
             _loadedPlugins.Remove(pluginName);
 
-            if (pluginInfo.Plugin.InitPlugin != null)
+            try
             {
-                // Run on a thread-pool thread to avoid deadlocking the caller's sync context
-                await Task.Run(() => pluginInfo.Plugin.InitPlugin.ShutdownAsync(cancellationToken), cancellationToken);
+                if (pluginInfo.Plugin.InitPlugin != null)
+                {
+                    // Run on a thread-pool thread to avoid deadlocking the caller's sync context
+                    await Task.Run(() => pluginInfo.Plugin.InitPlugin.ShutdownAsync(cancellationToken), cancellationToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error shutting down plugin: {PluginName}", pluginName);
             }
 
             pluginInfo.Context.Unload();
