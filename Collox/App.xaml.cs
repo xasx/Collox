@@ -458,15 +458,21 @@ public partial class App : Application
             GetService<IStoreService>().SaveNow().Wait();
             Logger.Information("Application state saved successfully");
 
+            // Run cancellation and async disposal on a thread-pool thread so that
+            // any awaited continuations inside DisposeAsync never try to marshal
+            // back to the UI SynchronizationContext and deadlock.
             Logger.Debug("Cancelling and awaiting plugin loading");
-            _pluginLoadCts.Cancel();
-            try { _pluginLoadTask.Wait(); } catch { /* OperationCanceledException / AggregateException expected */ }
-            _pluginLoadCts.Dispose();
-
-            Logger.Debug("Disposing plugin service");
             try
             {
-                GetService<IPluginService>().DisposeAsync().AsTask().Wait();
+                Task.Run(async () =>
+                {
+                    _pluginLoadCts.Cancel();
+                    try { await _pluginLoadTask; } catch { /* cancellation expected */ }
+                    _pluginLoadCts.Dispose();
+
+                    Logger.Debug("Disposing plugin service");
+                    await GetService<IPluginService>().DisposeAsync();
+                }).Wait();
             }
             catch (Exception pluginEx)
             {
