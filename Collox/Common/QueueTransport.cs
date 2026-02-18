@@ -35,11 +35,12 @@ internal class QueueTransport : ITransport
 
     private readonly ChannelWriter<JsonRpcMessage> messageWriter;
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
-
-        messageWriter.Complete();
-        await MessageReader.Completion.ConfigureAwait(false);
+        // Complete both channels so neither side blocks waiting for the other.
+        serverQueue.Writer.TryComplete();
+        clientQueue.Writer.TryComplete();
+        return ValueTask.CompletedTask;
     }
 
     public async Task SendMessageAsync(JsonRpcMessage message, CancellationToken cancellationToken = default)
