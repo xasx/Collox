@@ -27,6 +27,7 @@ internal class TransportSession
 
     public TransportSession()
     {
+        SessionId = Guid.NewGuid().ToString();
         _serverToClientChannel = Channel.CreateUnbounded<JsonRpcMessage>(new UnboundedChannelOptions
         {
             SingleReader = true,
@@ -38,6 +39,11 @@ internal class TransportSession
             SingleWriter = true
         });
     }
+
+    /// <summary>
+    /// Gets the unique identifier for this transport session.
+    /// </summary>
+    public string SessionId { get; }
 
     public ChannelReader<JsonRpcMessage> GetReader(Origin origin) =>
         origin == Origin.Client ? _serverToClientChannel.Reader : _clientToServerChannel.Reader;
@@ -89,12 +95,11 @@ internal class QueueTransport : ITransport
     {
         _session = session ?? DefaultTransportSession.Instance;
         _origin = origin;
-        SessionId = Guid.NewGuid().ToString();
         MessageReader = _session.GetReader(origin);
         _messageWriter = _session.GetWriter(origin);
     }
 
-    public string SessionId { get; }
+    public string SessionId => _session.SessionId;
 
     public ChannelReader<JsonRpcMessage> MessageReader { get; }
 
