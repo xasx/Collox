@@ -45,6 +45,11 @@ internal class TransportSession
     /// </summary>
     public string SessionId { get; }
 
+    /// <summary>
+    /// Gets whether both client and server have disposed this session.
+    /// </summary>
+    public bool IsFullyDisposed => Volatile.Read(ref _disposeCount) >= 2;
+
     public ChannelReader<JsonRpcMessage> GetReader(Origin origin) =>
         origin == Origin.Client ? _serverToClientChannel.Reader : _clientToServerChannel.Reader;
 
@@ -70,15 +75,33 @@ internal class TransportSession
 /// <summary>
 /// Singleton manager for the default in-memory MCP transport session.
 /// Provides a shared session instance that both client and server can access.
+/// Automatically creates a new session if the previous one has been fully disposed.
 /// </summary>
 internal static class DefaultTransportSession
 {
-    private static readonly Lazy<TransportSession> _defaultSession = new(() => new TransportSession());
+    private static TransportSession _currentSession = new();
+    private static readonly object _lock = new();
 
     /// <summary>
     /// Gets the default shared transport session for in-memory MCP communication.
+    /// If the current session has been disposed by both client and server, creates a new session.
     /// </summary>
-    public static TransportSession Instance => _defaultSession.Value;
+    public static TransportSession Instance
+    {
+        get
+        {
+            lock (_lock)
+            {
+                // Check if the current session has been fully disposed (dispose count reached 2)
+                // If so, create a new session for subsequent connections
+                if (_currentSession.IsFullyDisposed)
+                {
+                    _currentSession = new TransportSession();
+                }
+                return _currentSession;
+            }
+        }
+    }
 }
 
 internal class QueueTransport : ITransport
@@ -91,6 +114,11 @@ internal class QueueTransport : ITransport
     {
     }
 
+    /// <summary>
+    /// Creates a new QueueTransport for the specified session and origin.
+    /// </summary>
+    /// <param name="session">The transport session to use, or null to use the default session.</param>
+    /// <param name="origin">Whether this transport is for the client or server side.</param>
     public QueueTransport(TransportSession session, Origin origin)
     {
         _session = session ?? DefaultTransportSession.Instance;
@@ -123,6 +151,10 @@ internal class ClientQueueTransport : IClientTransport
     {
     }
 
+    /// <summary>
+    /// Creates a new ClientQueueTransport for the specified session.
+    /// </summary>
+    /// <param name="session">The transport session to use, or null to use the default session.</param>
     public ClientQueueTransport(TransportSession session)
     {
         _session = session ?? DefaultTransportSession.Instance;
