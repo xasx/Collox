@@ -117,11 +117,12 @@ internal class QueueTransport : ITransport
     /// <summary>
     /// Creates a new QueueTransport for the specified session and origin.
     /// </summary>
-    /// <param name="session">The transport session to use, or null to use the default session.</param>
+    /// <param name="session">The transport session to use.</param>
     /// <param name="origin">Whether this transport is for the client or server side.</param>
     public QueueTransport(TransportSession session, Origin origin)
     {
-        _session = session ?? DefaultTransportSession.Instance;
+        ArgumentNullException.ThrowIfNull(session);
+        _session = session;
         _origin = origin;
         MessageReader = _session.GetReader(origin);
         _messageWriter = _session.GetWriter(origin);
@@ -154,10 +155,11 @@ internal class ClientQueueTransport : IClientTransport
     /// <summary>
     /// Creates a new ClientQueueTransport for the specified session.
     /// </summary>
-    /// <param name="session">The transport session to use, or null to use the default session.</param>
+    /// <param name="session">The transport session to use.</param>
     public ClientQueueTransport(TransportSession session)
     {
-        _session = session ?? DefaultTransportSession.Instance;
+        ArgumentNullException.ThrowIfNull(session);
+        _session = session;
     }
 
     public string Name => "In-Memory Queue Transport";
