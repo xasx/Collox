@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,46 +16,117 @@ internal enum Origin
     Client
 }
 
+/// <summary>
+/// Manages a bidirectional communication session between MCP client and server using in-memory channels.
+/// Each session has its own pair of channels that are shared between the client and server transport instances.
+/// </summary>
+internal class TransportSession
+{
+    private readonly Channel<JsonRpcMessage> _serverToClientChannel;
+    private readonly Channel<JsonRpcMessage> _clientToServerChannel;
+    private int _disposeCount;
+
+    public TransportSession()
+    {
+        _serverToClientChannel = Channel.CreateUnbounded<JsonRpcMessage>(new UnboundedChannelOptions
+        {
+            SingleReader = true,
+            SingleWriter = true
+        });
+        _clientToServerChannel = Channel.CreateUnbounded<JsonRpcMessage>(new UnboundedChannelOptions
+        {
+            SingleReader = true,
+            SingleWriter = true
+        });
+    }
+
+    public ChannelReader<JsonRpcMessage> GetReader(Origin origin) =>
+        origin == Origin.Client ? _serverToClientChannel.Reader : _clientToServerChannel.Reader;
+
+    public ChannelWriter<JsonRpcMessage> GetWriter(Origin origin) =>
+        origin == Origin.Client ? _clientToServerChannel.Writer : _serverToClientChannel.Writer;
+
+    /// <summary>
+    /// Disposes the session. When both client and server have disposed, completes both channels.
+    /// This ensures neither side blocks waiting for the other during shutdown.
+    /// </summary>
+    public void Dispose()
+    {
+        // Both client and server call this when they dispose. We complete the channels
+        // only after both have disposed to ensure clean shutdown coordination.
+        if (Interlocked.Increment(ref _disposeCount) == 2)
+        {
+            _serverToClientChannel.Writer.TryComplete();
+            _clientToServerChannel.Writer.TryComplete();
+        }
+    }
+}
+
+/// <summary>
+/// Singleton manager for the default in-memory MCP transport session.
+/// Provides a shared session instance that both client and server can access.
+/// </summary>
+internal static class DefaultTransportSession
+{
+    private static readonly Lazy<TransportSession> _defaultSession = new(() => new TransportSession());
+
+    /// <summary>
+    /// Gets the default shared transport session for in-memory MCP communication.
+    /// </summary>
+    public static TransportSession Instance => _defaultSession.Value;
+}
+
 internal class QueueTransport : ITransport
 {
-    private static readonly Channel<JsonRpcMessage> serverQueue = Channel.CreateUnbounded<JsonRpcMessage>();
-    private static readonly Channel<JsonRpcMessage> clientQueue = Channel.CreateUnbounded<JsonRpcMessage>();
+    private readonly TransportSession _session;
+    private readonly Origin _origin;
+    private readonly ChannelWriter<JsonRpcMessage> _messageWriter;
 
-    private readonly Origin origin;
-
-    public QueueTransport(Origin origin)
+    public QueueTransport(Origin origin) : this(DefaultTransportSession.Instance, origin)
     {
-        this.origin = origin;
-        MessageReader = origin == Origin.Client ? serverQueue.Reader : clientQueue.Reader;
-        messageWriter = origin == Origin.Client ? clientQueue.Writer : serverQueue.Writer;
+    }
+
+    public QueueTransport(TransportSession session, Origin origin)
+    {
+        _session = session ?? throw new ArgumentNullException(nameof(session));
+        _origin = origin;
+        MessageReader = session.GetReader(origin);
+        _messageWriter = session.GetWriter(origin);
     }
 
     public string SessionId { get; }
 
-    public ChannelReader<JsonRpcMessage> MessageReader { get; init; }
-
-    private readonly ChannelWriter<JsonRpcMessage> messageWriter;
+    public ChannelReader<JsonRpcMessage> MessageReader { get; }
 
     public ValueTask DisposeAsync()
     {
-        // Complete both channels so neither side blocks waiting for the other.
-        serverQueue.Writer.TryComplete();
-        clientQueue.Writer.TryComplete();
+        _session.Dispose();
         return ValueTask.CompletedTask;
     }
 
     public async Task SendMessageAsync(JsonRpcMessage message, CancellationToken cancellationToken = default)
     {
-        await messageWriter.WriteAsync(message, cancellationToken);
+        await _messageWriter.WriteAsync(message, cancellationToken);
     }
 }
 
 internal class ClientQueueTransport : IClientTransport
 {
+    private readonly TransportSession _session;
+
+    public ClientQueueTransport() : this(null)
+    {
+    }
+
+    public ClientQueueTransport(TransportSession session)
+    {
+        _session = session ?? DefaultTransportSession.Instance;
+    }
+
     public string Name => "In-Memory Queue Transport";
 
     public Task<ITransport> ConnectAsync(CancellationToken cancellationToken = default)
     {
-        return Task.FromResult<ITransport>(new QueueTransport(Origin.Client));
+        return Task.FromResult<ITransport>(new QueueTransport(_session, Origin.Client));
     }
 }
