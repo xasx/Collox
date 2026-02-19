@@ -87,11 +87,11 @@ internal class QueueTransport : ITransport
 
     public QueueTransport(TransportSession session, Origin origin)
     {
-        _session = session ?? throw new ArgumentNullException(nameof(session));
+        _session = session ?? DefaultTransportSession.Instance;
         _origin = origin;
         SessionId = Guid.NewGuid().ToString();
-        MessageReader = session.GetReader(origin);
-        _messageWriter = session.GetWriter(origin);
+        MessageReader = _session.GetReader(origin);
+        _messageWriter = _session.GetWriter(origin);
     }
 
     public string SessionId { get; }
