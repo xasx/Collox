@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -90,6 +89,7 @@ internal class QueueTransport : ITransport
     {
         _session = session ?? throw new ArgumentNullException(nameof(session));
         _origin = origin;
+        SessionId = Guid.NewGuid().ToString();
         MessageReader = session.GetReader(origin);
         _messageWriter = session.GetWriter(origin);
     }
@@ -114,7 +114,7 @@ internal class ClientQueueTransport : IClientTransport
 {
     private readonly TransportSession _session;
 
-    public ClientQueueTransport() : this(null)
+    public ClientQueueTransport() : this(DefaultTransportSession.Instance)
     {
     }
 
