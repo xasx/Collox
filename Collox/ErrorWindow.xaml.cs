@@ -13,6 +13,7 @@ public sealed partial class ErrorWindow : Window
     public ErrorWindow()
     {
         InitializeComponent();
+        ExtendsContentIntoTitleBar = true;
     }
 
     public Exception ReportedException { get; set; }
