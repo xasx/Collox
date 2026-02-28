@@ -36,7 +36,11 @@ public class TabContextService : ITabContextService
 
     public void RemoveTab(string tabContext)
     {
-        _tabs.Remove(_tabs.FirstOrDefault(x => x.Name == tabContext));
+        var tabToRemove = _tabs.FirstOrDefault(x => x.Name == tabContext);
+        if (tabToRemove != null)
+        {
+            _tabs.Remove(tabToRemove);
+        }
         SaveTabs();
     }
 

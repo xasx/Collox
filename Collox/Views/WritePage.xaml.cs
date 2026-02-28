@@ -31,7 +31,7 @@ public sealed partial class WritePage : Page, IRecipient<TextSubmittedMessage>, 
                 {
                     "now" => Value.FromString(DateTime.Now.ToString("F")),
                     "random_emoji_nature" => Value.FromString(
-                        Emoji.All.Where(e => e.Category == "nature").OrderBy(e => Random.Shared.Next()).First().Raw),
+                        Emoji.All.Where(e => e.Category == "nature").OrderBy(e => Random.Shared.Next()).FirstOrDefault()?.Raw ?? "😀"),
                     _ => Value.Undefined
                 };
             })));
