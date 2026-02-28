@@ -63,15 +63,15 @@ public class TabContextService : ITabContextService
         {
             var jsonString = File.ReadAllText(_tabsFilePath);
             var loadedTabs = JsonConvert.DeserializeObject<List<TabContext>>(jsonString);
-            
+
             if (loadedTabs != null)
             {
                 _tabs.AddRange(loadedTabs);
             }
         }
-        catch (JsonException)
+        catch (Exception)
         {
-            // Handle JSON parsing errors gracefully
+            // Handle JSON parsing and file I/O errors gracefully
         }
     }
 
