@@ -58,7 +58,11 @@ public class TemplateService : ITemplateService
 
     public async Task EditTemplate(string originalName, string newName, string newContent)
     {
-        var templateEntry = cache[originalName];
+        if (!cache.TryGetValue(originalName, out var templateEntry))
+        {
+            throw new KeyNotFoundException($"Template '{originalName}' not found in cache.");
+        }
+
         var fn = templateEntry.FileName;
 
         if (originalName == newName)
@@ -71,6 +75,12 @@ public class TemplateService : ITemplateService
         else
         {
             var newFn = DetermineFilename(newName);
+
+            if (File.Exists(newFn))
+            {
+                throw new IOException($"A template with name '{newName}' already exists.");
+            }
+
             File.Move(fn, newFn);
 
             await File.WriteAllTextAsync(newFn, newContent).ConfigureAwait(false);

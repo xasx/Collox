@@ -98,7 +98,9 @@ public partial class WriteViewModel : ObservableObject, ITitleBarAutoSuggestBoxA
     {
         IsBeeping = value.IsBeeping;
         IsSpeaking = value.IsSpeaking;
-        SelectedVoice = audioService.GetInstalledVoices().FirstOrDefault(vi => vi.Name == value.SelectedVoice);
+        var installedVoices = audioService.GetInstalledVoices();
+        SelectedVoice = installedVoices.FirstOrDefault(vi => vi.Name == value.SelectedVoice)
+            ?? installedVoices.FirstOrDefault();
 
         Logger.Debug("ConversationContext changed to {ContextName}", value.Context ?? "unknown");
     }

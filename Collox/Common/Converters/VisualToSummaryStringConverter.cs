@@ -18,7 +18,7 @@ public partial class VisualToSummaryStringConverter : IValueConverter
             var textElements = toastBinding.GetTextElements();
 
             // Treat the first text element as the title text
-            var titleText = textElements.Count > 0 ? textElements[0].Text : null;
+            var titleText = textElements.FirstOrDefault()?.Text;
 
             // We'll treat all subsequent text elements as body text,
             // joining them together via newlines.
