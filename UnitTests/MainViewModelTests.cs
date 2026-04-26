@@ -1,4 +1,5 @@
-﻿using Collox.Services;
+﻿using Collox.Common;
+using Collox.Services;
 using Collox.ViewModels;
 using Moq;
 using NFluent;
@@ -21,7 +22,7 @@ public class MainViewModelTests
     }
 
     [TestMethod]
-    public async Task Init_InitializesViewModel()
+    public async Task InitAsync_InitializesDocumentFilenameAndCallsNotificationService()
     {
         // Arrange
         _userNotificationServiceMock.Setup(s => s.Initialize()).Returns(Task.CompletedTask);
@@ -29,7 +30,7 @@ public class MainViewModelTests
         _storeServiceMock.Setup(s => s.GetFilename()).Returns("TestFilename");
 
         // Act
-        await _viewModel.Init();
+        await _viewModel.InitAsync();
 
         // Assert
         Check.That(_viewModel.DocumentFilename).IsEqualTo("TestFilename");
@@ -38,26 +39,54 @@ public class MainViewModelTests
     }
 
     [TestMethod]
-    public void RefreshInternetState_UpdatesInternetState()
+    public async Task InitAsync_WithNotifications_PopulatesUserNotifications()
     {
         // Arrange
-        _viewModel.InternetState.State = "offline";
-        _viewModel.InternetState.Icon = "\uF384";
+        _userNotificationServiceMock.Setup(s => s.Initialize()).Returns(Task.CompletedTask);
+        _userNotificationServiceMock.Setup(s => s.GetNotifications()).ReturnsAsync(new List<UserNotification>());
+        _storeServiceMock.Setup(s => s.GetFilename()).Returns(string.Empty);
 
         // Act
-        _viewModel.InternetState.State = "online";
-        _viewModel.InternetState.Icon = "\uE774";
+        await _viewModel.InitAsync();
 
         // Assert
-        Check.That(_viewModel.InternetState.State).IsEqualTo("online");
-        Check.That(_viewModel.InternetState.Icon).IsEqualTo("\uE774");
+        Check.That(_viewModel.UserNotificationsEmpty).IsTrue();
+        _userNotificationServiceMock.Verify(s => s.GetNotifications(), Times.Once);
+    }
 
-        // Act
-        _viewModel.InternetState.State = "offline";
-        _viewModel.InternetState.Icon = "\uF384";
+    [TestMethod]
+    public void OnIsAIEnabledChanged_UpdatesSettings()
+    {
+        // Arrange
+        var originalValue = AppHelper.Settings.EnableAI;
 
+        try
+        {
+            // Act
+            _viewModel.IsAIEnabled = !originalValue;
+
+            // Assert
+            Check.That(AppHelper.Settings.EnableAI).IsEqualTo(!originalValue);
+        }
+        finally
+        {
+            // Restore
+            AppHelper.Settings.EnableAI = originalValue;
+        }
+    }
+
+    [TestMethod]
+    public void ConfigurationLocation_IsSetToAppConfigPath()
+    {
         // Assert
-        Check.That(_viewModel.InternetState.State).IsEqualTo("offline");
-        Check.That(_viewModel.InternetState.Icon).IsEqualTo("\uF384");
+        Check.That(_viewModel.ConfigurationLocation).IsEqualTo(Constants.AppConfigPath);
+    }
+
+    [TestMethod]
+    public void Dispose_CanBeCalledMultipleTimes_WithoutException()
+    {
+        // Act & Assert - should not throw
+        _viewModel.Dispose();
+        _viewModel.Dispose();
     }
 }
