@@ -87,4 +87,52 @@ public class TabWriteViewModelTests
         // Assert
         _tabContextServiceMock.Verify(s => s.NotifyTabUpdate(It.Is<TabContext>(tc => tc.Name == "UpdatedTab" && tc.IsCloseable)), Times.Once);
     }
+
+    [TestMethod]
+    public void CloseSelectedTab_WhenOnlyOneTab_DoesNotRemoveTab()
+    {
+        // Arrange — only the initial Default tab is present
+        Check.That(_viewModel.Tabs).HasSize(1);
+
+        // Act
+        _viewModel.CloseSelectedTab();
+
+        // Assert
+        Check.That(_viewModel.Tabs).HasSize(1);
+        _tabContextServiceMock.Verify(s => s.RemoveTab(It.IsAny<TabContext>()), Times.Never);
+    }
+
+    [TestMethod]
+    public void RemoveTab_RemovesTabAndCallsService()
+    {
+        // Arrange
+        _viewModel.AddNewTab();
+        var tabToRemove = _viewModel.Tabs[1];
+        Check.That(_viewModel.Tabs).HasSize(2);
+
+        // Act
+        _viewModel.RemoveTab(tabToRemove);
+
+        // Assert
+        Check.That(_viewModel.Tabs).HasSize(1);
+        _tabContextServiceMock.Verify(s => s.RemoveTab(It.IsAny<TabContext>()), Times.Once);
+    }
+
+    [TestMethod]
+    public void AddNewTab_SetsSelectedTabToNewTab()
+    {
+        // Act
+        _viewModel.AddNewTab();
+
+        // Assert
+        Check.That(_viewModel.SelectedTab).IsEqualTo(_viewModel.Tabs[1]);
+    }
+
+    [TestMethod]
+    public void Dispose_CanBeCalledMultipleTimes_WithoutException()
+    {
+        // Act & Assert - should not throw
+        _viewModel.Dispose();
+        _viewModel.Dispose();
+    }
 }

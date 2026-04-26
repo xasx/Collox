@@ -161,28 +161,93 @@ public class WriteViewModelTests
     }
 
     [TestMethod]
-    public void OnIsBeepingChanged_UpdatesSettings()
+    public void OnIsBeepingChanged_UpdatesConversationContext()
     {
         // Arrange
-        var originalValue = Settings.AutoBeep;
+        _viewModel.ConversationContext.IsBeeping = false;
 
         // Act
-        _viewModel.IsBeeping = !originalValue;
+        _viewModel.IsBeeping = true;
 
         // Assert
-        Check.That(Settings.AutoBeep).IsEqualTo(!originalValue);
+        Check.That(_viewModel.ConversationContext.IsBeeping).IsTrue();
     }
 
     [TestMethod]
-    public void OnIsSpeakingChanged_UpdatesSettings()
+    public void OnIsSpeakingChanged_UpdatesConversationContext()
     {
         // Arrange
-        var originalValue = Settings.AutoRead;
+        _viewModel.ConversationContext.IsSpeaking = false;
 
         // Act
-        _viewModel.IsSpeaking = !originalValue;
+        _viewModel.IsSpeaking = true;
 
         // Assert
-        Check.That(Settings.AutoRead).IsEqualTo(!originalValue);
+        Check.That(_viewModel.ConversationContext.IsSpeaking).IsTrue();
+    }
+
+    [TestMethod]
+    public void UpdateHitPercentage_WithZeroKeyStrokes_SetsZero()
+    {
+        // Arrange
+        _viewModel.KeyStrokesCount = 0;
+        _viewModel.CharacterCount = 10;
+
+        // Act
+        _viewModel.UpdateHitPercentage();
+
+        // Assert
+        Check.That(_viewModel.HitPercentage).IsEqualTo(0);
+    }
+
+    [TestMethod]
+    public void UpdateHitPercentage_WithKeyStrokes_CalculatesCorrectly()
+    {
+        // Arrange
+        _viewModel.KeyStrokesCount = 10;
+        _viewModel.CharacterCount = 8;
+
+        // Act
+        _viewModel.UpdateHitPercentage();
+
+        // Assert
+        Check.That(_viewModel.HitPercentage).IsEqualTo(80);
+    }
+
+    [TestMethod]
+    public void UpdateHitPercentage_PerfectAccuracy_Returns100()
+    {
+        // Arrange
+        _viewModel.KeyStrokesCount = 5;
+        _viewModel.CharacterCount = 5;
+
+        // Act
+        _viewModel.UpdateHitPercentage();
+
+        // Assert
+        Check.That(_viewModel.HitPercentage).IsEqualTo(100);
+    }
+
+    [TestMethod]
+    public void Receive_TaskDoneMessage_RemovesTaskFromCollection()
+    {
+        // Arrange
+        var task = new TaskViewModel { Name = "Test task", IsDone = false };
+        _viewModel.Tasks.Add(task);
+        Check.That(_viewModel.Tasks).HasSize(1);
+
+        // Act
+        _viewModel.Receive(new Collox.ViewModels.Messages.TaskDoneMessage(task));
+
+        // Assert
+        Check.That(_viewModel.Tasks).IsEmpty();
+    }
+
+    [TestMethod]
+    public void Dispose_CanBeCalledMultipleTimes_WithoutException()
+    {
+        // Act & Assert - should not throw
+        _viewModel.Dispose();
+        _viewModel.Dispose();
     }
 }

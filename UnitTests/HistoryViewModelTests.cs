@@ -75,4 +75,73 @@ public class HistoryViewModelTests
         // Assert
         Check.That(_viewModel.SelectedHistoryEntry).IsEqualTo(historyEntry);
     }
+
+    [TestMethod]
+    public async Task LoadHistory_WithEmptyData_LeavesHistoriesEmpty()
+    {
+        // Arrange
+        _storeServiceMock.Setup(s => s.Load(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, ICollection<MarkdownRecording>>());
+
+        // Act
+        await _viewModel.LoadHistory();
+
+        // Assert
+        Check.That(_viewModel.Histories).IsEmpty();
+    }
+
+    [TestMethod]
+    public async Task LoadHistory_WithMultipleMonths_GroupsAndReversesSections()
+    {
+        // Arrange
+        var mockData = new Dictionary<string, ICollection<MarkdownRecording>>
+        {
+            {
+                "January", new List<MarkdownRecording>
+                {
+                    new MarkdownRecording { Date = new DateOnly(2023, 1, 1), Preview = "Jan 1", Content = () => "" }
+                }
+            },
+            {
+                "February", new List<MarkdownRecording>
+                {
+                    new MarkdownRecording { Date = new DateOnly(2023, 2, 1), Preview = "Feb 1", Content = () => "" }
+                }
+            }
+        };
+
+        _storeServiceMock.Setup(s => s.Load(It.IsAny<CancellationToken>())).ReturnsAsync(mockData);
+
+        // Act
+        await _viewModel.LoadHistory();
+
+        // Assert — dictionary is reversed, so February comes first
+        Check.That(_viewModel.Histories).HasSize(2);
+        Check.That(_viewModel.Histories[0].Key).IsEqualTo("February");
+        Check.That(_viewModel.Histories[1].Key).IsEqualTo("January");
+    }
+
+    [TestMethod]
+    public async Task LoadHistory_CalledTwice_DoesNotDuplicateEntries()
+    {
+        // Arrange
+        var mockData = new Dictionary<string, ICollection<MarkdownRecording>>
+        {
+            {
+                "January", new List<MarkdownRecording>
+                {
+                    new MarkdownRecording { Date = new DateOnly(2023, 1, 1), Preview = "Preview", Content = () => "" }
+                }
+            }
+        };
+        _storeServiceMock.Setup(s => s.Load(It.IsAny<CancellationToken>())).ReturnsAsync(mockData);
+
+        // Act
+        await _viewModel.LoadHistory();
+        await _viewModel.LoadHistory();
+
+        // Assert
+        Check.That(_viewModel.Histories).HasSize(1);
+        Check.That(_viewModel.Histories[0]).HasSize(1);
+    }
 }
