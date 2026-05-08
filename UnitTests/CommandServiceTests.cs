@@ -168,15 +168,15 @@ public class CommandServiceTests
     }
 
     [TestMethod]
-    public async Task ProcessCommandAsync_Task_AddsTaskWithEmptyName_WhenNoNameProvided()
+    public async Task ProcessCommandAsync_Task_WithNoName_DoesNotAddTaskAndReturnsFailure()
     {
         // Act
         var result = await _commandService.ProcessCommandAsync("task", _commandContext);
 
         // Assert
-        Check.That(result.Success).IsTrue();
-        Check.That(_tasks).HasSize(1);
-        Check.That(_tasks[0].Name).IsEqualTo(string.Empty);
+        Check.That(result.Success).IsFalse();
+        Check.That(result.ErrorMessage).IsNotEmpty();
+        Check.That(_tasks).IsEmpty();
     }
 
     [TestMethod]

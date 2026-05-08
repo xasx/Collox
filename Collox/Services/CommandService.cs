@@ -106,6 +106,13 @@ public class CommandService : ICommandService
     {
         var taskName = string.Join(" ", taskNameTokens);
         Logger.Debug("Executing task command: {TaskName}", taskName);
+
+        if (string.IsNullOrWhiteSpace(taskName))
+        {
+            Logger.Warning("Task command called with empty name -- discarding");
+            return new CommandResult { Success = false, ErrorMessage = "Task name cannot be empty." };
+        }
+
         context.Tasks.Add(new TaskViewModel { Name = taskName, IsDone = false });
         return new CommandResult { Success = true };
     }
