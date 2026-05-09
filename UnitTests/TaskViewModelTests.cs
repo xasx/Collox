@@ -6,6 +6,7 @@ using NFluent;
 namespace Collox.Tests.ViewModels;
 
 [TestClass]
+[DoNotParallelize]
 public class TaskViewModelTests
 {
     [TestMethod]

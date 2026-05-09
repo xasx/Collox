@@ -8,6 +8,7 @@ using Windows.UI.Notifications;
 namespace Collox.Tests.ViewModels;
 
 [TestClass]
+[DoNotParallelize]
 public class MainViewModelTests
 {
     private readonly Mock<IUserNotificationService> _userNotificationServiceMock;
