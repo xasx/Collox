@@ -9,6 +9,7 @@ using NFluent;
 namespace Collox.Tests.ViewModels;
 
 [TestClass]
+[DoNotParallelize]
 public class TemplatesViewModelTests
 {
     private readonly Mock<ITemplateService> _templateServiceMock;
