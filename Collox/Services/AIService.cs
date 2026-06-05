@@ -64,19 +64,9 @@ public partial class AIService : IAIService, IDisposable
 
     private void InitializeProcessors(IEnumerable<IntelligentProcessor> processors)
     {
-        var apiProviders = Config.ApiProviders.ToDictionary(p => p.Id, p => p);
-        foreach (var processor in processors)
-        {
-            if (apiProviders.TryGetValue(processor.ApiProviderId, out var apiProvider))
-            {
-                processor.ClientManager = new ChatClientManager<IntelligenceApiProvider>(apiProvider);
-            }
-            else
-            {
-                Logger.Warning("API provider {ProviderId} not found for processor {ProcessorName}",
-                    processor.ApiProviderId, processor.Name);
-            }
-        }
+        var apiProviders = Config.ApiProviders?.ToDictionary(p => p.Id, p => p)
+            ?? new Dictionary<Guid, IntelligenceApiProvider>();
+        ProcessorInitializer.Initialize(processors, apiProviders);
     }
 
     // get all processors

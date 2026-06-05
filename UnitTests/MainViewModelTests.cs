@@ -38,7 +38,6 @@ public class MainViewModelTests
         _userNotificationServiceMock.Verify(s => s.Initialize(), Times.Once);
         _userNotificationServiceMock.Verify(s => s.GetNotifications(), Times.Once);
     }
-
     [TestMethod]
     public async Task InitAsync_WithNotifications_PopulatesUserNotifications()
     {
