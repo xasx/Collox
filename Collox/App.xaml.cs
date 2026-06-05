@@ -191,12 +191,6 @@ public partial class App : Application
 
         try
         {
-            // Create main window immediately but defer heavy setup
-            Logger.Debug("Creating main window instance");
-            MainWindow = new Window();
-            MainWindow.SystemBackdrop = new DevWinUI.MicaSystemBackdrop();
-
-
             // Setup notification manager on background thread
             _ = Task.Run(() =>
             {
@@ -378,10 +372,7 @@ public partial class App : Application
                 if (data.Arguments["action"] == "OpenApp")
                 {
                     Logger.Information("Opening main window from notification");
-                    if (MainWindow == null)
-                    {
-                        SetupMainWindow();
-                    }
+                    SetupMainWindow();
                 }
                 else if (data.Arguments["action"] == "ToastClick")
                 {
@@ -409,6 +400,7 @@ public partial class App : Application
             if (MainWindow == null)
             {
                 MainWindow = new Window();
+                MainWindow.SystemBackdrop = new DevWinUI.MicaSystemBackdrop();
             }
 
             if (MainWindow.Content is not Frame rootFrame)
@@ -524,10 +516,7 @@ public partial class App : Application
 
         try
         {
-            var errorWindow = new ErrorWindow
-            {
-                ReportedException = e.Exception
-            };
+            var errorWindow = new ErrorWindow(e.Exception);
             errorWindow.Show();
             e.Handled = true;
             Logger.Information("Error window displayed for unhandled exception");

@@ -10,13 +10,15 @@ namespace Collox;
 /// </summary>
 public sealed partial class ErrorWindow : Window
 {
-    public ErrorWindow()
+    public ErrorWindow(Exception exception)
     {
+        // ReportedException must be set before InitializeComponent so the
+        // {x:Bind ReportedException, Mode=OneTime} in ErrorWindow.xaml has
+        // a value to capture at first evaluation.
+        ReportedException = exception;
         InitializeComponent();
         ExtendsContentIntoTitleBar = true;
     }
 
     public Exception ReportedException { get; set; }
-
-    // public string ReportedExceptionType => ReportedException?.GetType().FullName;
 }
