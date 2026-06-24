@@ -11,4 +11,8 @@ public interface IUserNotificationService
     Task<IReadOnlyList<UserNotification>> GetNotifications();
 
     Task Initialize();
+
+    void DismissNotification(uint notificationId);
+
+    void DismissAllNotifications();
 }

@@ -7,7 +7,29 @@ public partial class VisualToSummaryStringConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        var v = value as NotificationVisual;
+        // The toast visual is nested under UserNotification.Notification.Visual.
+        // Accessing Notification.Visual can throw unpackaged (no package identity),
+        // so the whole getter path is guarded. When the visual is unavailable we
+        // surface an empty body rather than crashing the binding/render.
+        NotificationVisual v;
+        try
+        {
+            v = value switch
+            {
+                UserNotification un => un?.Notification?.Visual,
+                NotificationVisual visual => visual,
+                _ => null
+            };
+        }
+        catch
+        {
+            return string.Empty;
+        }
+
+        if (v is null)
+        {
+            return string.Empty;
+        }
 
         // Get the toast binding, if present
         var toastBinding = v.GetBinding(KnownNotificationBindings.ToastGeneric);

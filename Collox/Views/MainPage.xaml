@@ -33,6 +33,8 @@
 
 
         <conv:VisualToSummaryStringConverter x:Key="VisualToSummaryStringConverter" />
+        <conv:NotificationAppNameConverter x:Key="NotificationAppNameConverter" />
+        <conv:NotificationTimeConverter x:Key="NotificationTimeConverter" />
 
         <Flyout x:Name="InfoFlyout">
             <StackPanel Width="400">
@@ -76,31 +78,46 @@
         </Flyout>
 
         <Flyout x:Name="NotificationsFlyout">
-            <ItemsView Width="336"
-                       MinHeight="80"
-                       ItemsSource="{x:Bind ViewModel.UserNotifications, Mode=OneWay}">
-                <ItemsView.ItemTemplate>
-                    <DataTemplate x:DataType="notifications:UserNotification">
-                        <ItemContainer Width="320"
-                                       Margin="0,4">
+            <StackPanel>
+                <Grid Margin="8,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Style="{ThemeResource BaseTextBlockStyle}"
+                               Text="Notifications" />
+                    <Button Grid.Column="1"
+                            Command="{x:Bind ViewModel.ClearNotificationsCommand}"
+                            Content="Clear all"
+                            Style="{ThemeResource TextBlockButtonStyle}" />
+                </Grid>
+                <ItemsView Width="336"
+                           MinHeight="80"
+                           ItemsSource="{x:Bind ViewModel.UserNotifications, Mode=OneWay}">
+                    <ItemsView.ItemTemplate>
+                        <DataTemplate x:DataType="notifications:UserNotification">
+                            <ItemContainer Width="320"
+                                           Margin="0,4">
 
-                            <StackPanel Margin="4">
-                                <dev:Card Title="{x:Bind AppInfo.DisplayInfo.DisplayName}"
-                                          HorizontalContentAlignment="Left">
-                                    <dev:Card.TitleContent>
-                                        <TextBlock Margin="4"
-                                                   Text="{x:Bind CreationTime}" />
-                                    </dev:Card.TitleContent>
+                                <StackPanel Margin="4">
+                                    <dev:Card Title="{x:Bind Converter={StaticResource NotificationAppNameConverter}}"
+                                              HorizontalContentAlignment="Left">
+                                        <dev:Card.TitleContent>
+                                            <TextBlock Margin="4"
+                                                       Text="{x:Bind Converter={StaticResource NotificationTimeConverter}}" />
+                                        </dev:Card.TitleContent>
 
-                                    <TextBlock Text="{x:Bind Notification.Visual, Converter={StaticResource VisualToSummaryStringConverter}}"
-                                               TextWrapping="WrapWholeWords" />
-                                </dev:Card>
-                            </StackPanel>
+                                        <TextBlock Text="{x:Bind Converter={StaticResource VisualToSummaryStringConverter}}"
+                                                   TextWrapping="WrapWholeWords" />
+                                    </dev:Card>
+                                </StackPanel>
 
-                        </ItemContainer>
-                    </DataTemplate>
-                </ItemsView.ItemTemplate>
-            </ItemsView>
+                            </ItemContainer>
+                        </DataTemplate>
+                    </ItemsView.ItemTemplate>
+                </ItemsView>
+            </StackPanel>
         </Flyout>
 
         <Flyout x:Name="ShutdownFlyout"
